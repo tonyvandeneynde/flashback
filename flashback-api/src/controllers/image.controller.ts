@@ -11,6 +11,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { Image } from 'src/database/entities/image';
 import { ImageService } from '../services';
 import { StorageService } from 'src/services/storage.service';
+import * as ExifParser from 'exif-parser';
 
 @Controller('images')
 export class ImagesController {
@@ -124,6 +125,17 @@ export class ImagesController {
       image.originalPath = originalPath;
       image.mediumPath = mediumPath;
       image.thumbnailPath = thumbnailPath;
+
+      // Extract EXIF metadata
+      const buffer = file.buffer;
+      const parser = ExifParser.create(buffer);
+      const result = parser.parse();
+
+      if (result.tags) {
+        image.date = new Date(result.tags.CreateDate * 1000);
+        image.latitude = result.tags.GPSLatitude;
+        image.longitude = result.tags.GPSLongitude;
+      }
 
       await this.imageService.save(image);
 

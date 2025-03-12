@@ -8,6 +8,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Tag } from './tag';
+import { Optional } from '@nestjs/common';
 
 @Entity()
 export class Image {
@@ -25,6 +26,15 @@ export class Image {
 
   @Column()
   thumbnailPath: string;
+
+  @Column({ nullable: true })
+  date: Date;
+
+  @Column({ nullable: true })
+  latitude: string;
+
+  @Column({ nullable: true })
+  longitude: string;
 
   @CreateDateColumn()
   createdAt: Date;
