@@ -61,6 +61,45 @@ export class ImagesController {
     return this.imageService.getDeletedImages();
   }
 
+  @Post('add-tag')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        imageId: { type: 'number' },
+        tagName: { type: 'string' },
+      },
+    },
+  })
+  async addTagToImage(
+    @Body('imageId') imageId: number,
+    @Body('tagName') tagName: string,
+  ) {
+    return this.imageService.addTagToImage(imageId, tagName);
+  }
+
+  @Post('remove-tag')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        imageId: { type: 'number' },
+        tagName: { type: 'string' },
+      },
+    },
+  })
+  async removeTagFromImage(
+    @Body('imageId') imageId: number,
+    @Body('tagName') tagName: string,
+  ) {
+    return this.imageService.removeTagFromImage(imageId, tagName);
+  }
+
+  @Get('tags')
+  async getAllTags() {
+    return this.imageService.getAllTags();
+  }
+
   @Post()
   @UseInterceptors(FilesInterceptor('files'))
   @ApiConsumes('multipart/form-data')

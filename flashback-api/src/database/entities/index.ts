@@ -1,4 +1,7 @@
 import { Image } from './image';
-export const entities = [Image];
+import { Tag } from './tag';
+
+export const entities = [Image, Tag];
 
 export * from './image';
+export * from './tag';

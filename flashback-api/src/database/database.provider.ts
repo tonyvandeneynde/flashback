@@ -3,7 +3,7 @@ import { DataSource, Repository } from 'typeorm';
 
 import dataSource from './ormconfig';
 import { DATABASE_CONNECTION, REPOS } from './constants';
-import { Image } from './entities';
+import { Image, Tag } from './entities';
 
 export const databaseProviders: Provider<unknown>[] = [
   {
@@ -27,6 +27,12 @@ export const databaseProviders: Provider<unknown>[] = [
     provide: REPOS.Image,
     useFactory: (dataSource: DataSource): Repository<Image> =>
       dataSource.getRepository(Image),
+    inject: [DATABASE_CONNECTION],
+  },
+  {
+    provide: REPOS.Tag,
+    useFactory: (dataSource: DataSource): Repository<Tag> =>
+      dataSource.getRepository(Tag),
     inject: [DATABASE_CONNECTION],
   },
 ];

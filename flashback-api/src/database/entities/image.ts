@@ -4,7 +4,10 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   DeleteDateColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { Tag } from './tag';
 
 @Entity()
 export class Image {
@@ -28,4 +31,8 @@ export class Image {
 
   @DeleteDateColumn({ default: null })
   deletedAt: Date;
+
+  @ManyToMany(() => Tag, (tag) => tag.images)
+  @JoinTable()
+  tags: Tag[];
 }
