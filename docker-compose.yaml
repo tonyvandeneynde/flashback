@@ -10,6 +10,12 @@ services:
       - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  image-server:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./flashback-api/uploads:/usr/share/nginx/html/uploads
 
 volumes:
   postgres_data:

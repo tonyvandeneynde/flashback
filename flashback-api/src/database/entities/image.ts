@@ -16,7 +16,7 @@ export class Image {
   id: number;
 
   @Column()
-  filename: string;
+  name: string;
 
   @Column()
   originalPath: string;

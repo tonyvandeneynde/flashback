@@ -121,7 +121,7 @@ export class ImagesController {
         await this.storageService.storeFile(file);
 
       const image = new Image();
-      image.filename = file.originalname;
+      image.name = file.originalname;
       image.originalPath = originalPath;
       image.mediumPath = mediumPath;
       image.thumbnailPath = thumbnailPath;
@@ -140,7 +140,7 @@ export class ImagesController {
       await this.imageService.save(image);
 
       return {
-        filename: file.originalname,
+        name: file.originalname,
         originalPath,
         mediumPath,
         thumbnailPath,

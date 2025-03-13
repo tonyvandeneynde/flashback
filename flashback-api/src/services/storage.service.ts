@@ -34,15 +34,31 @@ export class StorageService {
       fs.mkdirSync(uploadDir);
     }
 
-    const originalPath = join(uploadDir, file.originalname);
-    const mediumPath = join(uploadDir, `medium-${file.originalname}`);
-    const thumbnailPath = join(uploadDir, `thumbnail-${file.originalname}`);
+    const dateSuffix = Date.now();
+
+    // New unique filename
+    const fileExtension = file.originalname.split('.').pop();
+    const fileName = `${file.originalname.replace(/\.[^/.]+$/, '')}-${dateSuffix}.${fileExtension}`;
+
+    const originalPath = `${uploadDir}/${fileName}`;
+    const mediumPath = `${uploadDir}/medium-${fileName}`;
+    const thumbnailPath = `${uploadDir}/thumbnail-${fileName}`;
 
     fs.writeFileSync(originalPath, file.buffer);
 
     await sharp(originalPath).resize(800).toFile(mediumPath);
     await sharp(originalPath).resize(200).toFile(thumbnailPath);
 
-    return { originalPath, mediumPath, thumbnailPath };
+    const localImageServerUrl =
+      process.env.LOCAL_URL || 'http://localhost:8080/';
+    const originalUrl = `${localImageServerUrl}/${originalPath}`;
+    const mediumUrl = `${localImageServerUrl}/${mediumPath}`;
+    const thumbnailUrl = `${localImageServerUrl}/${thumbnailPath}`;
+
+    return {
+      originalPath: originalUrl,
+      mediumPath: mediumUrl,
+      thumbnailPath: thumbnailUrl,
+    };
   }
 }

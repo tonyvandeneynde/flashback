@@ -1,7 +1,22 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-})
+  server: {
+    proxy: {
+      // Target is your backend API
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+
+        configure: (proxy, options) => {
+          proxy.on("error", (err, _req, _res) => {});
+          proxy.on("proxyReq", (proxyReq, req, _res) => {});
+          proxy.on("proxyRes", (proxyRes, req, _res) => {});
+        },
+      },
+    },
+  },
+});
