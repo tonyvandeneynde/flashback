@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Request,
   UploadedFiles,
   UseGuards,
@@ -27,8 +28,10 @@ export class ImagesController {
   @Get()
   async getAllImages(
     @Request() req: { user: { accountId: number; email: string } },
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
   ) {
-    return this.imageService.getAllImages(req.user.accountId);
+    return this.imageService.getAllImages(req.user.accountId, page, limit);
   }
 
   @Post('get-by-ids')
@@ -139,7 +142,12 @@ export class ImagesController {
       },
     },
   })
-  async uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
+  async uploadImages(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    const { accountId, email } = req.user;
+
     const uploadPromises = files.map(async (file) => {
       const { originalPath, mediumPath, thumbnailPath } =
         await this.storageService.storeFile(file);
@@ -161,7 +169,7 @@ export class ImagesController {
         image.longitude = result.tags.GPSLongitude;
       }
 
-      await this.imageService.save(image);
+      await this.imageService.save(image, accountId, email);
 
       return {
         name: file.originalname,

@@ -10,19 +10,9 @@ import theme from "./theme/theme";
 import { LoginButton, MainLayout, TimelinePage } from "./components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fetchWithAuth } from "./utils";
 
 function App() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        queryFn: async ({ queryKey }) => {
-          const [url] = queryKey;
-          return fetchWithAuth(url as string);
-        },
-      },
-    },
-  });
+  const queryClient = new QueryClient();
 
   return (
     <ThemeProvider theme={theme}>

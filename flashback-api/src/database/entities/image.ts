@@ -21,7 +21,7 @@ export class Image {
   accountId: number;
 
   @Column({ nullable: true })
-  addedByUserId: number;
+  addedByUser: string;
 
   @Column()
   originalPath: string;

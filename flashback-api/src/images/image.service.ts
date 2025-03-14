@@ -13,15 +13,27 @@ export class ImageService {
     private readonly tagRepository: Repository<Tag>,
   ) {}
 
-  async save(fileDetails: Image) {
+  async save(fileDetails: Image, accountId: number, email: string) {
+    fileDetails.accountId = accountId;
+    fileDetails.addedByUser = email;
+
     return this.imageRepository.save(fileDetails);
   }
 
-  async getAllImages(accountId: number) {
-    return this.imageRepository.find({
+  async getAllImages(accountId: number, page: number, limit: number) {
+    const [images, total] = await this.imageRepository.findAndCount({
       where: { deletedAt: IsNull(), accountId },
       relations: ['tags'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return {
+      data: images,
+      total,
+      page,
+      limit,
+    };
   }
 
   async getImagesByIds(ids: number[], accountId: number) {

@@ -1,2 +1,2 @@
 export * from "./authService";
-export * from "./useImages";
+export * from "./useAllImages";
