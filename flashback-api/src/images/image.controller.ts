@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Request,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -24,8 +25,10 @@ export class ImagesController {
   ) {}
 
   @Get()
-  async getAllImages() {
-    return this.imageService.getAllImages();
+  async getAllImages(
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.imageService.getAllImages(req.user.accountId);
   }
 
   @Post('get-by-ids')
@@ -40,8 +43,11 @@ export class ImagesController {
       },
     },
   })
-  async getImagesByIds(@Body('ids') ids: number[]) {
-    return this.imageService.getImagesByIds(ids);
+  async getImagesByIds(
+    @Body('ids') ids: number[],
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.imageService.getImagesByIds(ids, req.user.accountId);
   }
 
   @Post('delete')
@@ -56,13 +62,18 @@ export class ImagesController {
       },
     },
   })
-  async deleteImages(@Body('ids') ids: number[]) {
-    return this.imageService.deleteImages(ids);
+  async deleteImages(
+    @Body('ids') ids: number[],
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.imageService.deleteImages(ids, req.user.accountId);
   }
 
   @Get('deleted')
-  async getDeletedImages() {
-    return this.imageService.getDeletedImages();
+  async getDeletedImages(
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.imageService.getDeletedImages(req.user.accountId);
   }
 
   @Post('add-tag')
@@ -78,8 +89,13 @@ export class ImagesController {
   async addTagToImage(
     @Body('imageId') imageId: number,
     @Body('tagName') tagName: string,
+    @Request() req: { user: { accountId: number; email: string } },
   ) {
-    return this.imageService.addTagToImage(imageId, tagName);
+    return this.imageService.addTagToImage(
+      imageId,
+      tagName,
+      req.user.accountId,
+    );
   }
 
   @Post('remove-tag')
@@ -95,8 +111,13 @@ export class ImagesController {
   async removeTagFromImage(
     @Body('imageId') imageId: number,
     @Body('tagName') tagName: string,
+    @Request() req: { user: { accountId: number; email: string } },
   ) {
-    return this.imageService.removeTagFromImage(imageId, tagName);
+    return this.imageService.removeTagFromImage(
+      imageId,
+      tagName,
+      req.user.accountId,
+    );
   }
 
   @Get('tags')

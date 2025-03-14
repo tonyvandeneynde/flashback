@@ -17,35 +17,45 @@ export class ImageService {
     return this.imageRepository.save(fileDetails);
   }
 
-  async getAllImages() {
+  async getAllImages(accountId: number) {
     return this.imageRepository.find({
-      where: { deletedAt: IsNull() },
+      where: { deletedAt: IsNull(), accountId },
       relations: ['tags'],
     });
   }
 
-  async getImagesByIds(ids: number[]) {
+  async getImagesByIds(ids: number[], accountId: number) {
     return this.imageRepository.find({
-      where: { id: In(ids), deletedAt: IsNull() },
+      where: { id: In(ids), deletedAt: IsNull(), accountId },
       relations: ['tags'],
     });
   }
 
-  async deleteImages(ids: number[]) {
-    return this.imageRepository.softDelete(ids);
+  async deleteImages(ids: number[], accountId: number) {
+    const images = await this.imageRepository.find({
+      where: { id: In(ids), accountId },
+    });
+
+    const imageIds = images.map((image) => image.id);
+
+    return this.imageRepository.softDelete(imageIds);
   }
 
-  async getDeletedImages() {
+  async getDeletedImages(accountId: number) {
     return this.imageRepository.find({
-      where: { deletedAt: Not(IsNull()) },
+      where: { deletedAt: Not(IsNull()), accountId },
       withDeleted: true,
       relations: ['tags'],
     });
   }
 
-  async addTagToImage(imageId: number, tagName: string): Promise<Image | null> {
+  async addTagToImage(
+    imageId: number,
+    tagName: string,
+    accountId: number,
+  ): Promise<Image | null> {
     const image = await this.imageRepository.findOne({
-      where: { id: imageId },
+      where: { id: imageId, accountId },
       relations: ['tags'],
     });
     let tag = await this.tagRepository.findOne({ where: { name: tagName } });
@@ -65,9 +75,10 @@ export class ImageService {
   async removeTagFromImage(
     imageId: number,
     tagName: string,
+    accountId: number,
   ): Promise<Image | null> {
     const image = await this.imageRepository.findOne({
-      where: { id: imageId },
+      where: { id: imageId, accountId },
       relations: ['tags'],
     });
     if (!image) return null;

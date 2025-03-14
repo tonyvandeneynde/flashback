@@ -17,6 +17,12 @@ export class Image {
   @Column()
   name: string;
 
+  @Column({ nullable: true })
+  accountId: number;
+
+  @Column({ nullable: true })
+  addedByUserId: number;
+
   @Column()
   originalPath: string;
 
