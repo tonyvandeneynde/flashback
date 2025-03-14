@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { join } from 'path';
 import * as sharp from 'sharp';
 import * as fs from 'fs';
 

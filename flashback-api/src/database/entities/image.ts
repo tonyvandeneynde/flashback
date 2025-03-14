@@ -8,7 +8,6 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Tag } from './tag';
-import { Optional } from '@nestjs/common';
 
 @Entity()
 export class Image {

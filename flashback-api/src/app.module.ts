@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from './database/database.module';
-import { ImagesController } from './controllers/image.controller';
-import { ImageService } from './services';
-import { StorageService } from './services/storage.service';
+import { ImagesController } from './images/image.controller';
+import { AuthController, AuthModule } from './auth';
+import { ImageModule } from './images/image.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [ImagesController],
-  providers: [ImageService, StorageService],
+  imports: [DatabaseModule, AuthModule, ImageModule, StorageModule],
+  controllers: [ImagesController, AuthController],
+  providers: [],
 })
 export class AppModule {}

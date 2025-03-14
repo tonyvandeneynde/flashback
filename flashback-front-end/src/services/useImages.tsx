@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { API_PREFIX, IMAGES } from "../apiConstants";
 
 export interface Image {
   id: number;
@@ -10,16 +11,9 @@ export interface Image {
 }
 
 export const useImages = () => {
-  const [images, setImages] = useState<Image[]>([]);
+  const queryResult = useQuery<Image[]>({
+    queryKey: [`${API_PREFIX}/${IMAGES}`],
+  });
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      const response = await fetch("api/images");
-      const data = await response.json();
-      setImages(data);
-    };
-    fetchImages();
-  }, []);
-
-  return { images };
+  return queryResult;
 };

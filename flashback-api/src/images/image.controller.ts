@@ -4,15 +4,18 @@ import {
   Get,
   Post,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { Image } from 'src/database/entities/image';
-import { ImageService } from '../services';
-import { StorageService } from 'src/services/storage.service';
+import { StorageService } from 'src/storage/storage.service';
 import * as ExifParser from 'exif-parser';
+import { ImageService } from './image.service';
+import { JwtAuthGuard } from 'src/auth';
 
+@UseGuards(JwtAuthGuard)
 @Controller('images')
 export class ImagesController {
   constructor(

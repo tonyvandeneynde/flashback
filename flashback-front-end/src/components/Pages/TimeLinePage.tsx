@@ -1,6 +1,12 @@
-import { Image } from "../../services/useImages";
+import { useImages } from "../../services/useImages";
 
-export const TimelinePage = ({ images }: { images: Image[] }) => {
+export const TimelinePage = () => {
+  const { data: images, isLoading } = useImages();
+
+  if (!images || isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <h1>Timeline</h1>

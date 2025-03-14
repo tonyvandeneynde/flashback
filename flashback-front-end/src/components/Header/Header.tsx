@@ -39,6 +39,9 @@ export const Header = () => {
         <Button component={Link} to="/site" color={getButtonColor("/site")}>
           Site
         </Button>
+        <Button component={Link} to="/login" color={getButtonColor("/login")}>
+          Log In
+        </Button>
       </Toolbar>
     </AppBar>
   );
