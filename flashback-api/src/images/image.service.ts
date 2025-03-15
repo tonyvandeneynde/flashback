@@ -3,18 +3,23 @@ import { In, IsNull, Not, Repository } from 'typeorm';
 
 import { REPOS } from '../database/constants';
 import { Account, Image, Tag, User } from '../database/entities';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ImageService {
   constructor(
-    @Inject(REPOS.Image)
-    private readonly imageRepository: Repository<Image>,
-    @Inject(REPOS.Tag)
-    private readonly tagRepository: Repository<Tag>,
-    @Inject(REPOS.User)
-    private readonly userRepository: Repository<User>,
-    @Inject(REPOS.Account)
-    private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Account) private accountRepository: Repository<Account>,
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Image) private imageRepository: Repository<Image>,
+    @InjectRepository(Tag) private tagRepository: Repository<Tag>,
+    // @Inject(REPOS.Image)
+    // private readonly imageRepository: Repository<Image>,
+    // @Inject(REPOS.Tag)
+    // private readonly tagRepository: Repository<Tag>,
+    // @Inject(REPOS.User)
+    // private readonly userRepository: Repository<User>,
+    // @Inject(REPOS.Account)
+    // private readonly accountRepository: Repository<Account>,
   ) {}
 
   async save(fileDetails: Image, accountId: number, email: string) {

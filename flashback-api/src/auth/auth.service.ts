@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { OAuth2Client, UserRefreshClient } from 'google-auth-library';
 import { REPOS } from 'src/database/constants';
 import { Account, User } from 'src/database/entities';
@@ -11,10 +12,14 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
-    @Inject(REPOS.User)
-    private readonly imageRepository: Repository<User>,
-    @Inject(REPOS.Account)
-    private readonly accountRepository: Repository<Account>,
+    // @InjectRepository(Account) private accountRepository: Repository<Account>,
+    @InjectRepository(User) private userRepository: Repository<User>,
+    // @InjectRepository(User) private userRepository: Repository<User>,
+    // @InjectRepository(User) private accountRepository: Repository<Account>,
+    // @Inject(REPOS.User)
+    // private readonly imageRepository: Repository<User>,
+    // @Inject(REPOS.Account)
+    // private readonly accountRepository: Repository<Account>,
   ) {
     this.client = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
@@ -61,7 +66,7 @@ export class AuthService {
       picture: payload.picture,
     };
 
-    const existingUser = await this.imageRepository.findOne({
+    const existingUser = await this.userRepository.findOne({
       where: { email: googleUser.email },
       relations: ['account'],
     });
