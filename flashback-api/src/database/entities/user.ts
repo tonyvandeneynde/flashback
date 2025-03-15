@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { Account } from './account';
+import { Image } from './image';
 
 @Entity()
 export class User {
@@ -8,6 +9,9 @@ export class User {
 
   @ManyToOne(() => Account, (account) => account.users)
   account: Account;
+
+  @OneToMany(() => Image, (image) => image.addedByUser)
+  images: Image[];
 
   @Column()
   createdAt: Date;

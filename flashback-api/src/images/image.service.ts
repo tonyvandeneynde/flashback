@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { In, IsNull, Not, Repository } from 'typeorm';
 
 import { REPOS } from '../database/constants';
-import { Image, Tag } from '../database/entities';
+import { Account, Image, Tag, User } from '../database/entities';
 
 @Injectable()
 export class ImageService {
@@ -11,18 +11,28 @@ export class ImageService {
     private readonly imageRepository: Repository<Image>,
     @Inject(REPOS.Tag)
     private readonly tagRepository: Repository<Tag>,
+    @Inject(REPOS.User)
+    private readonly userRepository: Repository<User>,
+    @Inject(REPOS.Account)
+    private readonly accountRepository: Repository<Account>,
   ) {}
 
   async save(fileDetails: Image, accountId: number, email: string) {
-    fileDetails.accountId = accountId;
-    fileDetails.addedByUser = email;
+    const account = await this.accountRepository.findOne({
+      where: { id: accountId },
+    });
+    const user = await this.userRepository.findOne({ where: { email } });
 
+    if (!user || !account) return null;
+
+    fileDetails.addedByUser = user;
+    fileDetails.account = account;
     return this.imageRepository.save(fileDetails);
   }
 
   async getAllImages(accountId: number, page: number, limit: number) {
     const [images, total] = await this.imageRepository.findAndCount({
-      where: { deletedAt: IsNull(), accountId },
+      where: { deletedAt: IsNull(), account: { id: accountId } },
       relations: ['tags'],
       skip: (page - 1) * limit,
       take: limit,
@@ -38,14 +48,14 @@ export class ImageService {
 
   async getImagesByIds(ids: number[], accountId: number) {
     return this.imageRepository.find({
-      where: { id: In(ids), deletedAt: IsNull(), accountId },
+      where: { id: In(ids), deletedAt: IsNull(), account: { id: accountId } },
       relations: ['tags'],
     });
   }
 
   async deleteImages(ids: number[], accountId: number) {
     const images = await this.imageRepository.find({
-      where: { id: In(ids), accountId },
+      where: { id: In(ids), account: { id: accountId } },
     });
 
     const imageIds = images.map((image) => image.id);
@@ -55,7 +65,7 @@ export class ImageService {
 
   async getDeletedImages(accountId: number) {
     return this.imageRepository.find({
-      where: { deletedAt: Not(IsNull()), accountId },
+      where: { deletedAt: Not(IsNull()), account: { id: accountId } },
       withDeleted: true,
       relations: ['tags'],
     });
@@ -67,7 +77,7 @@ export class ImageService {
     accountId: number,
   ): Promise<Image | null> {
     const image = await this.imageRepository.findOne({
-      where: { id: imageId, accountId },
+      where: { id: imageId, account: { id: accountId } },
       relations: ['tags'],
     });
     let tag = await this.tagRepository.findOne({ where: { name: tagName } });
@@ -90,7 +100,7 @@ export class ImageService {
     accountId: number,
   ): Promise<Image | null> {
     const image = await this.imageRepository.findOne({
-      where: { id: imageId, accountId },
+      where: { id: imageId, account: { id: accountId } },
       relations: ['tags'],
     });
     if (!image) return null;

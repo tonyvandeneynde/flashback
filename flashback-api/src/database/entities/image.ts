@@ -6,8 +6,12 @@ import {
   DeleteDateColumn,
   ManyToMany,
   JoinTable,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Tag } from './tag';
+import { User } from './user';
+import { Account } from './account';
 
 @Entity()
 export class Image {
@@ -17,11 +21,13 @@ export class Image {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  accountId: number;
+  @ManyToOne(() => Account, (user) => user.images)
+  @JoinColumn({ name: 'accountId', referencedColumnName: 'id' })
+  account: Account;
 
-  @Column({ nullable: true })
-  addedByUser: string;
+  @ManyToOne(() => User, (user) => user.images)
+  @JoinColumn({ name: 'addedByUserEmail', referencedColumnName: 'email' })
+  addedByUser: User;
 
   @Column()
   originalPath: string;
