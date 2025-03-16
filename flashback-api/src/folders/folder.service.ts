@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Account, Folder } from 'src/database/entities';
+import { Account, Folder, Gallery } from 'src/database/entities';
 import { Repository, TreeRepository } from 'typeorm';
 import { GalleryService } from '../gallery/gallery.service';
 
@@ -95,16 +95,18 @@ export class FolderService {
     galleryName: string;
     folderId: number;
     accountId: number;
-  }): Promise<void> {
+  }): Promise<Gallery> {
     const folder = await this.folderTreeRepository.findOneOrFail({
       relations: ['account'],
       where: { id: folderId, account: { id: accountId } },
     });
 
-    await this.GalleryService.createGallery({
+    const newGallery = await this.GalleryService.createGallery({
       name: galleryName,
       parent: folder,
       account: folder.account,
     });
+
+    return newGallery;
   }
 }

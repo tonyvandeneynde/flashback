@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  UseGuards,
-  Request,
-  Query,
-  Post,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth';
 import { FolderService } from './folder.service';

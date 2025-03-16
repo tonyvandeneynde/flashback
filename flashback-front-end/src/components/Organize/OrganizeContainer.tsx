@@ -3,6 +3,7 @@ import { styled } from "@mui/material";
 import theme from "../../theme/theme";
 import { FolderTreeContainer } from "./FolderTreeContainer";
 import { ContentContainer } from "./ContentContainer";
+import { OrganizeToolbar } from "./OrganizeToolbar";
 
 const Container = styled("div")`
   display: flex;
@@ -52,7 +53,9 @@ export const OrganizeContainer = () => {
         <Header>
           <Title>Organize</Title>
         </Header>
-        <Toolbar>Toolbar</Toolbar>
+        <Toolbar>
+          <OrganizeToolbar />
+        </Toolbar>
         <MainContent>
           <TreeSection>
             <FolderTreeContainer />

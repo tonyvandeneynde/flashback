@@ -1,7 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { Folder, Gallery, isFolder } from "../../apiConstants";
 import FolderIcon from "@mui/icons-material/Folder";
-import ImageIcon from "@mui/icons-material/Image";
+import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
 const StyledCard = styled("div")<{ isSelected: boolean }>`
   display: flex;
@@ -36,7 +36,7 @@ export const NodeTile = ({
       onDoubleClick={onDoubleClick}
     >
       <Typography variant="button">{node.name}</Typography>
-      {isFolder(node) ? <FolderIcon /> : <ImageIcon />}
+      {isFolder(node) ? <FolderIcon /> : <PhotoLibraryIcon />}
     </StyledCard>
   );
 };

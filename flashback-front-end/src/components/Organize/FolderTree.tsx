@@ -3,7 +3,7 @@ import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { styled, Typography } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
-import ImageIcon from "@mui/icons-material/Image";
+import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
 interface FolderTreeProps {
   folders: Folder[];
@@ -23,7 +23,7 @@ const FolderTree = ({ folders, onSelectNode }: FolderTreeProps) => {
       itemId={`${isFolder(node) ? "folder-" : "gallery-"}${node.id.toString()}`}
       label={
         <StyledLabelContainer>
-          {isFolder(node) ? <FolderIcon /> : <ImageIcon />}
+          {isFolder(node) ? <FolderIcon /> : <PhotoLibraryIcon />}
           <Typography>{node.name}</Typography>
         </StyledLabelContainer>
       }

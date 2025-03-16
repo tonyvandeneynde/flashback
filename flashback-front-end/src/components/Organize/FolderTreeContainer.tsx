@@ -10,7 +10,7 @@ export const FolderTreeContainer = () => {
     path: (Folder | Gallery)[]
   ) => {
     setCurrentNode(node);
-    setPath([...path, node]);
+    setPath([...path]);
   };
   return <FolderTree folders={folders} onSelectNode={handleSelectNode} />;
 };
