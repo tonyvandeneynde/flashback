@@ -9,6 +9,7 @@ const theme = createTheme({
     secondary: {
       main: "#03dac6",
     },
+    divider: "#333",
     background: {
       default: "#121212",
       paper: "#1d1d1d",

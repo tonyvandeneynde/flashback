@@ -9,6 +9,11 @@ import { Migrations1741969096739 } from './1741969096739-migrations';
 import { Migrations1741978182140 } from './1741978182140-migrations';
 import { Migrations1742033110449 } from './1742033110449-migrations';
 import { Migrations1742037010685 } from './1742037010685-migrations';
+import { Migrations1742040444516 } from './1742040444516-migrations';
+import { Migrations1742060021813 } from './1742060021813-migrations';
+import { Migrations1742063087373 } from './1742063087373-migrations';
+import { Migrations1742118715816 } from './1742118715816-migrations';
+import { Migrations1742121975422 } from './1742121975422-migrations';
 
 export const migrationFiles = [
   Migrations1741794767086,
@@ -22,4 +27,9 @@ export const migrationFiles = [
   Migrations1741978182140,
   Migrations1742033110449,
   Migrations1742037010685,
+  Migrations1742040444516,
+  Migrations1742060021813,
+  Migrations1742063087373,
+  Migrations1742118715816,
+  Migrations1742121975422,
 ];

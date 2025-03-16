@@ -4,10 +4,17 @@ import { AuthController, AuthModule } from './auth';
 import { ImageModule } from './images/image.module';
 import { StorageModule } from './storage/storage.module';
 import { DatabaseModule } from './database/database.module';
+import { FolderSubscriber, FolderModule, FoldersController } from './folders';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, ImageModule, StorageModule],
-  controllers: [ImagesController, AuthController],
-  providers: [],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    ImageModule,
+    StorageModule,
+    FolderModule,
+  ],
+  controllers: [ImagesController, AuthController, FoldersController],
+  providers: [FolderSubscriber],
 })
 export class AppModule {}

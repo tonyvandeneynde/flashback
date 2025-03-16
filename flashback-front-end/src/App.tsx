@@ -10,6 +10,7 @@ import theme from "./theme/theme";
 import { LoginButton, MainLayout, TimelinePage } from "./components";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { OrganizeContainer } from "./components/Organize/OrganizeContainer";
 
 function App() {
   const queryClient = new QueryClient();
@@ -31,7 +32,7 @@ function App() {
                   }
                 />
                 <Route path="/" element={<Navigate to="/timeline" />} />
-                <Route path="/organize" element={<div>organize</div>} />
+                <Route path="/organize" element={<OrganizeContainer />} />
                 <Route path="/timeline" element={<TimelinePage />} />
                 <Route path="/site" element={<div>site</div>} />
               </Routes>

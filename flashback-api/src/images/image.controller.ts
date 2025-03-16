@@ -34,6 +34,21 @@ export class ImagesController {
     return this.imageService.getAllImages(req.user.accountId, page, limit);
   }
 
+  @Get('by-gallery')
+  async getImagesByGalleryId(
+    @Query('galleryId') galleryId: number,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.imageService.getImagesByGalleryId(
+      req.user.accountId,
+      galleryId,
+      page,
+      limit,
+    );
+  }
+
   @Post('get-by-ids')
   @ApiBody({
     schema: {
@@ -135,6 +150,7 @@ export class ImagesController {
     schema: {
       type: 'object',
       properties: {
+        galleryId: { type: 'number' },
         files: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
@@ -144,6 +160,7 @@ export class ImagesController {
   })
   async uploadImages(
     @UploadedFiles() files: Express.Multer.File[],
+    @Body('galleryId') galleryId: number,
     @Request() req: { user: { accountId: number; email: string } },
   ) {
     const { accountId, email } = req.user;
@@ -169,7 +186,7 @@ export class ImagesController {
         image.longitude = result.tags.GPSLongitude;
       }
 
-      await this.imageService.save(image, accountId, email);
+      await this.imageService.save(image, accountId, email, galleryId);
 
       return {
         name: file.originalname,

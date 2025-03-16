@@ -1,17 +1,12 @@
-import { useImages } from "../../services/useAllImages";
+import { useImages } from "../../services";
 import ImageGallery from "../ImageGallery/ImageGallery";
 
 export const TimelinePage = () => {
-  const { data: images, isLoading } = useImages();
-
-  if (!images || isLoading) {
-    return <div>Loading...</div>;
-  }
-
+  const imageData = useImages();
   return (
     <div>
       <h1>Timeline</h1>
-      <ImageGallery />
+      <ImageGallery {...imageData} />
     </div>
   );
 };

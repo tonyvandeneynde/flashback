@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { In, IsNull, Not, Repository } from 'typeorm';
 
-import { REPOS } from '../database/constants';
-import { Account, Image, Tag, User } from '../database/entities';
+import { Account, Gallery, Image, Tag, User } from '../database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -12,32 +11,58 @@ export class ImageService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Image) private imageRepository: Repository<Image>,
     @InjectRepository(Tag) private tagRepository: Repository<Tag>,
-    // @Inject(REPOS.Image)
-    // private readonly imageRepository: Repository<Image>,
-    // @Inject(REPOS.Tag)
-    // private readonly tagRepository: Repository<Tag>,
-    // @Inject(REPOS.User)
-    // private readonly userRepository: Repository<User>,
-    // @Inject(REPOS.Account)
-    // private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Gallery) private galleryRepository: Repository<Gallery>,
   ) {}
 
-  async save(fileDetails: Image, accountId: number, email: string) {
-    const account = await this.accountRepository.findOne({
+  async save(
+    fileDetails: Image,
+    accountId: number,
+    email: string,
+    galleryId: number,
+  ) {
+    const account = await this.accountRepository.findOneOrFail({
       where: { id: accountId },
     });
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOneOrFail({ where: { email } });
 
-    if (!user || !account) return null;
+    const gallery = await this.galleryRepository.findOneOrFail({
+      where: { id: galleryId, account: { id: accountId } },
+    });
 
     fileDetails.addedByUser = user;
     fileDetails.account = account;
+    fileDetails.gallery = gallery;
     return this.imageRepository.save(fileDetails);
   }
 
   async getAllImages(accountId: number, page: number, limit: number) {
     const [images, total] = await this.imageRepository.findAndCount({
       where: { deletedAt: IsNull(), account: { id: accountId } },
+      relations: ['tags'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data: images,
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async getImagesByGalleryId(
+    accountId: number,
+    galleryId: number,
+    page: number,
+    limit: number,
+  ) {
+    const [images, total] = await this.imageRepository.findAndCount({
+      where: {
+        deletedAt: IsNull(),
+        gallery: { id: galleryId },
+        account: { id: accountId },
+      },
       relations: ['tags'],
       skip: (page - 1) * limit,
       take: limit,

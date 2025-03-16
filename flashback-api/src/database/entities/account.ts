@@ -1,12 +1,7 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user';
 import { Image } from './image';
+import { Folder } from './folder';
 
 @Entity()
 export class Account {
@@ -18,6 +13,9 @@ export class Account {
 
   @OneToMany(() => Image, (image) => image.account)
   images: Image[];
+
+  @OneToMany(() => Folder, (folder) => folder.account)
+  folders: Folder[];
 
   @Column()
   createdAt: Date;

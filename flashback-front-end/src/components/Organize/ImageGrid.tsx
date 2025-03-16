@@ -1,31 +1,44 @@
 import React, { useEffect } from "react";
-import { Grid, CircularProgress, Typography } from "@mui/material";
+import { CircularProgress, Typography, styled } from "@mui/material";
 import { Image } from "../../apiConstants";
 import { InfiniteData } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { UseInfiniteQueryResult } from "@tanstack/react-query";
+import { ImageTile } from "./ImageTile";
 
 type ImageGalleryProps = UseInfiniteQueryResult<
   InfiniteData<AxiosResponse<Image[], any>, unknown>,
   Error
->;
+> & {
+  toggleSelectedImage: (image: Image) => void;
+  selectedImages: Image[];
+};
 
-const ImageGallery = ({
+const StyledGrid = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+`;
+
+export const ImageGrid = ({
   data,
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
   status,
   error,
+  selectedImages,
+  toggleSelectedImage,
 }: ImageGalleryProps) => {
   const handleScroll = () => {
-    if (
-      window.innerHeight + document.documentElement.scrollTop <
-      document.documentElement.offsetHeight - 50
-    )
-      return;
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - 50) {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
     }
   };
 
@@ -44,25 +57,22 @@ const ImageGallery = ({
 
   return (
     <div>
-      <Grid container spacing={2}>
+      <StyledGrid>
         {data?.pages.map((page, pageIndex) => (
           <React.Fragment key={pageIndex}>
             {page.data.map((image: Image) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={image.id}>
-                <img
-                  src={image.mediumPath}
-                  alt={image.filename}
-                  style={{ width: "100%" }}
+              <div key={image.id}>
+                <ImageTile
+                  image={image}
+                  isSelected={selectedImages.includes(image)}
+                  onClick={() => toggleSelectedImage(image)}
                 />
-                <Typography>{image.filename}</Typography>
-              </Grid>
+              </div>
             ))}
           </React.Fragment>
         ))}
-      </Grid>
+      </StyledGrid>
       {isFetchingNextPage && <CircularProgress />}
     </div>
   );
 };
-
-export default ImageGallery;

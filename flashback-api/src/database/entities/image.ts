@@ -12,6 +12,7 @@ import {
 import { Tag } from './tag';
 import { User } from './user';
 import { Account } from './account';
+import { Gallery } from './gallery';
 
 @Entity()
 export class Image {
@@ -28,6 +29,10 @@ export class Image {
   @ManyToOne(() => User, (user) => user.images)
   @JoinColumn({ name: 'addedByUserEmail', referencedColumnName: 'email' })
   addedByUser: User;
+
+  @ManyToOne(() => Gallery, (gallery) => gallery.images)
+  @JoinColumn({ name: 'galleryId', referencedColumnName: 'id' })
+  gallery: Gallery;
 
   @Column()
   originalPath: string;
