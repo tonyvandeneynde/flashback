@@ -20,7 +20,7 @@ export const OrganizeToolbar = () => {
   const queryClient = useQueryClient();
   const {
     currentNode,
-    selectedNodes,
+    selectedNode,
     resetSelectedNodes,
     selectedImages,
     resetSelectedImages,
@@ -75,16 +75,15 @@ export const OrganizeToolbar = () => {
   };
 
   const handleDeleteNodes = (closeDialog: () => void) => {
-    if (selectedNodes.length !== 1) return;
+    if (!selectedNode) return;
 
     mutateDeleteFolder(
       {
-        id: selectedNodes[0].id,
-        type: isFolder(selectedNodes[0]) ? "Folder" : "Gallery",
+        id: selectedNode.id,
+        type: isFolder(selectedNode) ? "Folder" : "Gallery",
       },
       {
-        onSuccess: () =>
-          handleDeleteNodesSuccess(selectedNodes[0], closeDialog),
+        onSuccess: () => handleDeleteNodesSuccess(selectedNode, closeDialog),
       }
     );
   };
@@ -133,7 +132,7 @@ export const OrganizeToolbar = () => {
     <Toolbar>
       <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
       <DeleteButton
-        selectedNodes={selectedNodes}
+        selectedNode={selectedNode}
         selectedImages={selectedImages}
         handleDeleteNodes={handleDeleteNodes}
         handleDeleteImages={handleDeleteImages}

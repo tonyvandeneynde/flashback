@@ -11,7 +11,7 @@ import { Gallery, Folder, Image } from "../apiConstants";
 interface OrganizeContextType {
   folders: Folder[];
   currentNode: Folder | Gallery | null;
-  selectedNodes: (Folder | Gallery)[];
+  selectedNode: Folder | Gallery | null;
   selectedImages: Image[];
   path: (Folder | Gallery)[];
   isFoldersLoading: boolean;
@@ -27,7 +27,7 @@ const initialOrganizeContext: OrganizeContextType = {
   folders: [],
   isFoldersLoading: false,
   currentNode: null,
-  selectedNodes: [],
+  selectedNode: null,
   selectedImages: [],
   path: [],
   setCurrentNode: () => {},
@@ -49,7 +49,9 @@ export const OrganizeContextProvider = ({
 }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [currentNode, setCurrentNode] = useState<Folder | Gallery | null>(null);
-  const [selectedNodes, setSelectedNodes] = useState<(Folder | Gallery)[]>([]);
+  const [selectedNode, setSelectedNode] = useState<Folder | Gallery | null>(
+    null
+  );
   const [selectedImages, setSelectedImages] = useState<Image[]>([]);
   const [path, setPath] = useState<(Folder | Gallery)[]>([]);
 
@@ -62,14 +64,12 @@ export const OrganizeContextProvider = ({
     }
   }, [fetchedFoldersData, isFoldersLoading]);
 
-  const toggleSelectedNode = (node: Folder | Gallery) => {
-    setSelectedNodes((prevSelectedNodes) => {
-      if (prevSelectedNodes.includes(node)) {
-        return prevSelectedNodes.filter(
-          (selectedNode) => selectedNode !== node
-        );
+  const toggleSelectedNode = (node: Folder | Gallery | null) => {
+    setSelectedNode((prevSelectedNode) => {
+      if (prevSelectedNode === node) {
+        return null;
       } else {
-        return [...prevSelectedNodes, node];
+        return node;
       }
     });
   };
@@ -92,7 +92,7 @@ export const OrganizeContextProvider = ({
   };
 
   const resetSelectedNodes = () => {
-    setSelectedNodes([]);
+    setSelectedNode(null);
   };
 
   const resetSelectedImages = () => {
@@ -102,7 +102,7 @@ export const OrganizeContextProvider = ({
   useEffect(() => {
     // Deselect everything when the current node changes
     setSelectedImages([]);
-    setSelectedNodes([]);
+    setSelectedNode(null);
   }, [currentNode]);
 
   useEffect(() => {
@@ -118,8 +118,8 @@ export const OrganizeContextProvider = ({
         folders,
         isFoldersLoading,
         currentNode,
-        selectedNodes: selectedNodes,
-        selectedImages: selectedImages,
+        selectedNode,
+        selectedImages,
         path,
         setCurrentNode,
         toggleSelectedNode,

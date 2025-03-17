@@ -12,7 +12,7 @@ const StyledGrid = styled("div")`
 export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
   const {
     toggleSelectedNode: toggleSelectedItem,
-    selectedNodes: selectedItems,
+    selectedNode: selectedItem,
     setPath,
     path,
   } = useOrganizeContext();
@@ -33,7 +33,7 @@ export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
           node={subfolder}
           onClick={() => toggleSelectedItem(subfolder)}
           onDoubleClick={() => handleDoubleClick(subfolder)}
-          isSelected={selectedItems.includes(subfolder)}
+          isSelected={selectedItem === subfolder}
         />
       ))}
       {folder.galleries.map((gallery) => (
@@ -42,7 +42,7 @@ export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
           node={gallery}
           onClick={() => toggleSelectedItem(gallery)}
           onDoubleClick={() => handleDoubleClick(gallery)}
-          isSelected={selectedItems.includes(gallery)}
+          isSelected={selectedItem === gallery}
         />
       ))}
     </StyledGrid>

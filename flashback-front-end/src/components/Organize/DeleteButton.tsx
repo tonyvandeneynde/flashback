@@ -10,12 +10,12 @@ import { useState } from "react";
 import { Folder, Gallery, Image } from "../../apiConstants";
 
 export const DeleteButton = ({
-  selectedNodes,
+  selectedNode,
   selectedImages,
   handleDeleteNodes,
   handleDeleteImages,
 }: {
-  selectedNodes: (Folder | Gallery)[];
+  selectedNode: Folder | Gallery | null;
   selectedImages: Image[];
   handleDeleteNodes: (closeDialog: () => void) => void;
   handleDeleteImages: (closeDialog: () => void) => void;
@@ -24,7 +24,7 @@ export const DeleteButton = ({
   let handleDelete = null;
   let dialogText = "";
 
-  if (selectedNodes.length > 0) {
+  if (selectedNode) {
     handleDelete = handleDeleteNodes;
     dialogText =
       "Are you sure you want to delete all selected items and all of its subfolders, galleries and all its content?";
@@ -47,7 +47,7 @@ export const DeleteButton = ({
         variant="contained"
         color="primary"
         onClick={handleCreateClick}
-        disabled={selectedNodes.length !== 1 && selectedImages.length === 0}
+        disabled={!selectedNode && selectedImages.length === 0}
       >
         Delete
       </Button>
