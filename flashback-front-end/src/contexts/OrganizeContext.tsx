@@ -20,6 +20,7 @@ interface OrganizeContextType {
   toggleSelectedNode: (item: Folder | Gallery) => void;
   setPath: (newPath: (Folder | Gallery)[]) => void;
   resetSelectedNodes: () => void;
+  resetSelectedImages: () => void;
 }
 
 const initialOrganizeContext: OrganizeContextType = {
@@ -34,6 +35,7 @@ const initialOrganizeContext: OrganizeContextType = {
   toggleSelectedImage: () => {},
   setPath: () => {},
   resetSelectedNodes: () => {},
+  resetSelectedImages: () => {},
 };
 
 const OrganizeContext = createContext<OrganizeContextType>(
@@ -93,6 +95,10 @@ export const OrganizeContextProvider = ({
     setSelectedNodes([]);
   };
 
+  const resetSelectedImages = () => {
+    setSelectedImages([]);
+  };
+
   useEffect(() => {
     // Deselect everything when the current node changes
     setSelectedImages([]);
@@ -120,6 +126,7 @@ export const OrganizeContextProvider = ({
         toggleSelectedImage,
         setPath: handleSetPath,
         resetSelectedNodes,
+        resetSelectedImages,
       }}
     >
       {children}

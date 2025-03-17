@@ -1,18 +1,34 @@
 import { Toolbar } from "@mui/material";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
-import { Folder, Gallery, isFolder, isGallery } from "../../apiConstants";
+import {
+  API_PREFIX,
+  Folder,
+  Gallery,
+  IMAGES_BY_GALLERY,
+  isFolder,
+  isGallery,
+} from "../../apiConstants";
 import { useCreateFolder } from "../../services/useCreateFolder";
 import { useCreateGallery } from "../../services/useCreateNewGallery";
 import { CreateButton } from "./CreateButton";
 import { DeleteButton } from "./DeleteButton";
 import { useDeleteNode } from "../../services";
+import { useDeleteImages } from "../../services/useDeleteImages";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const OrganizeToolbar = () => {
-  const { currentNode, selectedNodes, resetSelectedNodes } =
-    useOrganizeContext();
+  const queryClient = useQueryClient();
+  const {
+    currentNode,
+    selectedNodes,
+    resetSelectedNodes,
+    selectedImages,
+    resetSelectedImages,
+  } = useOrganizeContext();
   const { mutate } = useCreateFolder();
   const { mutate: mutateCreateGallery } = useCreateGallery();
   const { mutate: mutateDeleteFolder } = useDeleteNode();
+  const { mutate: mutateDeleteImages } = useDeleteImages();
 
   const handleCreateSuccess = (
     newFolderOrGallery: Folder | Gallery,
@@ -58,7 +74,7 @@ export const OrganizeToolbar = () => {
     }
   };
 
-  const handleDelete = (closeDialog: () => void) => {
+  const handleDeleteNodes = (closeDialog: () => void) => {
     if (selectedNodes.length !== 1) return;
 
     mutateDeleteFolder(
@@ -67,12 +83,13 @@ export const OrganizeToolbar = () => {
         type: isFolder(selectedNodes[0]) ? "Folder" : "Gallery",
       },
       {
-        onSuccess: () => handleDeleteSuccess(selectedNodes[0], closeDialog),
+        onSuccess: () =>
+          handleDeleteNodesSuccess(selectedNodes[0], closeDialog),
       }
     );
   };
 
-  const handleDeleteSuccess = (
+  const handleDeleteNodesSuccess = (
     nodeToDelete: Folder | Gallery,
     closeDialog: () => void
   ) => {
@@ -95,10 +112,32 @@ export const OrganizeToolbar = () => {
     resetSelectedNodes();
   };
 
+  const handleDeleteImages = (closeDialog: () => void) => {
+    mutateDeleteImages(
+      { ids: selectedImages.map((image) => image.id) },
+      {
+        onSuccess: () => handleDeleteImagesSuccess(),
+      }
+    );
+    closeDialog();
+  };
+
+  const handleDeleteImagesSuccess = () => {
+    queryClient.invalidateQueries({
+      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentNode?.id}`],
+    });
+    resetSelectedImages();
+  };
+
   return (
     <Toolbar>
       <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
-      <DeleteButton selectedNodes={selectedNodes} handleDelete={handleDelete} />
+      <DeleteButton
+        selectedNodes={selectedNodes}
+        selectedImages={selectedImages}
+        handleDeleteNodes={handleDeleteNodes}
+        handleDeleteImages={handleDeleteImages}
+      />
     </Toolbar>
   );
 };
