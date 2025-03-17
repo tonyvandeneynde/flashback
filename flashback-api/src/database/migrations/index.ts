@@ -14,6 +14,7 @@ import { Migrations1742060021813 } from './1742060021813-migrations';
 import { Migrations1742063087373 } from './1742063087373-migrations';
 import { Migrations1742118715816 } from './1742118715816-migrations';
 import { Migrations1742121975422 } from './1742121975422-migrations';
+import { Migrations1742239170384 } from './1742239170384-migrations';
 
 export const migrationFiles = [
   Migrations1741794767086,
@@ -32,4 +33,5 @@ export const migrationFiles = [
   Migrations1742063087373,
   Migrations1742118715816,
   Migrations1742121975422,
+  Migrations1742239170384,
 ];

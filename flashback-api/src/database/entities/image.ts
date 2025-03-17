@@ -50,7 +50,16 @@ export class Image {
   latitude: string;
 
   @Column({ nullable: true })
+  latitudeRef: string;
+
+  @Column({ nullable: true })
   longitude: string;
+
+  @Column({ nullable: true })
+  longitudeRef: string;
+
+  @Column({ nullable: true })
+  orientation: number;
 
   @CreateDateColumn()
   createdAt: Date;

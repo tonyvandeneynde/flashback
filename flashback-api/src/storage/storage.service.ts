@@ -45,8 +45,8 @@ export class StorageService {
 
     fs.writeFileSync(originalPath, file.buffer);
 
-    await sharp(originalPath).resize(800).toFile(mediumPath);
-    await sharp(originalPath).resize(200, 200).toFile(thumbnailPath);
+    await sharp(originalPath).resize(800).keepExif().toFile(mediumPath);
+    await sharp(originalPath).resize(200, 200).keepExif().toFile(thumbnailPath);
 
     const localImageServerUrl =
       process.env.LOCAL_URL || 'http://localhost:8080/';

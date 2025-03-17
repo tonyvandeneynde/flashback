@@ -184,6 +184,9 @@ export class ImagesController {
         image.date = new Date(result.tags.CreateDate * 1000);
         image.latitude = result.tags.GPSLatitude;
         image.longitude = result.tags.GPSLongitude;
+        image.latitudeRef = result.tags.GPSLatitudeRef;
+        image.longitudeRef = result.tags.GPSLongitudeRef;
+        image.orientation = result.tags.Orientation;
       }
 
       await this.imageService.save(image, accountId, email, galleryId);
