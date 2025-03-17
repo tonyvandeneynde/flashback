@@ -82,6 +82,11 @@ export const OrganizeContextProvider = ({
     });
   };
 
+  const handleSetPath = (newPath: (Folder | Gallery)[]) => {
+    setPath(newPath);
+    setCurrentNode(newPath[newPath.length - 1]);
+  };
+
   useEffect(() => {
     setSelectedImages([]);
     setSelectedNodes([]);
@@ -99,7 +104,7 @@ export const OrganizeContextProvider = ({
         setCurrentNode,
         toggleSelectedNode,
         toggleSelectedImage,
-        setPath,
+        setPath: handleSetPath,
       }}
     >
       {children}

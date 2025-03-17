@@ -11,7 +11,7 @@ const fetchImagesByGallery = async ({
   pageParam?: number;
 }): Promise<AxiosResponse<Image[]>> => {
   const response = await axios.get(`${API_PREFIX}/${IMAGES_BY_GALLERY}`, {
-    params: { galleryId, page: pageParam, limit: 20 },
+    params: { galleryId, page: pageParam, limit: 40 },
   });
   return response.data;
 };

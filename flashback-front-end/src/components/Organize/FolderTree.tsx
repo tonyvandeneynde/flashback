@@ -7,7 +7,9 @@ import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
 interface FolderTreeProps {
   folders: Folder[];
-  onSelectNode: (node: Folder | Gallery, path: (Folder | Gallery)[]) => void;
+  selectedItemId?: string;
+  expandedItemsIds?: string[];
+  onSelectNode: (path: (Folder | Gallery)[]) => void;
 }
 
 const StyledLabelContainer = styled("div")`
@@ -16,7 +18,12 @@ const StyledLabelContainer = styled("div")`
   gap: 8px;
 `;
 
-const FolderTree = ({ folders, onSelectNode }: FolderTreeProps) => {
+const FolderTree = ({
+  folders,
+  onSelectNode,
+  selectedItemId,
+  expandedItemsIds,
+}: FolderTreeProps) => {
   const renderTree = (node: Folder | Gallery, path: Folder[]) => (
     <TreeItem
       key={node.id}
@@ -27,7 +34,7 @@ const FolderTree = ({ folders, onSelectNode }: FolderTreeProps) => {
           <Typography>{node.name}</Typography>
         </StyledLabelContainer>
       }
-      onClick={() => onSelectNode(node, [...path, node])}
+      onClick={() => onSelectNode([...path, node])}
     >
       {isFolder(node) &&
         node.subfolders.map((subfolder) => {
@@ -41,7 +48,10 @@ const FolderTree = ({ folders, onSelectNode }: FolderTreeProps) => {
   );
 
   return (
-    <SimpleTreeView>
+    <SimpleTreeView
+      selectedItems={selectedItemId}
+      expandedItems={expandedItemsIds}
+    >
       {folders.map((folder) => renderTree(folder, []))}
     </SimpleTreeView>
   );

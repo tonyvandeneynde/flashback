@@ -37,6 +37,8 @@ export class FolderService {
     });
 
     folder.account = account;
+    folder.galleries = [];
+    folder.subfolders = [];
 
     return this.folderTreeRepository.save(folder);
   }

@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 import { NodeTile } from "./NodeTile";
-import { Folder } from "../../apiConstants";
+import { Folder, Gallery } from "../../apiConstants";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 
 const StyledGrid = styled("div")`
@@ -13,7 +13,13 @@ export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
   const {
     toggleSelectedNode: toggleSelectedItem,
     selectedNodes: selectedItems,
+    setPath,
+    path,
   } = useOrganizeContext();
+
+  const handleDoubleClick = (node: Folder | Gallery) => {
+    setPath([...path, node]);
+  };
 
   return (
     <StyledGrid>
@@ -22,7 +28,7 @@ export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
           key={`folder-${subfolder.id}`}
           node={subfolder}
           onClick={() => toggleSelectedItem(subfolder)}
-          onDoubleClick={() => {}}
+          onDoubleClick={() => handleDoubleClick(subfolder)}
           isSelected={selectedItems.includes(subfolder)}
         />
       ))}
@@ -31,7 +37,7 @@ export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
           key={`gallery-${gallery.id}`}
           node={gallery}
           onClick={() => toggleSelectedItem(gallery)}
-          onDoubleClick={() => {}}
+          onDoubleClick={() => handleDoubleClick(gallery)}
           isSelected={selectedItems.includes(gallery)}
         />
       ))}

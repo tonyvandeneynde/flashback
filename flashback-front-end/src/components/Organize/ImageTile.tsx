@@ -24,19 +24,21 @@ export const ImageTile = ({
   image,
   isSelected = false,
   onClick,
-}: {
+}: //   onDoubleClick,
+{
   image: Image;
   isSelected?: boolean;
   onClick: () => void;
+  //   onDoubleClick: () => void;
 }) => {
   return (
     <StyledCard
       isSelected={isSelected}
       onClick={onClick}
-      // TODO: Implement onDoubleClick to go inside folder and change the position in the folder tree
+      // TODO: Implement onDoubleClick to open the image viewer
       //   onDoubleClick={onDoubleClick}
     >
-      <StyledImage src={image.mediumPath} alt={image.filename} />
+      <StyledImage src={image.thumbnailPath} alt={image.filename} />
     </StyledCard>
   );
 };

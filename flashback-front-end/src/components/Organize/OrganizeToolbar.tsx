@@ -58,6 +58,7 @@ export const OrganizeToolbar = () => {
     if (isFolder(newFolderOrGallery)) {
       currentNode.subfolders.push(newFolderOrGallery);
     }
+
     if (isGallery(newFolderOrGallery)) {
       currentNode.galleries.push(newFolderOrGallery);
     }

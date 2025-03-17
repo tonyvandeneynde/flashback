@@ -11,6 +11,7 @@ const StyledUploadButtonContainer = styled("div")`
 const StyledDropZone = styled("div")`
   border: 2px dashed #cccccc;
   padding: 20px;
+  height: 100%;
 `;
 
 export const ImageGalleryUploadWrapper = ({
@@ -32,7 +33,7 @@ export const ImageGalleryUploadWrapper = ({
   });
 
   return (
-    <div>
+    <>
       <StyledUploadButtonContainer>
         <Button onClick={open}>Browse files</Button>
         to upload or drop below
@@ -41,6 +42,6 @@ export const ImageGalleryUploadWrapper = ({
         <input {...getInputProps()} />
         {children}
       </StyledDropZone>
-    </div>
+    </>
   );
 };
