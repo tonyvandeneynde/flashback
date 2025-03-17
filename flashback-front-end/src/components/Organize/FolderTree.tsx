@@ -29,7 +29,7 @@ const FolderTree = ({
     let icon = <></>;
 
     if (isFolder(node)) {
-      icon = node.parentId === undefined ? <HomeIcon /> : <FolderIcon />;
+      icon = node.id === folders[0].id ? <HomeIcon /> : <FolderIcon />;
     } else {
       icon = <PhotoLibraryIcon />;
     }

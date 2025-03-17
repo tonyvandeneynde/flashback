@@ -32,7 +32,7 @@ export const DeleteButton = ({
         variant="contained"
         color="primary"
         onClick={handleCreateClick}
-        disabled={selectedNodes.length === 0}
+        disabled={selectedNodes.length !== 1}
       >
         Delete
       </Button>
