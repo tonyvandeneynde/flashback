@@ -5,4 +5,6 @@ export const IMAGES = "images";
 export const IMAGES_BY_GALLERY = "images/by-gallery";
 export const FOLDERS = "folders";
 export const FOLDERS_CREATE = "folders/create";
+export const FOLDERS_DELETE = "folders/delete";
+export const FOLDERS_DELETE_GALLERY = "folders/delete-gallery";
 export const FOLDERS_ADD_NEW_GALLERY = "folders/add-new-gallery";

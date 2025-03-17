@@ -21,6 +21,10 @@ export const FolderContentContainer = ({ folder }: { folder: Folder }) => {
     setPath([...path, node]);
   };
 
+  if (folder.subfolders.length === 0 && folder.galleries.length === 0) {
+    return <p>Add a folder or gallery</p>;
+  }
+
   return (
     <StyledGrid>
       {folder.subfolders.map((subfolder) => (

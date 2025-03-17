@@ -3,32 +3,36 @@ import {
   API_PREFIX,
   Folder,
   FOLDERS,
-  FOLDERS_ADD_NEW_GALLERY,
+  FOLDERS_DELETE,
+  FOLDERS_DELETE_GALLERY,
 } from "../apiConstants";
 import axios from "axios";
 
-const createGallery = async ({
-  name,
-  parentId,
+const deleteFolder = async ({
+  id,
+  type,
 }: {
-  name: string;
-  parentId: number;
+  id: number;
+  type: "Folder" | "Gallery";
 }): Promise<Folder> => {
-  const response = await axios.post(
-    `${API_PREFIX}/${FOLDERS_ADD_NEW_GALLERY}`,
-    {
-      name,
-      parentId,
-    }
-  );
+  let url = `${API_PREFIX}/`;
+  if (type === "Folder") {
+    url += FOLDERS_DELETE;
+  } else {
+    url += FOLDERS_DELETE_GALLERY;
+  }
+
+  const response = await axios.delete(url, {
+    params: { id },
+  });
   return response.data;
 };
 
-export const useCreateGallery = () => {
+export const useDeleteNode = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: createGallery,
+    mutationFn: deleteFolder,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
     },

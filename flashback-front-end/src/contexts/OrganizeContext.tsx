@@ -19,6 +19,7 @@ interface OrganizeContextType {
   toggleSelectedImage: (image: Image) => void;
   toggleSelectedNode: (item: Folder | Gallery) => void;
   setPath: (newPath: (Folder | Gallery)[]) => void;
+  resetSelectedNodes: () => void;
 }
 
 const initialOrganizeContext: OrganizeContextType = {
@@ -32,6 +33,7 @@ const initialOrganizeContext: OrganizeContextType = {
   toggleSelectedNode: () => {},
   toggleSelectedImage: () => {},
   setPath: () => {},
+  resetSelectedNodes: () => {},
 };
 
 const OrganizeContext = createContext<OrganizeContextType>(
@@ -87,10 +89,22 @@ export const OrganizeContextProvider = ({
     setCurrentNode(newPath[newPath.length - 1]);
   };
 
+  const resetSelectedNodes = () => {
+    setSelectedNodes([]);
+  };
+
   useEffect(() => {
+    // Deselect everything when the current node changes
     setSelectedImages([]);
     setSelectedNodes([]);
   }, [currentNode]);
+
+  useEffect(() => {
+    // Set the first (Home folder)  as the current node as the default after fetching folders
+    if (currentNode === null && folders.length > 0) {
+      handleSetPath([folders[0]]);
+    }
+  }, [folders]);
 
   return (
     <OrganizeContext.Provider
@@ -105,6 +119,7 @@ export const OrganizeContextProvider = ({
         toggleSelectedNode,
         toggleSelectedImage,
         setPath: handleSetPath,
+        resetSelectedNodes,
       }}
     >
       {children}

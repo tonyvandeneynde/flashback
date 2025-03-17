@@ -1,57 +1,24 @@
-import {
-  Button,
-  Toolbar,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-} from "@mui/material";
+import { Toolbar } from "@mui/material";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import { Folder, Gallery, isFolder, isGallery } from "../../apiConstants";
-import FolderIcon from "@mui/icons-material/Folder";
-import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
-import { useState } from "react";
 import { useCreateFolder } from "../../services/useCreateFolder";
 import { useCreateGallery } from "../../services/useCreateNewGallery";
+import { CreateButton } from "./CreateButton";
+import { DeleteButton } from "./DeleteButton";
+import { useDeleteNode } from "../../services";
 
-// TODO: Refactor
 export const OrganizeToolbar = () => {
-  const { currentNode } = useOrganizeContext();
+  const { currentNode, selectedNodes, resetSelectedNodes } =
+    useOrganizeContext();
   const { mutate } = useCreateFolder();
   const { mutate: mutateCreateGallery } = useCreateGallery();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<string | null>(null);
-  const [name, setName] = useState("");
-  const open = Boolean(anchorEl);
+  const { mutate: mutateDeleteFolder } = useDeleteNode();
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuItemClick = (type: string) => {
-    if (currentNode === null) return;
-    setDialogType(type);
-    setDialogOpen(true);
-    handleClose();
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-    setName("");
-  };
-
-  const handleCreateSuccess = (newFolderOrGallery: Folder | Gallery) => {
-    handleDialogClose();
+  const handleCreateSuccess = (
+    newFolderOrGallery: Folder | Gallery,
+    closeDialog: () => void
+  ) => {
+    closeDialog();
 
     if (currentNode === null || !isFolder(currentNode)) return;
 
@@ -64,70 +31,74 @@ export const OrganizeToolbar = () => {
     }
   };
 
-  const handleCreate = () => {
+  const handleCreate = (
+    dialogType: "Folder" | "Gallery" | null,
+    name: string,
+    closeDialog: () => void
+  ) => {
     if (currentNode === null) return;
 
     if (dialogType === "Folder") {
       mutate(
         { name, parentId: currentNode?.id },
-        { onSuccess: (newFolder) => handleCreateSuccess(newFolder) }
+        {
+          onSuccess: (newFolder) => handleCreateSuccess(newFolder, closeDialog),
+        }
       );
     }
 
     if (dialogType === "Gallery") {
       mutateCreateGallery(
         { name, parentId: currentNode?.id },
-        { onSuccess: (newGallery) => handleCreateSuccess(newGallery) }
+        {
+          onSuccess: (newGallery) =>
+            handleCreateSuccess(newGallery, closeDialog),
+        }
       );
     }
   };
 
+  const handleDelete = (closeDialog: () => void) => {
+    if (selectedNodes.length !== 1) return;
+
+    mutateDeleteFolder(
+      {
+        id: selectedNodes[0].id,
+        type: isFolder(selectedNodes[0]) ? "Folder" : "Gallery",
+      },
+      {
+        onSuccess: () => handleDeleteSuccess(selectedNodes[0], closeDialog),
+      }
+    );
+  };
+
+  const handleDeleteSuccess = (
+    nodeToDelete: Folder | Gallery,
+    closeDialog: () => void
+  ) => {
+    closeDialog();
+
+    if (currentNode === null || (currentNode && !isFolder(currentNode))) return;
+
+    if (isFolder(nodeToDelete)) {
+      currentNode.subfolders = currentNode.subfolders.filter(
+        (folder) => folder.id !== nodeToDelete.id
+      );
+    }
+
+    if (isGallery(nodeToDelete)) {
+      currentNode.galleries = currentNode.galleries.filter(
+        (gallery) => gallery.id !== nodeToDelete.id
+      );
+    }
+
+    resetSelectedNodes();
+  };
+
   return (
     <Toolbar>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleClick}
-        disabled={currentNode !== null && isGallery(currentNode)}
-      >
-        + Create
-      </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={() => handleMenuItemClick("Folder")}>
-          <ListItemIcon>
-            <FolderIcon />
-          </ListItemIcon>
-          <ListItemText primary="Folder" />
-        </MenuItem>
-        <MenuItem onClick={() => handleMenuItemClick("Gallery")}>
-          <ListItemIcon>
-            <PhotoLibraryIcon />
-          </ListItemIcon>
-          <ListItemText primary="Gallery" />
-        </MenuItem>
-      </Menu>
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Create {dialogType}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={`${dialogType} Name`}
-            type="text"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleCreate} color="primary">
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
+      <DeleteButton selectedNodes={selectedNodes} handleDelete={handleDelete} />
     </Toolbar>
   );
 };

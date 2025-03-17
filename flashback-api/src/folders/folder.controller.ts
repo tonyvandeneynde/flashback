@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Delete, Query } from '@nestjs/common';
+import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth';
 import { FolderService } from './folder.service';
 import { Folder } from 'src/database/entities';
@@ -72,17 +72,27 @@ export class FoldersController {
     });
   }
 
-  @Post('delete')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number' },
-      },
-    },
+  @Delete('delete')
+  @ApiQuery({
+    name: 'id',
+    type: 'number',
+    required: true,
   })
-  async deleteFolder(@Body('id') id: number) {
+  async deleteFolder(@Query('id') id: number) {
     return this.folderService.deleteFolderWithSubFoldersAndGalleries({
+      id,
+      accountId: 3,
+    });
+  }
+
+  @Delete('delete-gallery')
+  @ApiQuery({
+    name: 'id',
+    type: 'number',
+    required: true,
+  })
+  async deleteGallery(@Query('id') id: number) {
+    return this.folderService.deleteGallery({
       id,
       accountId: 3,
     });

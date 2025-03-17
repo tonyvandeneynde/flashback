@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account, Folder, Gallery } from 'src/database/entities';
-import { Repository, TreeRepository } from 'typeorm';
+import { Repository, TreeRepository, UpdateResult } from 'typeorm';
 import { GalleryService } from '../gallery/gallery.service';
 
 @Injectable()
@@ -82,11 +82,21 @@ export class FolderService {
   }: {
     id: number;
     accountId: number;
-  }): Promise<void> {
+  }): Promise<Folder[]> {
     const folder = await this.getFolderById({ id, accountId });
 
     const descendants = await this.folderTreeRepository.findDescendants(folder);
-    this.folderTreeRepository.remove(descendants);
+    return this.folderTreeRepository.remove(descendants);
+  }
+
+  async deleteGallery({
+    id,
+    accountId,
+  }: {
+    id: number;
+    accountId: number;
+  }): Promise<UpdateResult> {
+    return await this.GalleryService.deleteGallery({ id, accountId });
   }
 
   async addNewGalleryToFolder({

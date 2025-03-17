@@ -4,6 +4,7 @@ import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { styled, Typography } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
+import HomeIcon from "@mui/icons-material/Home";
 
 interface FolderTreeProps {
   folders: Folder[];
@@ -24,28 +25,40 @@ const FolderTree = ({
   selectedItemId,
   expandedItemsIds,
 }: FolderTreeProps) => {
-  const renderTree = (node: Folder | Gallery, path: Folder[]) => (
-    <TreeItem
-      key={node.id}
-      itemId={`${isFolder(node) ? "folder-" : "gallery-"}${node.id.toString()}`}
-      label={
-        <StyledLabelContainer>
-          {isFolder(node) ? <FolderIcon /> : <PhotoLibraryIcon />}
-          <Typography>{node.name}</Typography>
-        </StyledLabelContainer>
-      }
-      onClick={() => onSelectNode([...path, node])}
-    >
-      {isFolder(node) &&
-        node.subfolders.map((subfolder) => {
-          return renderTree(subfolder, [...path, node]);
-        })}
-      {isFolder(node) &&
-        node.galleries.map((gallery) => {
-          return renderTree(gallery, [...path, node]);
-        })}
-    </TreeItem>
-  );
+  const renderTree = (node: Folder | Gallery, path: Folder[]) => {
+    let icon = <></>;
+
+    if (isFolder(node)) {
+      icon = node.parentId === undefined ? <HomeIcon /> : <FolderIcon />;
+    } else {
+      icon = <PhotoLibraryIcon />;
+    }
+
+    return (
+      <TreeItem
+        key={node.id}
+        itemId={`${
+          isFolder(node) ? "folder-" : "gallery-"
+        }${node.id.toString()}`}
+        label={
+          <StyledLabelContainer>
+            {icon}
+            <Typography>{node.name}</Typography>
+          </StyledLabelContainer>
+        }
+        onClick={() => onSelectNode([...path, node])}
+      >
+        {isFolder(node) &&
+          node.subfolders.map((subfolder) => {
+            return renderTree(subfolder, [...path, node]);
+          })}
+        {isFolder(node) &&
+          node.galleries.map((gallery) => {
+            return renderTree(gallery, [...path, node]);
+          })}
+      </TreeItem>
+    );
+  };
 
   return (
     <SimpleTreeView

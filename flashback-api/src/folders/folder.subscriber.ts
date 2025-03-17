@@ -20,6 +20,7 @@ export class FolderSubscriber implements EntitySubscriberInterface<Folder> {
     const galleryRepository = event.manager.getRepository(Gallery);
 
     const galleries = await galleryRepository.find({
+      relations: ['parent'],
       where: { parent: event.entity },
     });
 
