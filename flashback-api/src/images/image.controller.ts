@@ -187,6 +187,8 @@ export class ImagesController {
         image.latitudeRef = result.tags.GPSLatitudeRef;
         image.longitudeRef = result.tags.GPSLongitudeRef;
         image.orientation = result.tags.Orientation;
+        image.width = result.tags.ExifImageWidth;
+        image.height = result.tags.ExifImageHeight;
       }
 
       await this.imageService.save(image, accountId, email, galleryId);

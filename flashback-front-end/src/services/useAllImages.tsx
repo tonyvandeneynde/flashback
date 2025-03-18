@@ -9,7 +9,7 @@ const fetchImages = async ({
   pageParam?: number;
 }): Promise<AxiosResponse<Image[]>> => {
   const response = await axios.get(`${API_PREFIX}/${IMAGES}`, {
-    params: { page: pageParam, limit: 20 },
+    params: { page: pageParam, limit: 40 },
   });
   return response.data;
 };

@@ -1,5 +1,5 @@
 import { useImages } from "../../services";
-import ImageGallery from "../ImageGallery/ImageGallery";
+import { ImageGallery } from "../ImageGallery/ImageGallery";
 
 export const TimelinePage = () => {
   const imageData = useImages();

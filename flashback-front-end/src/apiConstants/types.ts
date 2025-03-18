@@ -5,6 +5,9 @@ export interface Image {
   mediumPath: string;
   thumbnailPath: string;
   tags: string[];
+  width: number;
+  height: number;
+  orientation: number;
 }
 
 export interface Gallery {

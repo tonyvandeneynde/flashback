@@ -61,6 +61,12 @@ export class Image {
   @Column({ nullable: true })
   orientation: number;
 
+  @Column({ nullable: true })
+  width: number;
+
+  @Column({ nullable: true })
+  height: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
