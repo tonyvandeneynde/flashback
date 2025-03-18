@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { CircularProgress, Typography, styled } from "@mui/material";
 import { Image } from "../../apiConstants";
-import { InfiniteData } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
-import { UseInfiniteQueryResult } from "@tanstack/react-query";
-
-type ImageGalleryProps = UseInfiniteQueryResult<
-  InfiniteData<AxiosResponse<Image[], any>, unknown>,
-  Error
->;
+import { ImageTile } from "./ImageTile";
+import { useImageViewer } from "../../contexts/ImageViewerContext";
+import { useImagesByGallery } from "../../services";
 
 const StyledRow = styled("div")`
   display: flex;
@@ -45,16 +40,18 @@ interface Row {
   height: number;
 }
 
-export const ImageGallery = ({
-  data,
-  fetchNextPage,
-  hasNextPage,
-  isFetchingNextPage,
-  status,
-  error,
-}: ImageGalleryProps) => {
+export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    error,
+  } = useImagesByGallery(galleryId);
+  const { openViewer } = useImageViewer();
   const [rows, setRows] = useState<Row[]>([]);
-  const maxRowHeight = 200;
+  const maxRowHeight = 250;
   const gap = 8;
 
   const handleScroll = () => {
@@ -62,7 +59,7 @@ export const ImageGallery = ({
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
 
-    if (scrollTop + windowHeight >= documentHeight - 50) {
+    if (scrollTop + windowHeight >= documentHeight - maxRowHeight) {
       if (hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
@@ -75,7 +72,7 @@ export const ImageGallery = ({
       const newRows: Row[] = [];
       let currentRow: Row = { images: [], height: maxRowHeight };
       let currentRowWidth = 0;
-      const maxRowWidth = window.innerWidth - 16; // Adjust for padding
+      const maxRowWidth = window.innerWidth - 16; // left and right margin of 8px
 
       allImages.forEach((image) => {
         const [originalImageHeight, originalImageWidth] = [5, 6, 7, 8].includes(
@@ -133,16 +130,24 @@ export const ImageGallery = ({
     return <Typography color="error">Error: {error.message}</Typography>;
   }
 
+  const handleClick = (image: Image) => {
+    openViewer({
+      galleryId,
+      initialImage: image,
+    });
+  };
+
   return (
     <StyledGallery>
       {rows.map((row, rowIndex) => (
         <StyledRow key={rowIndex}>
           {row.images.map((image: Image) => (
             <StyledImageWrapper key={image.id}>
-              <StyledImage
-                height={`${row.height}px`}
-                src={image.mediumPath}
+              <ImageTile
+                imageSrc={image.mediumPath}
                 alt={image.filename}
+                height={row.height}
+                onDoubleClick={() => handleClick(image)}
               />
             </StyledImageWrapper>
           ))}

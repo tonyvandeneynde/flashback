@@ -7,16 +7,26 @@ const fetchImagesByGallery = async ({
   galleryId,
   pageParam = 1,
 }: {
-  galleryId: number;
+  galleryId: number | null;
   pageParam?: number;
 }): Promise<AxiosResponse<Image[]>> => {
+  if (!galleryId) {
+    return {
+      data: [],
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config: {} as any,
+    };
+  }
+
   const response = await axios.get(`${API_PREFIX}/${IMAGES_BY_GALLERY}`, {
     params: { galleryId, page: pageParam, limit: 40 },
   });
   return response.data;
 };
 
-export const useImagesByGallery = (galleryId: number) => {
+export const useImagesByGallery = (galleryId: number | null) => {
   const queryResult = useInfiniteQuery({
     queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${galleryId}`],
     queryFn: async ({ pageParam = 1 }) =>
