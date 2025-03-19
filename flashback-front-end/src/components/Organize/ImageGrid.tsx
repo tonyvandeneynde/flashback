@@ -1,18 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { CircularProgress, Typography, styled } from "@mui/material";
-import { Image } from "../../apiConstants";
-import { InfiniteData } from "@tanstack/react-query";
-import { AxiosResponse } from "axios";
-import { UseInfiniteQueryResult } from "@tanstack/react-query";
+import { Gallery, Image } from "../../apiConstants";
 import { ImageTile } from "./ImageTile";
-
-type ImageGalleryProps = UseInfiniteQueryResult<
-  InfiniteData<AxiosResponse<Image[], any>, unknown>,
-  Error
-> & {
-  toggleSelectedImage: (image: Image) => void;
-  selectedImages: Image[];
-};
+import { useImageViewer } from "../../contexts/ImageViewerContext";
+import { useImagesByGallery } from "../../services";
+import { useOrganizeContext } from "../../contexts/OrganizeContext";
 
 const StyledGrid = styled("div")`
   display: grid;
@@ -20,31 +12,43 @@ const StyledGrid = styled("div")`
   gap: 8px;
 `;
 
-export const ImageGrid = ({
-  data,
-  fetchNextPage,
-  hasNextPage,
-  isFetchingNextPage,
-  status,
-  error,
-  selectedImages,
-  toggleSelectedImage,
-}: ImageGalleryProps) => {
-  const handleScroll = () => {
-    const scrollTop = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
+const Container = styled("div")`
+  height: 100%;
+  overflow-y: auto;
+`;
 
-    if (scrollTop + windowHeight >= documentHeight - 50) {
-      if (hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
+export const ImageGrid = ({ gallery }: { gallery: Gallery }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { openViewer } = useImageViewer();
+  const { toggleSelectedImage, selectedImages } = useOrganizeContext();
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    error,
+  } = useImagesByGallery(gallery.id);
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+
+      if (scrollTop + clientHeight >= scrollHeight - 50) {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
       }
     }
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
   }, [hasNextPage, isFetchingNextPage]);
 
   if (status === "pending") {
@@ -56,7 +60,7 @@ export const ImageGrid = ({
   }
 
   return (
-    <div>
+    <Container ref={containerRef}>
       <StyledGrid>
         {data?.pages.map((page, pageIndex) => (
           <React.Fragment key={pageIndex}>
@@ -66,6 +70,9 @@ export const ImageGrid = ({
                   image={image}
                   isSelected={selectedImages.includes(image)}
                   onClick={() => toggleSelectedImage(image)}
+                  onDoubleClick={() =>
+                    openViewer({ galleryId: gallery.id, initialImage: image })
+                  }
                 />
               </div>
             ))}
@@ -73,6 +80,6 @@ export const ImageGrid = ({
         ))}
       </StyledGrid>
       {isFetchingNextPage && <CircularProgress />}
-    </div>
+    </Container>
   );
 };

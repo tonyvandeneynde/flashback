@@ -4,6 +4,7 @@ import { Image } from "../../apiConstants";
 import { ImageTile } from "./ImageTile";
 import { useImageViewer } from "../../contexts/ImageViewerContext";
 import { useImagesByGallery } from "../../services";
+import { ScrollToTopButton } from "./ScrollToTopButton";
 
 const StyledRow = styled("div")`
   display: flex;
@@ -153,6 +154,7 @@ export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
         </StyledRow>
       ))}
       {isFetchingNextPage && <CircularProgress />}
+      <ScrollToTopButton />
     </StyledGallery>
   );
 };

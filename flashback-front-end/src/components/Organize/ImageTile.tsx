@@ -25,19 +25,18 @@ export const ImageTile = ({
   image,
   isSelected = false,
   onClick,
-}: //   onDoubleClick,
-{
+  onDoubleClick,
+}: {
   image: Image;
   isSelected?: boolean;
   onClick: () => void;
-  //   onDoubleClick: () => void;
+  onDoubleClick: () => void;
 }) => {
   return (
     <StyledCard
       isSelected={isSelected}
       onClick={onClick}
-      // TODO: Implement onDoubleClick to open the image viewer
-      //   onDoubleClick={onDoubleClick}
+      onDoubleClick={onDoubleClick}
     >
       <StyledImage src={image.thumbnailPath} alt={image.filename} />
     </StyledCard>

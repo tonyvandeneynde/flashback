@@ -12,6 +12,7 @@ const StyledDropZone = styled("div")`
   border: 2px dashed #cccccc;
   padding: 20px;
   height: 100%;
+  overflow-y: auto;
 `;
 
 export const ImageGalleryUploadWrapper = ({

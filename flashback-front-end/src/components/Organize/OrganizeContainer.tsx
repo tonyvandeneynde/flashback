@@ -6,9 +6,10 @@ import { ContentContainer } from "./ContentContainer";
 import { OrganizeToolbar } from "./OrganizeToolbar";
 
 const Container = styled("div")`
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  overflow: hidden;
   width: 100%;
 `;
 
@@ -31,7 +32,9 @@ const Toolbar = styled("div")`
 
 const MainContent = styled("div")`
   display: flex;
+  flex-direction: row;
   flex: 1;
+  overflow: hidden;
 `;
 
 const TreeSection = styled("div")`
@@ -42,8 +45,18 @@ const TreeSection = styled("div")`
 `;
 
 const ContentSection = styled("div")`
+  display: flex;
+  flex-direction: column;
   flex: 1;
   padding: 16px;
+  overflow: hidden;
+`;
+
+const StyledContentContainer = styled(ContentContainer)`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 `;
 
 export const OrganizeContainer = () => {
@@ -61,7 +74,7 @@ export const OrganizeContainer = () => {
             <FolderTreeContainer />
           </TreeSection>
           <ContentSection>
-            <ContentContainer />
+            <StyledContentContainer />
           </ContentSection>
         </MainContent>
       </Container>

@@ -6,7 +6,7 @@ import { NodeTile } from "./NodeTile";
 import { ImageGallery } from "../ImageGallery/ImageGallery";
 import { BreadcrumbBar } from "../BreadcrumbBar/BreadcrumbBar";
 
-const SiteContainer = styled("div")`
+const Container = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -20,7 +20,7 @@ const GridContainer = styled("div")`
   padding: 16px;
 `;
 
-export const SitePage = () => {
+export const SiteContainer = () => {
   const { data, isLoading } = useFolders();
   const [path, setPath] = useState<(Folder | Gallery)[]>([]);
   const [currentNode, setCurrentNode] = useState<Folder | Gallery | undefined>(
@@ -54,7 +54,7 @@ export const SitePage = () => {
   }
 
   return (
-    <SiteContainer>
+    <Container>
       <BreadcrumbBar path={path} onClick={handleNodeChanged} />
       {isFolder(currentNode) ? (
         <GridContainer>
@@ -71,6 +71,6 @@ export const SitePage = () => {
       ) : (
         <ImageGallery galleryId={currentNode.id} />
       )}
-    </SiteContainer>
+    </Container>
   );
 };
