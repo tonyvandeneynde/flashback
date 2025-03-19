@@ -21,11 +21,6 @@ const StyledImageWrapper = styled("div")`
   overflow: hidden;
 `;
 
-const StyledImage = styled("img")`
-  width: auto;
-  cursor: pointer;
-`;
-
 const StyledGallery = styled("div")`
   width: 100%;
   display: flex;
@@ -33,6 +28,10 @@ const StyledGallery = styled("div")`
   justify-content: center;
   gap: 8px;
   margin: 8px 0;
+`;
+
+const StyledCircularProgress = styled(CircularProgress)`
+  margin: auto;
 `;
 
 interface Row {
@@ -123,7 +122,7 @@ export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
   }, [data, hasNextPage, isFetchingNextPage]);
 
   if (status === "pending") {
-    return <CircularProgress />;
+    return <StyledCircularProgress />;
   }
 
   if (status === "error") {

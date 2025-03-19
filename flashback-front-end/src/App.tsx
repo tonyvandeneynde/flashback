@@ -12,6 +12,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { OrganizeContainer } from "./components/Organize/OrganizeContainer";
 import { ImageViewerProvider } from "./contexts/ImageViewerContext";
+import { SitePage } from "./components/Site/SitePage";
 
 function App() {
   const queryClient = new QueryClient({
@@ -38,7 +39,7 @@ function App() {
                   <Route path="/" element={<Navigate to="/timeline" />} />
                   <Route path="/organize" element={<OrganizeContainer />} />
                   <Route path="/timeline" element={<TimelinePage />} />
-                  <Route path="/site" element={<div>site</div>} />
+                  <Route path="/site" element={<SitePage />} />
                 </Routes>
               </MainLayout>
             </Router>
