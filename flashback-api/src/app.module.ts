@@ -5,6 +5,7 @@ import { ImageModule } from './images/image.module';
 import { StorageModule } from './storage/storage.module';
 import { DatabaseModule } from './database/database.module';
 import { FolderSubscriber, FolderModule, FoldersController } from './folders';
+import { GalleryModule } from './gallery';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { FolderSubscriber, FolderModule, FoldersController } from './folders';
     ImageModule,
     StorageModule,
     FolderModule,
+    GalleryModule,
   ],
   controllers: [ImagesController, AuthController, FoldersController],
   providers: [FolderSubscriber],

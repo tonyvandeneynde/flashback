@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Query,
   Request,
   UploadedFiles,
@@ -66,6 +67,31 @@ export class ImagesController {
     @Request() req: { user: { accountId: number; email: string } },
   ) {
     return this.imageService.getImagesByIds(ids, req.user.accountId);
+  }
+
+  @Put('update')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        parentId: { type: 'number' },
+        name: { type: 'string' },
+      },
+    },
+  })
+  async updateImages(
+    @Body('ids') ids: number[],
+    @Body('parentId') parentId: number,
+    @Body('name') name: string,
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.imageService.updateImages({
+      ids,
+      parentId,
+      name,
+      accountId: req.user.accountId,
+    });
   }
 
   @Post('delete')

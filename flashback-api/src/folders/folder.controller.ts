@@ -1,16 +1,27 @@
-import { Controller, Get, Post, Body, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth';
 import { FolderService } from './folder.service';
 import { Folder } from 'src/database/entities';
 import { CreateFolderDto } from './create-folder.dto';
-import { CreateGalleryDto } from '../gallery';
+import { CreateGalleryDto, GalleryService } from '../gallery';
 
 // TODO: Restrict access to folders based on account
 // @UseGuards(JwtAuthGuard)
 @Controller('folders')
 export class FoldersController {
-  constructor(private readonly folderService: FolderService) {}
+  constructor(
+    private readonly folderService: FolderService,
+    private readonly galleryService: GalleryService,
+  ) {}
 
   @Get()
   async getAllFolders(): Promise<Folder[]> {
@@ -69,6 +80,50 @@ export class FoldersController {
       folderId: createGalleryDto.parentId,
       galleryName: createGalleryDto.name,
       accountId: 3,
+    });
+  }
+
+  @Put('update')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+        parentId: { type: 'number' },
+      },
+    },
+  })
+  async moveFolder(
+    @Body() updateFolderDto: { id: number; parentId?: number; name?: string },
+    // @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.folderService.updateFolder({
+      id: updateFolderDto.id,
+      name: updateFolderDto.name,
+      parentId: updateFolderDto.parentId,
+      accountId: 3,
+    });
+  }
+
+  @Put('update-gallery')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+        parentId: { type: 'number' },
+      },
+    },
+  })
+  async updateGallery(
+    @Body() updateGalleryDto: { id: number; name?: string; parentId?: number },
+    // @Request() req: { user: { accountId: number; email: string } },
+  ) {
+    return this.galleryService.updateGallery({
+      accountId: 3,
+      ...updateGalleryDto,
     });
   }
 

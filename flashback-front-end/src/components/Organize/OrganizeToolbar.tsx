@@ -6,46 +6,28 @@ import {
   Gallery,
   IMAGES_BY_GALLERY,
   isFolder,
-  isGallery,
+  Image,
 } from "../../apiConstants";
 import { useCreateFolder } from "../../services/useCreateFolder";
 import { useCreateGallery } from "../../services/useCreateNewGallery";
 import { CreateButton } from "./CreateButton";
 import { DeleteButton } from "./DeleteButton";
-import { useDeleteNode } from "../../services";
+import { useDeleteNode, useUpdateImages } from "../../services";
 import { useDeleteImages } from "../../services/useDeleteImages";
 import { useQueryClient } from "@tanstack/react-query";
+import { MoveButton } from "./MoveButton";
+import { useUpdateNode } from "../../services/useMoveNode";
 
 export const OrganizeToolbar = () => {
   const queryClient = useQueryClient();
-  const {
-    currentNode,
-    selectedNode,
-    resetSelectedNodes,
-    selectedImages,
-    resetSelectedImages,
-  } = useOrganizeContext();
+  const { currentNode, selectedNode, selectedImages, resetSelections } =
+    useOrganizeContext();
   const { mutate } = useCreateFolder();
   const { mutate: mutateCreateGallery } = useCreateGallery();
   const { mutate: mutateDeleteFolder } = useDeleteNode();
   const { mutate: mutateDeleteImages } = useDeleteImages();
-
-  const handleCreateSuccess = (
-    newFolderOrGallery: Folder | Gallery,
-    closeDialog: () => void
-  ) => {
-    closeDialog();
-
-    if (currentNode === null || !isFolder(currentNode)) return;
-
-    if (isFolder(newFolderOrGallery)) {
-      currentNode.subfolders.push(newFolderOrGallery);
-    }
-
-    if (isGallery(newFolderOrGallery)) {
-      currentNode.galleries.push(newFolderOrGallery);
-    }
-  };
+  const { mutate: mutateMoveNode } = useUpdateNode();
+  const { mutate: mutateUpdateImages } = useUpdateImages();
 
   const handleCreate = (
     dialogType: "Folder" | "Gallery" | null,
@@ -55,23 +37,13 @@ export const OrganizeToolbar = () => {
     if (currentNode === null) return;
 
     if (dialogType === "Folder") {
-      mutate(
-        { name, parentId: currentNode?.id },
-        {
-          onSuccess: (newFolder) => handleCreateSuccess(newFolder, closeDialog),
-        }
-      );
+      mutate({ name, parentId: currentNode?.id });
     }
 
     if (dialogType === "Gallery") {
-      mutateCreateGallery(
-        { name, parentId: currentNode?.id },
-        {
-          onSuccess: (newGallery) =>
-            handleCreateSuccess(newGallery, closeDialog),
-        }
-      );
+      mutateCreateGallery({ name, parentId: currentNode?.id });
     }
+    closeDialog();
   };
 
   const handleDeleteNodes = (closeDialog: () => void) => {
@@ -83,32 +55,10 @@ export const OrganizeToolbar = () => {
         type: isFolder(selectedNode) ? "Folder" : "Gallery",
       },
       {
-        onSuccess: () => handleDeleteNodesSuccess(selectedNode, closeDialog),
+        onSuccess: resetSelections,
       }
     );
-  };
-
-  const handleDeleteNodesSuccess = (
-    nodeToDelete: Folder | Gallery,
-    closeDialog: () => void
-  ) => {
     closeDialog();
-
-    if (currentNode === null || (currentNode && !isFolder(currentNode))) return;
-
-    if (isFolder(nodeToDelete)) {
-      currentNode.subfolders = currentNode.subfolders.filter(
-        (folder) => folder.id !== nodeToDelete.id
-      );
-    }
-
-    if (isGallery(nodeToDelete)) {
-      currentNode.galleries = currentNode.galleries.filter(
-        (gallery) => gallery.id !== nodeToDelete.id
-      );
-    }
-
-    resetSelectedNodes();
   };
 
   const handleDeleteImages = (closeDialog: () => void) => {
@@ -125,7 +75,62 @@ export const OrganizeToolbar = () => {
     queryClient.invalidateQueries({
       queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentNode?.id}`],
     });
-    resetSelectedImages();
+    resetSelections();
+  };
+
+  const handleMoveNode = ({
+    closeDialog,
+    selectedNode,
+    newNodeParent,
+  }: {
+    closeDialog: () => void;
+    selectedNode: Folder | Gallery;
+    newNodeParent: Folder;
+  }) => {
+    if (!selectedNode || !newNodeParent) return;
+    mutateMoveNode(
+      {
+        id: selectedNode.id,
+        parentId: newNodeParent.id,
+        type: isFolder(selectedNode) ? "Folder" : "Gallery",
+      },
+      {
+        onSuccess: resetSelections,
+      }
+    );
+    closeDialog();
+  };
+
+  const handleMoveImages = ({
+    closeDialog,
+    selectedImages,
+    newImagesParent,
+  }: {
+    closeDialog: () => void;
+    selectedImages: Image[];
+    newImagesParent: Gallery;
+  }) => {
+    if (selectedImages.length === 0 || !newImagesParent) return;
+    mutateUpdateImages(
+      {
+        ids: selectedImages.map((image) => image.id),
+        parentId: newImagesParent.id,
+      },
+      {
+        onSuccess: () => handleMoveImagesSuccess(newImagesParent),
+      }
+    );
+    closeDialog();
+  };
+
+  const handleMoveImagesSuccess = (newImagesParent: Gallery) => {
+    queryClient.invalidateQueries({
+      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentNode?.id}`],
+    });
+    queryClient.invalidateQueries({
+      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${newImagesParent.id}`],
+    });
+    resetSelections();
   };
 
   return (
@@ -136,6 +141,12 @@ export const OrganizeToolbar = () => {
         selectedImages={selectedImages}
         handleDeleteNodes={handleDeleteNodes}
         handleDeleteImages={handleDeleteImages}
+      />
+      <MoveButton
+        selectedNode={selectedNode}
+        handleMoveNode={handleMoveNode}
+        selectedImages={selectedImages}
+        handleMoveImages={handleMoveImages}
       />
     </Toolbar>
   );

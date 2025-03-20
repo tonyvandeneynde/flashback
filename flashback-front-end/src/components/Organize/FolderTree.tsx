@@ -1,4 +1,4 @@
-import { Folder, Gallery, isFolder } from "../../apiConstants";
+import { Folder, Gallery, isFolder, isGallery } from "../../apiConstants";
 import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import { styled, Typography } from "@mui/material";
@@ -7,16 +7,19 @@ import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import HomeIcon from "@mui/icons-material/Home";
 
 interface FolderTreeProps {
+  disableGalleries?: boolean;
+  disableFolders?: boolean;
   folders: Folder[];
   selectedItemId?: string;
   expandedItemsIds?: string[];
   onSelectNode: (path: (Folder | Gallery)[]) => void;
 }
 
-const StyledLabelContainer = styled("div")`
+const StyledLabelContainer = styled("div")<{ greyedOut?: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
+  opacity: ${({ greyedOut }) => (greyedOut ? 0.5 : 1)};
 `;
 
 const FolderTree = ({
@@ -24,6 +27,8 @@ const FolderTree = ({
   onSelectNode,
   selectedItemId,
   expandedItemsIds,
+  disableGalleries,
+  disableFolders,
 }: FolderTreeProps) => {
   const renderTree = (node: Folder | Gallery, path: Folder[]) => {
     let icon = <></>;
@@ -34,6 +39,10 @@ const FolderTree = ({
       icon = <PhotoLibraryIcon />;
     }
 
+    const disabled =
+      (isFolder(node) && disableFolders) ||
+      (isGallery(node) && disableGalleries);
+
     return (
       <TreeItem
         key={node.id}
@@ -41,12 +50,12 @@ const FolderTree = ({
           isFolder(node) ? "folder-" : "gallery-"
         }${node.id.toString()}`}
         label={
-          <StyledLabelContainer>
+          <StyledLabelContainer greyedOut={disabled}>
             {icon}
             <Typography>{node.name}</Typography>
           </StyledLabelContainer>
         }
-        onClick={() => onSelectNode([...path, node])}
+        onClick={() => !disabled && onSelectNode([...path, node])}
       >
         {isFolder(node) &&
           node.subfolders.map((subfolder) => {

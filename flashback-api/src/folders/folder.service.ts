@@ -76,6 +76,32 @@ export class FolderService {
     });
   }
 
+  async updateFolder({
+    id,
+    accountId,
+    name,
+    parentId,
+  }: {
+    id: number;
+    accountId: number;
+    name?: string;
+    parentId?: number;
+  }): Promise<Folder> {
+    const folder = await this.getFolderById({ id, accountId });
+    if (name) {
+      folder.name = name;
+    }
+    if (parentId !== undefined) {
+      const parentFolder = await this.getFolderById({
+        id: parentId,
+        accountId,
+      });
+      folder.parent = parentFolder;
+    }
+
+    return this.folderTreeRepository.save(folder);
+  }
+
   async deleteFolderWithSubFoldersAndGalleries({
     id,
     accountId,

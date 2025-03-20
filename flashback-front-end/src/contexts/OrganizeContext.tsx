@@ -6,7 +6,8 @@ import {
   ReactNode,
 } from "react";
 import { useFolders } from "../services";
-import { Gallery, Folder, Image } from "../apiConstants";
+import { Gallery, Folder, Image, isFolder } from "../apiConstants";
+import { getTreeNodeById } from "../utils";
 
 interface OrganizeContextType {
   folders: Folder[];
@@ -19,8 +20,7 @@ interface OrganizeContextType {
   toggleSelectedImage: (image: Image) => void;
   toggleSelectedNode: (item: Folder | Gallery) => void;
   setPath: (newPath: (Folder | Gallery)[]) => void;
-  resetSelectedNodes: () => void;
-  resetSelectedImages: () => void;
+  resetSelections: () => void;
 }
 
 const initialOrganizeContext: OrganizeContextType = {
@@ -34,8 +34,7 @@ const initialOrganizeContext: OrganizeContextType = {
   toggleSelectedNode: () => {},
   toggleSelectedImage: () => {},
   setPath: () => {},
-  resetSelectedNodes: () => {},
-  resetSelectedImages: () => {},
+  resetSelections: () => {},
 };
 
 const OrganizeContext = createContext<OrganizeContextType>(
@@ -99,6 +98,11 @@ export const OrganizeContextProvider = ({
     setSelectedImages([]);
   };
 
+  const resetSelections = () => {
+    resetSelectedNodes();
+    resetSelectedImages();
+  };
+
   useEffect(() => {
     // Deselect everything when the current node changes
     setSelectedImages([]);
@@ -109,6 +113,19 @@ export const OrganizeContextProvider = ({
     // Set the first (Home folder)  as the current node as the default after fetching folders
     if (currentNode === null && folders.length > 0) {
       handleSetPath([folders[0]]);
+    } else if (currentNode !== null) {
+      // reset the currentNode from the updated folders
+      const updatedNode = getTreeNodeById(
+        folders,
+        currentNode.id,
+        isFolder(currentNode) ? "Folder" : "Gallery"
+      );
+      if (updatedNode) {
+        setCurrentNode(updatedNode);
+      } else {
+        // Fallback to home folder if the current node is not found in the updated folders
+        setCurrentNode(folders[0]);
+      }
     }
   }, [folders]);
 
@@ -125,8 +142,7 @@ export const OrganizeContextProvider = ({
         toggleSelectedNode,
         toggleSelectedImage,
         setPath: handleSetPath,
-        resetSelectedNodes,
-        resetSelectedImages,
+        resetSelections,
       }}
     >
       {children}

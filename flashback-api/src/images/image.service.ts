@@ -83,6 +83,34 @@ export class ImageService {
     });
   }
 
+  async updateImages({
+    ids,
+    name,
+    parentId,
+    accountId,
+  }: {
+    ids: number[];
+    name: string;
+    parentId: number;
+    accountId: number;
+  }) {
+    const images = await this.imageRepository.find({
+      where: { id: In(ids), account: { id: accountId } },
+    });
+
+    images.forEach((image) => {
+      if (name) {
+        image.name = name;
+      }
+
+      if (parentId) {
+        image.gallery = { id: parentId } as Gallery;
+      }
+    });
+
+    return this.imageRepository.save(images);
+  }
+
   async deleteImages(ids: number[], accountId: number) {
     const images = await this.imageRepository.find({
       where: { id: In(ids), account: { id: accountId } },

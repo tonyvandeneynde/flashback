@@ -33,7 +33,7 @@ export const DeleteButton = ({
     dialogText = "Are you sure you want to delete all selected images?";
   }
 
-  const handleCreateClick = () => {
+  const handleDeleteClick = () => {
     setDialogOpen(true);
   };
 
@@ -46,7 +46,7 @@ export const DeleteButton = ({
       <Button
         variant="contained"
         color="primary"
-        onClick={handleCreateClick}
+        onClick={handleDeleteClick}
         disabled={!selectedNode && selectedImages.length === 0}
       >
         Delete

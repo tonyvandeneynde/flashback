@@ -6,4 +6,6 @@ export * from "./useDeleteImages";
 export * from "./useDeleteNode";
 export * from "./useFolders";
 export * from "./useImagesByGallery";
+export * from "./useMoveNode";
+export * from "./useUpdateImages";
 export * from "./useUploadImages";
