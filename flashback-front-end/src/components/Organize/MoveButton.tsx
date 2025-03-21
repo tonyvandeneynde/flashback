@@ -28,12 +28,12 @@ const StyledDialog = styled(Dialog)`
 
 export const MoveButton = ({
   selectedNode,
-  selectedImages,
+  selectedImageIds,
   handleMoveNode,
   handleMoveImages,
 }: {
   selectedNode: Folder | Gallery | null;
-  selectedImages: Image[];
+  selectedImageIds: number[];
   handleMoveNode: ({
     closeDialog,
     selectedNode,
@@ -45,11 +45,11 @@ export const MoveButton = ({
   }) => void;
   handleMoveImages: ({
     closeDialog,
-    selectedImages,
+    selectedImageIds,
     newImagesParent,
   }: {
     closeDialog: () => void;
-    selectedImages: Image[];
+    selectedImageIds: number[];
     newImagesParent: Gallery;
   }) => void;
 }) => {
@@ -84,14 +84,14 @@ export const MoveButton = ({
   };
 
   useEffect(() => {
-    if (selectedNode && selectedImages.length === 0) {
+    if (selectedNode && selectedImageIds.length === 0) {
       setMode("Node");
-    } else if (selectedImages.length > 0 && !selectedNode) {
+    } else if (selectedImageIds.length > 0 && !selectedNode) {
       setMode("Images");
     } else {
       setMode(null);
     }
-  }, [selectedNode, selectedImages]);
+  }, [selectedNode, selectedImageIds]);
 
   const handleMove = () => {
     if (mode === "Node" && selectedNode && newNodeParent) {
@@ -102,12 +102,12 @@ export const MoveButton = ({
       });
     } else if (
       mode === "Images" &&
-      selectedImages.length > 0 &&
+      selectedImageIds.length > 0 &&
       newImagesParent
     ) {
       handleMoveImages?.({
         closeDialog: handleDialogClose,
-        selectedImages,
+        selectedImageIds,
         newImagesParent: newImagesParent,
       });
     }

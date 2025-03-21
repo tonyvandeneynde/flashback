@@ -3,20 +3,20 @@ import { API_PREFIX, IMAGES_BY_GALLERY } from "../apiConstants";
 import axios, { AxiosResponse } from "axios";
 import { Image } from "../apiConstants";
 
+type PartialAxiosResponse<T> = Omit<AxiosResponse<T>, "config" | "headers">;
+
 const fetchImagesByGallery = async ({
   galleryId,
   pageParam = 1,
 }: {
   galleryId: number | null;
   pageParam?: number;
-}): Promise<AxiosResponse<Image[]>> => {
+}): Promise<PartialAxiosResponse<Image[]>> => {
   if (!galleryId) {
     return {
       data: [],
       status: 200,
       statusText: "OK",
-      headers: {},
-      config: {} as any,
     };
   }
 

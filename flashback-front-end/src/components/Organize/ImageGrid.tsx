@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react";
 import { CircularProgress, Typography, styled } from "@mui/material";
 import { Gallery, Image } from "../../apiConstants";
 import { ImageTile } from "./ImageTile";
 import { useImageViewer } from "../../contexts/ImageViewerContext";
-import { useImagesByGallery } from "../../services";
+import { useAllImagesByGallery } from "../../services";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
+import { useMultiselect } from "../../hooks";
 
 const StyledGrid = styled("div")`
   display: grid;
@@ -18,65 +18,55 @@ const Container = styled("div")`
 `;
 
 export const ImageGrid = ({ gallery }: { gallery: Gallery }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
   const { openViewer } = useImageViewer();
-  const { toggleSelectedImage, selectedImages } = useOrganizeContext();
+  const { toggleSelectedImage, selectedImageIds, multiSelectImages } =
+    useOrganizeContext();
+
+  const { images, status, error, isFetchingNextPage } = useAllImagesByGallery(
+    gallery.id
+  );
 
   const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-    error,
-  } = useImagesByGallery(gallery.id);
+    handleImageClick: multiSelectHandleClick,
+    handleKeyDown,
+    handleKeyUp,
+    isMultiselectActive,
+  } = useMultiselect({
+    images,
+    selectedImageIds,
+    multiSelectImages,
+  });
 
-  const handleScroll = () => {
-    if (containerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-
-      if (scrollTop + clientHeight >= scrollHeight - 50) {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      }
+  const handleImageClick = (imageId: number) => {
+    if (isMultiselectActive) {
+      multiSelectHandleClick(imageId);
+    } else {
+      toggleSelectedImage(imageId);
     }
   };
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
-  }, [hasNextPage, isFetchingNextPage]);
 
   if (status === "pending") {
     return <CircularProgress />;
   }
 
   if (status === "error") {
-    return <Typography color="error">Error: {error.message}</Typography>;
+    return <Typography color="error">Error: {error?.message}</Typography>;
   }
 
   return (
-    <Container ref={containerRef}>
-      <StyledGrid>
-        {data?.pages.map((page, pageIndex) => (
-          <React.Fragment key={pageIndex}>
-            {page.data.map((image: Image) => (
-              <div key={image.id}>
-                <ImageTile
-                  image={image}
-                  isSelected={selectedImages.includes(image)}
-                  onClick={() => toggleSelectedImage(image)}
-                  onDoubleClick={() =>
-                    openViewer({ galleryId: gallery.id, initialImage: image })
-                  }
-                />
-              </div>
-            ))}
-          </React.Fragment>
+    <Container>
+      <StyledGrid onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} tabIndex={0}>
+        {images.map((image: Image) => (
+          <div key={image.id}>
+            <ImageTile
+              image={image}
+              isSelected={selectedImageIds.includes(image.id)}
+              onClick={() => handleImageClick(image.id)}
+              onDoubleClick={() =>
+                openViewer({ galleryId: gallery.id, initialImage: image })
+              }
+            />
+          </div>
         ))}
       </StyledGrid>
       {isFetchingNextPage && <CircularProgress />}

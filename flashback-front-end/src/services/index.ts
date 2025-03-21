@@ -1,5 +1,6 @@
 export * from "./authService";
 export * from "./useAllImages";
+export * from "./useAllImagesByGallery";
 export * from "./useCreateFolder";
 export * from "./useCreateNewGallery";
 export * from "./useDeleteImages";

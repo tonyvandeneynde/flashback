@@ -7,16 +7,16 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Folder, Gallery, Image } from "../../apiConstants";
+import { Folder, Gallery } from "../../apiConstants";
 
 export const DeleteButton = ({
   selectedNode,
-  selectedImages,
+  selectedImageIds,
   handleDeleteNodes,
   handleDeleteImages,
 }: {
   selectedNode: Folder | Gallery | null;
-  selectedImages: Image[];
+  selectedImageIds: number[];
   handleDeleteNodes: (closeDialog: () => void) => void;
   handleDeleteImages: (closeDialog: () => void) => void;
 }) => {
@@ -28,7 +28,7 @@ export const DeleteButton = ({
     handleDelete = handleDeleteNodes;
     dialogText =
       "Are you sure you want to delete all selected items and all of its subfolders, galleries and all its content?";
-  } else if (selectedImages.length > 0) {
+  } else if (selectedImageIds.length > 0) {
     handleDelete = handleDeleteImages;
     dialogText = "Are you sure you want to delete all selected images?";
   }
@@ -47,7 +47,7 @@ export const DeleteButton = ({
         variant="contained"
         color="primary"
         onClick={handleDeleteClick}
-        disabled={!selectedNode && selectedImages.length === 0}
+        disabled={!selectedNode && selectedImageIds.length === 0}
       >
         Delete
       </Button>

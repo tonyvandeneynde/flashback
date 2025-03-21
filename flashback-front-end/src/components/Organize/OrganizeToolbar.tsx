@@ -6,7 +6,6 @@ import {
   Gallery,
   IMAGES_BY_GALLERY,
   isFolder,
-  Image,
 } from "../../apiConstants";
 import { useCreateFolder } from "../../services/useCreateFolder";
 import { useCreateGallery } from "../../services/useCreateNewGallery";
@@ -20,7 +19,7 @@ import { useUpdateNode } from "../../services/useMoveNode";
 
 export const OrganizeToolbar = () => {
   const queryClient = useQueryClient();
-  const { currentNode, selectedNode, selectedImages, resetSelections } =
+  const { currentNode, selectedNode, selectedImageIds, resetSelections } =
     useOrganizeContext();
   const { mutate } = useCreateFolder();
   const { mutate: mutateCreateGallery } = useCreateGallery();
@@ -63,7 +62,7 @@ export const OrganizeToolbar = () => {
 
   const handleDeleteImages = (closeDialog: () => void) => {
     mutateDeleteImages(
-      { ids: selectedImages.map((image) => image.id) },
+      { ids: selectedImageIds.map((imageId) => imageId) },
       {
         onSuccess: () => handleDeleteImagesSuccess(),
       }
@@ -103,17 +102,17 @@ export const OrganizeToolbar = () => {
 
   const handleMoveImages = ({
     closeDialog,
-    selectedImages,
+    selectedImageIds,
     newImagesParent,
   }: {
     closeDialog: () => void;
-    selectedImages: Image[];
+    selectedImageIds: number[];
     newImagesParent: Gallery;
   }) => {
-    if (selectedImages.length === 0 || !newImagesParent) return;
+    if (selectedImageIds.length === 0 || !newImagesParent) return;
     mutateUpdateImages(
       {
-        ids: selectedImages.map((image) => image.id),
+        ids: selectedImageIds,
         parentId: newImagesParent.id,
       },
       {
@@ -138,14 +137,14 @@ export const OrganizeToolbar = () => {
       <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
       <DeleteButton
         selectedNode={selectedNode}
-        selectedImages={selectedImages}
+        selectedImageIds={selectedImageIds}
         handleDeleteNodes={handleDeleteNodes}
         handleDeleteImages={handleDeleteImages}
       />
       <MoveButton
         selectedNode={selectedNode}
         handleMoveNode={handleMoveNode}
-        selectedImages={selectedImages}
+        selectedImageIds={selectedImageIds}
         handleMoveImages={handleMoveImages}
       />
     </Toolbar>
