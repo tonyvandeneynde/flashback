@@ -6,6 +6,7 @@ import { StorageModule } from './storage/storage.module';
 import { DatabaseModule } from './database/database.module';
 import { FolderSubscriber, FolderModule, FoldersController } from './folders';
 import { GalleryModule } from './gallery';
+import { RabbitMQService } from './rabbitMQ';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { GalleryModule } from './gallery';
     GalleryModule,
   ],
   controllers: [ImagesController, AuthController, FoldersController],
-  providers: [FolderSubscriber],
+  providers: [FolderSubscriber, RabbitMQService],
 })
 export class AppModule {}

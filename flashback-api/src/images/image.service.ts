@@ -1,8 +1,27 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { In, IsNull, Not, Repository } from 'typeorm';
 
 import { Account, Gallery, Image, Tag, User } from '../database/entities';
 import { InjectRepository } from '@nestjs/typeorm';
+import { createImageFromImageFile } from 'src/utils';
+import { RabbitMQService } from 'src/rabbitMQ';
+import axios from 'axios';
+
+export interface Message {
+  file: {
+    filename: string;
+    mediumFilename: string;
+    thumbnailFilename: string;
+    mimetype: string;
+    size: number;
+    buffer: { data: string };
+  };
+  image: Image;
+  accountId: number;
+  email: string;
+  galleryId: number;
+  uploadId: string;
+}
 
 @Injectable()
 export class ImageService {
@@ -12,6 +31,7 @@ export class ImageService {
     @InjectRepository(Image) private imageRepository: Repository<Image>,
     @InjectRepository(Tag) private tagRepository: Repository<Tag>,
     @InjectRepository(Gallery) private galleryRepository: Repository<Gallery>,
+    private readonly rabbitMQService: RabbitMQService,
   ) {}
 
   async save(
@@ -68,8 +88,31 @@ export class ImageService {
       take: limit,
     });
 
+    const imagesWithUrls = await Promise.all(
+      images.map(async (image) => {
+        const filenames = [
+          image.originalPath,
+          image.mediumPath,
+          image.thumbnailPath,
+        ];
+
+        const presignedUrl = await axios.post<{
+          downloadUrls: { downloadUrl: string }[];
+        }>('http://localhost:3500/download/link', { filenames });
+
+        const downloadUrls = presignedUrl.data.downloadUrls;
+
+        return {
+          ...image,
+          originalPath: downloadUrls[0]?.downloadUrl || null,
+          mediumPath: downloadUrls[1]?.downloadUrl || null,
+          thumbnailPath: downloadUrls[2]?.downloadUrl || null,
+        };
+      }),
+    );
+
     return {
-      data: images,
+      data: imagesWithUrls,
       total,
       page,
       limit,
@@ -169,5 +212,52 @@ export class ImageService {
 
   async getAllTags() {
     return this.tagRepository.find();
+  }
+
+  async uploadImages(
+    images: Express.Multer.File[],
+    accountId: number,
+    email: string,
+    galleryId: number,
+    uploadId: string,
+  ) {
+    try {
+      const channel = await this.rabbitMQService.getChannel();
+      const queue = 'image_uploads';
+
+      await channel.assertQueue(queue, { durable: true });
+
+      images.forEach(async (imageFile) => {
+        const image = createImageFromImageFile(imageFile);
+
+        const message: Message = {
+          file: {
+            filename: image.originalPath,
+            mediumFilename: image.mediumPath,
+            thumbnailFilename: image.thumbnailPath,
+            mimetype: imageFile.mimetype,
+            size: imageFile.size,
+            buffer: { data: imageFile.buffer.toString('base64') },
+          },
+          image,
+          accountId,
+          email,
+          galleryId,
+          uploadId,
+        };
+
+        // Send message to RabbitMQ to be uploaded to storage
+        channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+        console.log(`Image ${image.name} upload message sent to queue`);
+      });
+
+      return { message: 'Image upload initiated' };
+    } catch (err) {
+      console.error('Failed to send message to RabbitMQ:', err);
+      throw new HttpException(
+        'Failed to initiate image upload',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

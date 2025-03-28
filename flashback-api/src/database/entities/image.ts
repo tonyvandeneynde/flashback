@@ -47,25 +47,25 @@ export class Image {
   date: Date;
 
   @Column({ nullable: true })
-  latitude: string;
+  latitude?: string;
 
   @Column({ nullable: true })
-  latitudeRef: string;
+  latitudeRef?: string;
 
   @Column({ nullable: true })
-  longitude: string;
+  longitude?: string;
 
   @Column({ nullable: true })
-  longitudeRef: string;
+  longitudeRef?: string;
 
   @Column({ nullable: true })
-  orientation: number;
+  orientation?: number;
 
   @Column({ nullable: true })
-  width: number;
+  width?: number;
 
   @Column({ nullable: true })
-  height: number;
+  height?: number;
 
   @CreateDateColumn()
   createdAt: Date;

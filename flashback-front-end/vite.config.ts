@@ -17,6 +17,10 @@ export default defineConfig({
           proxy.on("proxyRes", (proxyRes, req, _res) => {});
         },
       },
+      "/socket.io": {
+        target: "http://localhost:3000", // Adjust the target to your WebSocket server URL
+        ws: true,
+      },
     },
   },
 });

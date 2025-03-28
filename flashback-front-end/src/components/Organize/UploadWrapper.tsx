@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { ReactNode } from "react";
 import { Button, styled } from "@mui/material";
 import { useUploadImages } from "../../services/useUploadImages";
+import ImageUploadStatus from "./ImageUploadStatus";
 
 const StyledUploadButtonContainer = styled("div")`
   margin-bottom: 8px;
@@ -35,6 +36,7 @@ export const ImageGalleryUploadWrapper = ({
 
   return (
     <>
+      <ImageUploadStatus />
       <StyledUploadButtonContainer>
         <Button onClick={open}>Browse files</Button>
         to upload or drop below

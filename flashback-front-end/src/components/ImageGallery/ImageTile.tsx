@@ -18,6 +18,7 @@ export const ImageTile = ({
 }) => {
   return (
     <StyledImage
+      loading="lazy"
       height={`${height}px`}
       src={imageSrc}
       alt={alt}

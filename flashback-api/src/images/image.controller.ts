@@ -14,9 +14,11 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { Image } from 'src/database/entities/image';
 import { StorageService } from 'src/storage/storage.service';
-import * as ExifParser from 'exif-parser';
 import { ImageService } from './image.service';
 import { JwtAuthGuard } from 'src/auth';
+import { Channel, Connection } from 'amqplib';
+import { getExifData } from 'src/utils';
+const amqp = require('amqplib/callback_api');
 
 @UseGuards(JwtAuthGuard)
 @Controller('images')
@@ -187,47 +189,17 @@ export class ImagesController {
   async uploadImages(
     @UploadedFiles() files: Express.Multer.File[],
     @Body('galleryId') galleryId: number,
+    @Body('uploadId') uploadId: string,
     @Request() req: { user: { accountId: number; email: string } },
   ) {
     const { accountId, email } = req.user;
 
-    const uploadPromises = files.map(async (file) => {
-      const { originalPath, mediumPath, thumbnailPath } =
-        await this.storageService.storeFile(file);
-
-      const image = new Image();
-      image.name = file.originalname;
-      image.originalPath = originalPath;
-      image.mediumPath = mediumPath;
-      image.thumbnailPath = thumbnailPath;
-
-      // Extract EXIF metadata
-      const buffer = file.buffer;
-      const parser = ExifParser.create(buffer);
-      const result = parser.parse();
-
-      if (result.tags) {
-        image.date = new Date(result.tags.CreateDate * 1000);
-        image.latitude = result.tags.GPSLatitude;
-        image.longitude = result.tags.GPSLongitude;
-        image.latitudeRef = result.tags.GPSLatitudeRef;
-        image.longitudeRef = result.tags.GPSLongitudeRef;
-        image.orientation = result.tags.Orientation;
-        image.width = result.tags.ExifImageWidth;
-        image.height = result.tags.ExifImageHeight;
-      }
-
-      await this.imageService.save(image, accountId, email, galleryId);
-
-      return {
-        name: file.originalname,
-        originalPath,
-        mediumPath,
-        thumbnailPath,
-      };
-    });
-
-    const uploadResults = await Promise.all(uploadPromises);
-    return uploadResults;
+    this.imageService.uploadImages(
+      files,
+      accountId,
+      email,
+      galleryId,
+      uploadId,
+    );
   }
 }

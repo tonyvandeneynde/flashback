@@ -49,7 +49,7 @@ export class StorageService {
     await sharp(originalPath).resize(200, 200).keepExif().toFile(thumbnailPath);
 
     const localImageServerUrl =
-      process.env.LOCAL_URL || 'http://localhost:8080/';
+      process.env.LOCAL_URL || 'http://localhost:8081/';
     const originalUrl = `${localImageServerUrl}/${originalPath}`;
     const mediumUrl = `${localImageServerUrl}/${mediumPath}`;
     const thumbnailUrl = `${localImageServerUrl}/${thumbnailPath}`;

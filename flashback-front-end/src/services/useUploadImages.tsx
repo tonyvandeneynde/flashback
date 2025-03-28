@@ -15,6 +15,7 @@ export const useUploadImages = () => {
       files.forEach((file) => {
         formData.append("files", file);
       });
+      formData.append("uploadId", galleryId.toString() + "-" + Date.now());
       formData.append("galleryId", galleryId.toString());
 
       const response = await axios.post(`${API_PREFIX}/${IMAGES}`, formData, {
