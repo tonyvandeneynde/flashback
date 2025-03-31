@@ -1,4 +1,4 @@
-import { styled, Toolbar } from "@mui/material";
+import { Button, styled, Toolbar } from "@mui/material";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import {
   API_PREFIX,
@@ -6,6 +6,7 @@ import {
   Gallery,
   IMAGES_BY_GALLERY,
   isFolder,
+  isGallery,
 } from "../../apiConstants";
 import { useCreateFolder } from "../../services/useCreateFolder";
 import { useCreateGallery } from "../../services/useCreateNewGallery";
@@ -19,19 +20,32 @@ import { useUpdateNode } from "../../services/useMoveNode";
 
 const StyledToolbar = styled(Toolbar)`
   display: flex;
+  gap: 64px;
+`;
+
+const StyledButtons = styled("div")`
+  display: flex;
   gap: 8px;
 `;
 
 export const OrganizeToolbar = () => {
   const queryClient = useQueryClient();
-  const { currentNode, selectedNode, selectedImageIds, resetSelections } =
-    useOrganizeContext();
+  const {
+    currentNode,
+    selectedNode,
+    selectedImageIds,
+    imageIds,
+    multiSelectImages,
+    resetSelections,
+  } = useOrganizeContext();
   const { mutate } = useCreateFolder();
   const { mutate: mutateCreateGallery } = useCreateGallery();
   const { mutate: mutateDeleteFolder } = useDeleteNode();
   const { mutate: mutateDeleteImages } = useDeleteImages();
   const { mutate: mutateMoveNode } = useUpdateNode();
   const { mutate: mutateUpdateImages } = useUpdateImages();
+
+  const numberOfImages = imageIds.length;
 
   const handleCreate = (
     dialogType: "Folder" | "Gallery" | null,
@@ -67,7 +81,7 @@ export const OrganizeToolbar = () => {
 
   const handleDeleteImages = (closeDialog: () => void) => {
     mutateDeleteImages(
-      { ids: selectedImageIds.map((imageId) => imageId) },
+      { ids: [...selectedImageIds] },
       {
         onSuccess: () => handleDeleteImagesSuccess(),
       }
@@ -139,19 +153,35 @@ export const OrganizeToolbar = () => {
 
   return (
     <StyledToolbar>
-      <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
-      <DeleteButton
-        selectedNode={selectedNode}
-        selectedImageIds={selectedImageIds}
-        handleDeleteNodes={handleDeleteNodes}
-        handleDeleteImages={handleDeleteImages}
-      />
-      <MoveButton
-        selectedNode={selectedNode}
-        handleMoveNode={handleMoveNode}
-        selectedImageIds={selectedImageIds}
-        handleMoveImages={handleMoveImages}
-      />
+      <StyledButtons>
+        <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
+        <DeleteButton
+          selectedNode={selectedNode}
+          selectedImageIds={[...selectedImageIds]}
+          handleDeleteNodes={handleDeleteNodes}
+          handleDeleteImages={handleDeleteImages}
+        />
+        <MoveButton
+          selectedNode={selectedNode}
+          handleMoveNode={handleMoveNode}
+          selectedImageIds={[...selectedImageIds]}
+          handleMoveImages={handleMoveImages}
+        />
+        {currentNode && isGallery(currentNode) && (
+          <>
+            <Button onClick={() => multiSelectImages(imageIds)}>
+              Select All
+            </Button>
+
+            <Button onClick={resetSelections}>Deselect All</Button>
+          </>
+        )}
+      </StyledButtons>
+      {currentNode && isGallery(currentNode) && (
+        <div>
+          {selectedImageIds.size} of {numberOfImages} selected
+        </div>
+      )}
     </StyledToolbar>
   );
 };

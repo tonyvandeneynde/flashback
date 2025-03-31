@@ -5,6 +5,7 @@ import { useImageViewer } from "../../contexts/ImageViewerContext";
 import { useAllImagesByGallery } from "../../services";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import { useMultiselect } from "../../hooks";
+import { useEffect } from "react";
 
 const StyledGrid = styled("div")`
   display: grid;
@@ -19,12 +20,20 @@ const Container = styled("div")`
 
 export const ImageGrid = ({ gallery }: { gallery: Gallery }) => {
   const { openViewer } = useImageViewer();
-  const { toggleSelectedImage, selectedImageIds, multiSelectImages } =
-    useOrganizeContext();
+  const {
+    toggleSelectedImage,
+    selectedImageIds,
+    multiSelectImages,
+    setImageIds,
+  } = useOrganizeContext();
 
   const { images, status, error, isFetchingNextPage } = useAllImagesByGallery(
     gallery.id
   );
+
+  useEffect(() => {
+    setImageIds(images.map((image) => image.id));
+  }, [images, setImageIds]);
 
   const {
     handleImageClick: multiSelectHandleClick,
@@ -33,7 +42,7 @@ export const ImageGrid = ({ gallery }: { gallery: Gallery }) => {
     isMultiselectActive,
   } = useMultiselect({
     images,
-    selectedImageIds,
+    selectedImageIds: [...selectedImageIds],
     multiSelectImages,
   });
 
@@ -60,7 +69,7 @@ export const ImageGrid = ({ gallery }: { gallery: Gallery }) => {
           <div key={image.id}>
             <ImageTile
               image={image}
-              isSelected={selectedImageIds.includes(image.id)}
+              isSelected={selectedImageIds.has(image.id)}
               onClick={() => handleImageClick(image.id)}
               onDoubleClick={() =>
                 openViewer({ galleryId: gallery.id, initialImage: image })

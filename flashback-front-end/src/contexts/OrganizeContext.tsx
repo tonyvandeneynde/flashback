@@ -13,7 +13,8 @@ interface OrganizeContextType {
   folders: Folder[];
   currentNode: Folder | Gallery | null;
   selectedNode: Folder | Gallery | null;
-  selectedImageIds: number[];
+  imageIds: number[];
+  selectedImageIds: Set<number>;
   path: (Folder | Gallery)[];
   isFoldersLoading: boolean;
   setCurrentNode: (node: Folder | Gallery) => void;
@@ -22,6 +23,7 @@ interface OrganizeContextType {
   multiSelectImages: (imageIds: number[]) => void;
   setPath: (newPath: (Folder | Gallery)[]) => void;
   resetSelections: () => void;
+  setImageIds: (ids: number[]) => void;
 }
 
 const initialOrganizeContext: OrganizeContextType = {
@@ -29,14 +31,16 @@ const initialOrganizeContext: OrganizeContextType = {
   isFoldersLoading: false,
   currentNode: null,
   selectedNode: null,
-  selectedImageIds: [],
+  selectedImageIds: new Set<number>(),
   path: [],
+  imageIds: [],
   setCurrentNode: () => {},
   toggleSelectedNode: () => {},
   toggleSelectedImage: () => {},
   multiSelectImages: () => {},
   setPath: () => {},
   resetSelections: () => {},
+  setImageIds: () => {},
 };
 
 const OrganizeContext = createContext<OrganizeContextType>(
@@ -53,7 +57,10 @@ export const OrganizeContextProvider = ({
   const [selectedNode, setSelectedNode] = useState<Folder | Gallery | null>(
     null
   );
-  const [selectedImageIds, setSelectedImageIds] = useState<number[]>([]);
+  const [selectedImageIds, setSelectedImageIds] = useState<Set<number>>(
+    new Set<number>()
+  );
+  const [imageIds, setImageIds] = useState<number[]>([]);
   const [path, setPath] = useState<(Folder | Gallery)[]>([]);
 
   const { data: fetchedFoldersData, isLoading: isFoldersLoading } =
@@ -77,12 +84,11 @@ export const OrganizeContextProvider = ({
 
   const toggleSelectedImage = (imageId: number) => {
     setSelectedImageIds((prevSelectedImageIds) => {
-      if (prevSelectedImageIds.includes(imageId)) {
-        return prevSelectedImageIds.filter(
-          (selectedImageId) => selectedImageId !== imageId
-        );
+      if (prevSelectedImageIds.has(imageId)) {
+        prevSelectedImageIds.delete(imageId);
+        return new Set(prevSelectedImageIds);
       } else {
-        return [...prevSelectedImageIds, imageId];
+        return new Set([...prevSelectedImageIds, imageId]);
       }
     });
   };
@@ -97,7 +103,7 @@ export const OrganizeContextProvider = ({
   };
 
   const resetSelectedImages = () => {
-    setSelectedImageIds([]);
+    setSelectedImageIds(new Set<number>());
   };
 
   const resetSelections = () => {
@@ -106,15 +112,14 @@ export const OrganizeContextProvider = ({
   };
 
   const multiSelectImages = (imageIds: number[]) => {
-    setSelectedImageIds((prevSelectedImageIds) => [
-      ...prevSelectedImageIds,
-      ...imageIds,
-    ]);
+    setSelectedImageIds(
+      (prevSelectedImageIds) => new Set([...prevSelectedImageIds, ...imageIds])
+    );
   };
 
   useEffect(() => {
     // Deselect everything when the current node changes
-    setSelectedImageIds([]);
+    setSelectedImageIds(new Set<number>());
     setSelectedNode(null);
   }, [currentNode]);
 
@@ -147,12 +152,14 @@ export const OrganizeContextProvider = ({
         selectedNode,
         selectedImageIds,
         path,
+        imageIds,
         setCurrentNode,
         toggleSelectedNode,
         toggleSelectedImage,
         multiSelectImages,
         setPath: handleSetPath,
         resetSelections,
+        setImageIds,
       }}
     >
       {children}
