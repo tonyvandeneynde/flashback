@@ -12,6 +12,10 @@ export const saveBearerToken = (token: string) => {
   localStorage.setItem("bearerToken", token);
 };
 
+export const saveRefreshToken = (token: string) => {
+  localStorage.setItem("refreshToken", token);
+};
+
 export const logout = () => {
   localStorage.removeItem("bearerToken");
   localStorage.removeItem("refreshToken");

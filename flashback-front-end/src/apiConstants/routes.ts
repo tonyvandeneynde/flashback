@@ -1,6 +1,7 @@
 export const API_PREFIX = "api";
 export const AUTH_GOOGLE = "auth/google";
 export const AUTH_REFRESH_TOKEN = "auth/refresh-token";
+export const AUTH_ME = "auth/me";
 export const IMAGES = "images";
 export const IMAGES_BY_GALLERY = "images/by-gallery";
 export const IMAGES_UPDATE = "images/update";

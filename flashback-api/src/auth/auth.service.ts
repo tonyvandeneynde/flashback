@@ -65,11 +65,17 @@ export class AuthService {
 
     if (!existingUser) {
       throw new Error('Unauthorized');
+    } else {
+      existingUser.name = googleUser.name || '';
+      existingUser.picture = googleUser.picture || '';
+      await this.userRepository.save(existingUser);
     }
 
     const jwt = this.jwtService.sign({
       accountId: existingUser.account.id,
       email: existingUser.email,
+      name: existingUser.name,
+      picture: existingUser.picture,
     });
     return { jwt };
   }
@@ -89,5 +95,12 @@ export class AuthService {
       bearerToken: jwt,
       refreshToken: credentials.refresh_token || refreshToken,
     };
+  }
+
+  async getMe(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email: email },
+    });
+    return user;
   }
 }

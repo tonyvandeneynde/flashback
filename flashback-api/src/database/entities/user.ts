@@ -7,6 +7,12 @@ export class User {
   @PrimaryColumn()
   email: string;
 
+  @Column({ default: '' })
+  name: string;
+
+  @Column({ default: '' })
+  picture: string;
+
   @ManyToOne(() => Account, (account) => account.users)
   account: Account;
 

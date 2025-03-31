@@ -1,10 +1,14 @@
 import { AppBar, Toolbar, Typography, Button, useTheme } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
+import { useProfile } from "../../../contexts/ProfileContext";
+import { ProfileMenu } from "./ProfileMenu";
 
 export const Header = () => {
   const theme = useTheme();
 
   const location = useLocation();
+
+  const { isLoggedIn, image, logout } = useProfile();
 
   const getButtonColor = (path: string) => {
     return location.pathname === path ? "secondary" : "inherit";
@@ -39,9 +43,13 @@ export const Header = () => {
         <Button component={Link} to="/site" color={getButtonColor("/site")}>
           Site
         </Button>
-        <Button component={Link} to="/login" color={getButtonColor("/login")}>
-          Log In
-        </Button>
+        {isLoggedIn ? (
+          <ProfileMenu image={image} logout={logout} />
+        ) : (
+          <Button component={Link} to="/login" color={getButtonColor("/login")}>
+            Log In
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );

@@ -5,18 +5,20 @@ import { loginWithGoogle } from "../services";
 export const useGoogleAuth = ({
   successCallback,
 }: {
-  successCallback: () => void;
+  successCallback: ({
+    bearerToken,
+    refreshToken,
+  }: {
+    bearerToken: string;
+    refreshToken: string;
+  }) => void;
 }) => {
   const mutation = useMutation({
     mutationFn: loginWithGoogle,
     onSuccess: (data) => {
       const { bearerToken, refreshToken } = data;
 
-      // Store tokens in local storage
-      localStorage.setItem("bearerToken", bearerToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      successCallback();
+      successCallback({ bearerToken, refreshToken });
 
       console.log("Login successful");
     },

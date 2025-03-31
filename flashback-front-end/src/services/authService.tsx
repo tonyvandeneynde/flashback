@@ -1,4 +1,11 @@
-import { API_PREFIX, AUTH_GOOGLE } from "../apiConstants";
+import axios from "axios";
+import { API_PREFIX, AUTH_GOOGLE, AUTH_ME } from "../apiConstants";
+
+interface User {
+  email: string;
+  name: string;
+  picture: string;
+}
 
 export const loginWithGoogle = async (
   code: string
@@ -12,4 +19,9 @@ export const loginWithGoogle = async (
   });
 
   return res.json();
+};
+
+export const getMe = async (): Promise<User | null> => {
+  const res = await axios.get(`${API_PREFIX}/${AUTH_ME}`);
+  return res.data;
 };
