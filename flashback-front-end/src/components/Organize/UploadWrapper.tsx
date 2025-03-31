@@ -1,5 +1,5 @@
 import { API_PREFIX, Gallery, IMAGES_BY_GALLERY } from "../../apiConstants";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, FileError as DropzoneFileError } from "react-dropzone";
 import { ReactNode, useState } from "react";
 import { Button, styled } from "@mui/material";
 import { useUploadImages } from "../../hooks/useUploadImages";
@@ -16,6 +16,23 @@ const StyledDropZone = styled("div")`
   height: 100%;
   overflow-y: auto;
 `;
+
+interface CustomFileError extends DropzoneFileError {
+  message: string;
+}
+
+const validateFileType = <T extends File>(
+  file: T
+): CustomFileError | readonly CustomFileError[] | null => {
+  const validTypes = ["image/jpeg", "image/png"];
+  if (!validTypes.includes(file.type)) {
+    return {
+      code: "file-invalid-type",
+      message: "Only JPEG and PNG files are supported",
+    };
+  }
+  return null;
+};
 
 export const ImageGalleryUploadWrapper = ({
   children,
@@ -36,6 +53,8 @@ export const ImageGalleryUploadWrapper = ({
   };
 
   const { getRootProps, getInputProps, open } = useDropzone({
+    maxSize: 20 * 1024 * 1024, // 20MB
+    validator: validateFileType,
     onDrop,
     noClick: true,
   });

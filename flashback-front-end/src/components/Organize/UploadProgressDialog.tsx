@@ -83,7 +83,7 @@ export const UploadProgressDialog = ({
   }, [cancelledFiles, doneFiles, failedFiles, fileStates, onClose]);
 
   return (
-    <Dialog fullWidth open={open} onClose={onClose}>
+    <Dialog fullWidth open={open} disableEscapeKeyDown onClose={() => {}}>
       <DialogTitle>
         {uploadFinished ? "Upload finished" : "Uploading images..."}
       </DialogTitle>
