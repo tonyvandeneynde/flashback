@@ -1,4 +1,4 @@
-import { Toolbar } from "@mui/material";
+import { styled, Toolbar } from "@mui/material";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import {
   API_PREFIX,
@@ -16,6 +16,11 @@ import { useDeleteImages } from "../../services/useDeleteImages";
 import { useQueryClient } from "@tanstack/react-query";
 import { MoveButton } from "./MoveButton";
 import { useUpdateNode } from "../../services/useMoveNode";
+
+const StyledToolbar = styled(Toolbar)`
+  display: flex;
+  gap: 8px;
+`;
 
 export const OrganizeToolbar = () => {
   const queryClient = useQueryClient();
@@ -133,7 +138,7 @@ export const OrganizeToolbar = () => {
   };
 
   return (
-    <Toolbar>
+    <StyledToolbar>
       <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
       <DeleteButton
         selectedNode={selectedNode}
@@ -147,6 +152,6 @@ export const OrganizeToolbar = () => {
         selectedImageIds={selectedImageIds}
         handleMoveImages={handleMoveImages}
       />
-    </Toolbar>
+    </StyledToolbar>
   );
 };

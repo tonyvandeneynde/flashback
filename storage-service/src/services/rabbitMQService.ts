@@ -18,7 +18,7 @@ const processMessage = async (msg: amqp.Message, ch: amqp.ConfirmChannel) => {
 
   const startedMessage = {
     ...JSON.parse(msg.content.toString()),
-    status: "progress",
+    status: "processing",
   };
   ch.sendToQueue(
     "image_uploads_callback",
@@ -84,7 +84,7 @@ const processMessage = async (msg: amqp.Message, ch: amqp.ConfirmChannel) => {
       Buffer.from(JSON.stringify(failMessage))
     );
 
-    ch.nack(msg, false);
+    ch.ack(msg);
   }
 };
 
@@ -97,7 +97,7 @@ export const initializeRabbitMQ = () => {
       ch.assertQueue("image_uploads", { durable: true });
 
       // Limit the number of unacknowledged messages to 2
-      ch.prefetch(2);
+      ch.prefetch(3);
 
       ch.consume("image_uploads", async (msg) => {
         if (!msg) return;

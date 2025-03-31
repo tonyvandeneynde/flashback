@@ -208,7 +208,8 @@ class B2Service {
             error.response.status === 503 ||
             error.response.status === 429 ||
             error.response.status === 408 ||
-            error.response.status === 401)
+            error.response.status === 401 ||
+            error.response.data.code === "ECONNRESET")
         ) {
           console.log("error.response.status:", error.response.status);
           console.log("error.response.data:", error.response.data);

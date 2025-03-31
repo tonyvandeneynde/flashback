@@ -1,9 +1,10 @@
-import { Gallery } from "../../apiConstants";
+import { API_PREFIX, Gallery, IMAGES_BY_GALLERY } from "../../apiConstants";
 import { useDropzone } from "react-dropzone";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Button, styled } from "@mui/material";
-import { useUploadImages } from "../../services/useUploadImages";
-import ImageUploadStatus from "./ImageUploadStatus";
+import { useUploadImages } from "../../hooks/useUploadImages";
+import { UploadProgressDialog } from "./UploadProgressDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 const StyledUploadButtonContainer = styled("div")`
   margin-bottom: 8px;
@@ -23,10 +24,15 @@ export const ImageGalleryUploadWrapper = ({
   children: ReactNode;
   gallery: Gallery;
 }) => {
-  const { uploadImages } = useUploadImages();
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const { uploadImages, fileStates, cancelUploads } = useUploadImages({
+    galleryId: gallery.id,
+  });
+  const queryClient = useQueryClient();
 
   const onDrop = async (acceptedFiles: File[]) => {
-    uploadImages(gallery.id, acceptedFiles);
+    uploadImages({ files: acceptedFiles });
+    setIsUploadDialogOpen(true);
   };
 
   const { getRootProps, getInputProps, open } = useDropzone({
@@ -34,9 +40,30 @@ export const ImageGalleryUploadWrapper = ({
     noClick: true,
   });
 
+  const handleDialogClose = () => {
+    queryClient.invalidateQueries({
+      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${gallery.id}`],
+    });
+    setIsUploadDialogOpen(false);
+  };
+
+  const handleRetry = () => {
+    const failedFiles = fileStates.filter(
+      (file) => file.state === "processingError" || file.state === "uploadError"
+    );
+    uploadImages({ files: failedFiles.map((file) => file.file) });
+    setIsUploadDialogOpen(true);
+  };
+
   return (
     <>
-      <ImageUploadStatus />
+      <UploadProgressDialog
+        open={isUploadDialogOpen}
+        fileStates={fileStates}
+        onClose={handleDialogClose}
+        onRetry={handleRetry}
+        onCancel={cancelUploads}
+      />
       <StyledUploadButtonContainer>
         <Button onClick={open}>Browse files</Button>
         to upload or drop below

@@ -9,4 +9,4 @@ export * from "./useFolders";
 export * from "./useImagesByGallery";
 export * from "./useMoveNode";
 export * from "./useUpdateImages";
-export * from "./useUploadImages";
+export * from "./useUploadImage";

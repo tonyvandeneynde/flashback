@@ -27,9 +27,9 @@ export class ImageGateway
 
   sendUploadStatus(
     uploadId: string,
-    imageId: string,
-    status: 'success' | 'fail' | 'progress',
+    imageName: string,
+    status: 'success' | 'fail' | 'processing',
   ) {
-    this.server.emit('uploadStatus', { uploadId, imageId, status });
+    this.server.emit('uploadStatus', { uploadId, imageName, status });
   }
 }
