@@ -5,6 +5,7 @@ import { ImageTile } from "./ImageTile";
 import { useImageViewer } from "../../contexts/ImageViewerContext";
 import { useImagesByGallery } from "../../services";
 import { ScrollToTopButton } from "./ScrollToTopButton";
+import { GalleryMap } from "../Map";
 
 const StyledRow = styled("div")`
   display: flex;
@@ -138,23 +139,26 @@ export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
   };
 
   return (
-    <StyledGallery>
-      {rows.map((row, rowIndex) => (
-        <StyledRow key={rowIndex}>
-          {row.images.map((image: Image) => (
-            <StyledImageWrapper key={image.id}>
-              <ImageTile
-                imageSrc={image.mediumPath}
-                alt={image.filename}
-                height={row.height}
-                onDoubleClick={() => handleClick(image)}
-              />
-            </StyledImageWrapper>
-          ))}
-        </StyledRow>
-      ))}
-      {isFetchingNextPage && <CircularProgress />}
-      <ScrollToTopButton />
-    </StyledGallery>
+    <>
+      <GalleryMap galleryId={galleryId} />
+      <StyledGallery>
+        {rows.map((row, rowIndex) => (
+          <StyledRow key={rowIndex}>
+            {row.images.map((image: Image) => (
+              <StyledImageWrapper key={image.id}>
+                <ImageTile
+                  imageSrc={image.mediumPath}
+                  alt={image.name}
+                  height={row.height}
+                  onDoubleClick={() => handleClick(image)}
+                />
+              </StyledImageWrapper>
+            ))}
+          </StyledRow>
+        ))}
+        {isFetchingNextPage && <CircularProgress />}
+        <ScrollToTopButton />
+      </StyledGallery>
+    </>
   );
 };

@@ -98,12 +98,20 @@ export class ImageService {
 
         const presignedUrl = await axios.post<{
           downloadUrls: { downloadUrl: string }[];
-        }>('http://localhost:3500/download/link', { filenames });
+        }>(`${process.env.STORAGE_SERVICE_URL}/download/link`, { filenames });
 
         const downloadUrls = presignedUrl.data.downloadUrls;
 
         return {
-          ...image,
+          id: image.id,
+          name: image.name,
+          date: image.date,
+          height: image.height,
+          width: image.width,
+          latitude: image.latitude,
+          longitude: image.longitude,
+          orientation: image.orientation,
+          tags: image.tags,
           originalPath: downloadUrls[0]?.downloadUrl || null,
           mediumPath: downloadUrls[1]?.downloadUrl || null,
           thumbnailPath: downloadUrls[2]?.downloadUrl || null,

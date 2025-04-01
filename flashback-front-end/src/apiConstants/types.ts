@@ -1,6 +1,6 @@
 export interface Image {
   id: number;
-  filename: string;
+  name: string;
   originalPath: string;
   mediumPath: string;
   thumbnailPath: string;
@@ -8,12 +8,24 @@ export interface Image {
   width: number;
   height: number;
   orientation: number;
+  latitude: string;
+  longitude: string;
+  latitudeRef: string;
+  longitudeRef: string;
 }
 
 export interface Gallery {
   id: number;
   name: string;
   parentId: number;
+}
+
+export interface MapData {
+  id: number;
+  latitude: string;
+  longitude: string;
+  imageUrl: string;
+  galleryId: number;
 }
 
 export interface Folder {

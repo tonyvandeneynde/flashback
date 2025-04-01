@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Account, Folder, Gallery } from 'src/database/entities';
-import { Repository } from 'typeorm';
+import { Account, Folder, Gallery, Image } from 'src/database/entities';
+import { IsNull, Not, Repository } from 'typeorm';
+import { MapDataDto } from '../dto';
+import axios from 'axios';
 
 @Injectable()
 export class GalleryService {
@@ -9,6 +11,8 @@ export class GalleryService {
     @InjectRepository(Account) private accountRepository: Repository<Account>,
     @InjectRepository(Gallery) private galleryRepository: Repository<Gallery>,
     @InjectRepository(Folder) private folderRepository: Repository<Folder>,
+    @InjectRepository(Image)
+    private readonly imageRepository: Repository<Image>,
   ) {}
 
   async createGallery({
@@ -63,5 +67,43 @@ export class GalleryService {
     }
 
     return this.galleryRepository.save(gallery);
+  }
+
+  async getMapDataByGalleryId(
+    accountId: number,
+    galleryId: number,
+  ): Promise<MapDataDto[]> {
+    const images = await this.imageRepository.find({
+      where: {
+        deletedAt: IsNull(),
+        latitude: Not(IsNull()),
+        longitude: Not(IsNull()),
+        thumbnailPath: Not(IsNull()),
+        gallery: { id: galleryId },
+        account: { id: accountId },
+      },
+    });
+
+    const mapData = await Promise.all(
+      images.map(async (image) => {
+        const filenames = [image.mediumPath];
+
+        const presignedUrl = await axios.post<{
+          downloadUrls: { downloadUrl: string }[];
+        }>(`${process.env.STORAGE_SERVICE_URL}/download/link`, { filenames });
+
+        const downloadUrls = presignedUrl.data.downloadUrls;
+
+        return {
+          id: image.id,
+          latitude: image.latitude!,
+          longitude: image.longitude!,
+          imageUrl: downloadUrls[0].downloadUrl,
+          galleryId: galleryId,
+        };
+      }),
+    );
+
+    return mapData;
   }
 }

@@ -38,11 +38,7 @@ export const ImageTile = ({
       onClick={onClick}
       onDoubleClick={onDoubleClick}
     >
-      <StyledImage
-        loading="lazy"
-        src={image.thumbnailPath}
-        alt={image.filename}
-      />
+      <StyledImage loading="lazy" src={image.thumbnailPath} alt={image.name} />
     </StyledCard>
   );
 };

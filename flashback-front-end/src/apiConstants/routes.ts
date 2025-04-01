@@ -13,3 +13,4 @@ export const FOLDERS_DELETE_GALLERY = "folders/delete-gallery";
 export const FOLDERS_ADD_NEW_GALLERY = "folders/add-new-gallery";
 export const FOLDERS_UPDATE = "folders/update";
 export const FOLDERS_UPDATE_GALLERY = "folders/update-gallery";
+export const GALLERY_MAP_DATA = "gallery/map-data";
