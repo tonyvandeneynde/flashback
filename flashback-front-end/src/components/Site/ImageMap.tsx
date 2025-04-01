@@ -11,20 +11,16 @@ import { CircularProgress } from "@mui/material";
 
 interface MapProps {
   imagePositions: MapData[];
+  mapStyles?: React.CSSProperties;
 }
 
-export const ImageMap = ({ imagePositions }: MapProps) => {
+export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
   const [selectedImage, setSelectedImage] = useState<MapData | null>(null);
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOLGE_MAPS_API_KEY,
     libraries: ["geometry", "drawing"],
   });
-
-  const mapStyles = {
-    height: "100vh",
-    width: "100%",
-  };
 
   const options = {
     imagePath:

@@ -20,5 +20,10 @@ export const GalleryMap = ({ galleryId }: GalleryMapProps) => {
     return <StyledCircularProgress />;
   }
 
-  return <ImageMap imagePositions={data || []} />;
+  return (
+    <ImageMap
+      imagePositions={data || []}
+      mapStyles={{ width: "100%", height: "600px" }}
+    />
+  );
 };
