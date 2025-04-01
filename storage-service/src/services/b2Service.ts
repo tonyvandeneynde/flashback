@@ -1,28 +1,7 @@
-import axios, { AxiosError } from "axios";
-import fetch from "node-fetch";
-import { AxiosProgressEvent } from "axios";
-
-type ApiInfo = {
-  storageApi: {
-    absoluteMinimumPartSize: number;
-    apiUrl: string;
-    bucketId: string;
-    bucketName: string;
-    capabilities: string[];
-    downloadUrl: string;
-    infoType: string;
-    namePrefix: string | null;
-    recommendedPartSize: number;
-    s3ApiUrl: string;
-  };
-};
-
-type AuthResponse = {
-  accountId: string;
-  apiInfo: ApiInfo;
-  applicationKeyExpirationTimestamp: string | null;
-  authorizationToken: string;
-};
+import axios from "axios";
+import b2DownloadServiceInstance from "./b2DownloadService";
+import b2AuthServiceInstance, { AuthResponse } from "./b2AuthService";
+import { callB2WithBackOff, exponentialBackOff } from "../utils";
 
 interface File {
   filename: string;
@@ -42,142 +21,8 @@ interface UrlAndAuthTokenResponse {
   statusCode?: string;
 }
 
-interface DownloadAuthResponse {
-  authorizationToken: string;
-}
 // TODO: Refactor
 class B2Service {
-  private cachedDownloadAuthToken: string | null = null;
-  private tokenExpiryTime: number | null = null;
-
-  private cachedAuth: AuthResponse | null = null;
-  private authExpiryTime: number | null = null;
-  private authPromise: Promise<AuthResponse> | null = null;
-
-  private downloadAuthPromise: Promise<{ downloadAuthToken: string }> | null =
-    null;
-
-  private authorizeAccount = async (): Promise<AuthResponse> => {
-    const currentTime = Date.now();
-
-    // Check if the cached token is still valid
-    if (
-      this.cachedAuth &&
-      this.authExpiryTime &&
-      currentTime < this.authExpiryTime
-    ) {
-      return this.cachedAuth;
-    }
-
-    // If there's an ongoing authorization request, return its promise
-    if (this.authPromise) {
-      return this.authPromise;
-    }
-
-    // Create a new authorization request
-    this.authPromise = (async () => {
-      console.log("$$$$$$$$$$$$$$ fetch b2_authorize_account:");
-
-      const authorizeCall = () => {
-        return fetch(
-          "https://api.backblazeb2.com/b2api/v3/b2_authorize_account",
-          {
-            headers: {
-              Authorization:
-                "Basic " +
-                Buffer.from(
-                  process.env.B2_APPLICATION_KEY_ID +
-                    ":" +
-                    process.env.B2_APPLICATION_KEY
-                ).toString("base64"),
-            },
-          }
-        );
-      };
-
-      const authResponse = await this.callB2WithBackOff(authorizeCall);
-
-      if (authResponse.status !== 200) {
-        throw new Error("Failed to authorize B2 account");
-      }
-
-      const auth = (await authResponse.json()) as AuthResponse;
-
-      // Cache the new token and set the expiry time
-      this.cachedAuth = auth;
-      this.authExpiryTime = currentTime + 3600 * 1000 * 24; // Auth token is valid for 24 hours
-
-      // Clear the authPromise after it resolves
-      this.authPromise = null;
-
-      return auth;
-    })();
-
-    return this.authPromise;
-  };
-
-  private getDownloadAuth = async (): Promise<{
-    downloadAuthToken: string;
-  }> => {
-    const currentTime = Date.now();
-
-    if (
-      this.cachedDownloadAuthToken &&
-      this.tokenExpiryTime &&
-      currentTime < this.tokenExpiryTime
-    ) {
-      return Promise.resolve({
-        downloadAuthToken: this.cachedDownloadAuthToken,
-      });
-    } else {
-      if (this.downloadAuthPromise) {
-        return this.downloadAuthPromise;
-      }
-
-      this.downloadAuthPromise = (async () => {
-        const auth = await this.authorizeAccount();
-        console.log("$$$$$$$$$$$$$$ fetch b2_get_download_authorization:");
-
-        const response = await fetch(
-          `${auth.apiInfo.storageApi.apiUrl}/b2api/v3/b2_get_download_authorization`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: auth.authorizationToken,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              bucketId: process.env.B2_BUCKET_ID,
-              fileNamePrefix: "", // process.env.B2_BUCKET_NAME,
-              validDurationInSeconds: 3600 * 2, // Image URL valid for 2 hours
-            }),
-          }
-        );
-
-        const downloadAuth = (await response.json()) as DownloadAuthResponse;
-
-        this.cachedDownloadAuthToken = downloadAuth.authorizationToken;
-        this.tokenExpiryTime = currentTime + 3600 * 2000; // 2 hours
-
-        this.downloadAuthPromise = null;
-
-        return { downloadAuthToken: this.cachedDownloadAuthToken };
-      })();
-      return this.downloadAuthPromise;
-    }
-  };
-
-  private getDownloadUrl = async (fileName: string): Promise<string> => {
-    const downloadAuth = await this.getDownloadAuth();
-    const auth = await this.authorizeAccount();
-
-    return `${auth.apiInfo.storageApi.downloadUrl}/file/${process.env.B2_BUCKET_NAME}/${fileName}?Authorization=${downloadAuth.downloadAuthToken}`;
-  };
-
-  public async getDownloadUrlForFile(fileName: string): Promise<string> {
-    return this.getDownloadUrl(fileName);
-  }
-
   /**************************************************************************
    ** UPLOAD FILES
    ***************************************************************************/
@@ -185,7 +30,7 @@ class B2Service {
   private makeGetUploadUrlRequest =
     async (): Promise<UrlAndAuthTokenResponse> => {
       try {
-        const auth = await this.authorizeAccount();
+        const auth = await this.getAuthInfo();
         const response = await axios.post(
           `${auth.apiInfo.storageApi.apiUrl}/b2api/v2/b2_get_upload_url`,
           {
@@ -262,37 +107,6 @@ class B2Service {
     }
   };
 
-  private callB2WithBackOff = async <T>(
-    requestFn: () => Promise<T>
-  ): Promise<T> => {
-    let delaySeconds = 1;
-    const maxDelay = 64;
-    while (true) {
-      const response = await requestFn();
-      const status = (response as any).status;
-      const statusCode = (response as any).statusCode;
-      console.log("&&&&&&&&&&&&&&& status callB2Backoff:", status);
-      if (status === 429 || status === 503 || statusCode === "ECONNRESET") {
-        if (delaySeconds > maxDelay) {
-          return response;
-        }
-        await this.sleepSeconds(delaySeconds);
-        delaySeconds *= 2;
-      } else {
-        return response;
-      }
-    }
-  };
-
-  private sleepSeconds = (seconds: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-  };
-
-  private exponentialBackOff = async (retryCount: number): Promise<void> => {
-    const waitTime = Math.pow(2, retryCount);
-    await this.sleepSeconds(waitTime);
-  };
-
   private reportFailure(uploadInfo: File, response: any): void {
     console.error(`Failed to upload ${uploadInfo.filename}:`, response);
   }
@@ -310,10 +124,9 @@ class B2Service {
 
     for (let i = 0; i < 8 && !succeeded; i++) {
       if (urlAndAuthToken === null) {
-        const getUrlResponse =
-          await this.callB2WithBackOff<UrlAndAuthTokenResponse>(
-            this.makeGetUploadUrlRequest
-          );
+        const getUrlResponse = await callB2WithBackOff<UrlAndAuthTokenResponse>(
+          this.makeGetUploadUrlRequest
+        );
 
         const status = getUrlResponse.status;
         console.log("%%%%%%%%%%%% status:", status);
@@ -348,7 +161,7 @@ class B2Service {
       ) {
         urlAndAuthToken = null;
       } else if (status === 408 || status === 429 || status === 503) {
-        await this.exponentialBackOff(i);
+        await exponentialBackOff(i);
       } else {
         this.reportFailure(uploadInfo, response);
         return;
@@ -367,6 +180,14 @@ class B2Service {
       uploadInfo.filename
     );
   };
+
+  public async getDownloadUrlForFile(fileName: string): Promise<string> {
+    return b2DownloadServiceInstance.getDownloadUrl(fileName);
+  }
+
+  public async getAuthInfo(): Promise<AuthResponse> {
+    return b2AuthServiceInstance.authorizeAccount();
+  }
 }
 
 const b2ServiceInstance = new B2Service();
