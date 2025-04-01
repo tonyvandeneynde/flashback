@@ -3,8 +3,9 @@ import { useFolders } from "../../services";
 import { useEffect, useState } from "react";
 import { Folder, Gallery, isFolder } from "../../apiConstants";
 import { NodeTile } from "./NodeTile";
-import { ImageGallery } from "../ImageGallery/ImageGallery";
 import { BreadcrumbBar } from "../BreadcrumbBar/BreadcrumbBar";
+import { GalleryMap } from "../Map";
+import { ImageGalleryContainer } from "../ImageGallery/ImageGalleryContainer";
 
 const Container = styled("div")`
   display: flex;
@@ -69,7 +70,10 @@ export const SiteContainer = () => {
           )}
         </GridContainer>
       ) : (
-        <ImageGallery galleryId={currentNode.id} />
+        <>
+          <GalleryMap galleryId={currentNode.id} />
+          <ImageGalleryContainer galleryId={currentNode.id} />
+        </>
       )}
     </Container>
   );

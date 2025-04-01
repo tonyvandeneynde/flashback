@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { CircularProgress, Typography, styled } from "@mui/material";
+import { CircularProgress, styled } from "@mui/material";
 import { Image } from "../../apiConstants";
 import { ImageTile } from "./ImageTile";
-import { useImageViewer } from "../../contexts/ImageViewerContext";
-import { useImagesByGallery } from "../../services";
+import { PartialAxiosResponse } from "../../services";
 import { ScrollToTopButton } from "./ScrollToTopButton";
-import { GalleryMap } from "../Map";
+import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 
 const StyledRow = styled("div")`
   display: flex;
@@ -32,28 +31,29 @@ const StyledGallery = styled("div")`
   margin: 8px 0;
 `;
 
-const StyledCircularProgress = styled(CircularProgress)`
-  margin: auto;
-`;
-
 interface Row {
   images: Image[];
   height: number;
 }
 
-export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-    error,
-  } = useImagesByGallery(galleryId);
-  const { openViewer } = useImageViewer();
+interface ImageGalleryProps {
+  infiniteQueryData: UseInfiniteQueryResult<
+    InfiniteData<PartialAxiosResponse<Image[]>, unknown>,
+    Error
+  >;
+  onImageClick: (image: Image) => void;
+}
+
+export const ImageGallery = ({
+  infiniteQueryData,
+  onImageClick,
+}: ImageGalleryProps) => {
   const [rows, setRows] = useState<Row[]>([]);
   const maxRowHeight = 250;
   const gap = 8;
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    infiniteQueryData;
 
   const handleScroll = () => {
     const scrollTop = window.scrollY;
@@ -123,24 +123,8 @@ export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
     };
   }, [data, hasNextPage, isFetchingNextPage]);
 
-  if (status === "pending") {
-    return <StyledCircularProgress />;
-  }
-
-  if (status === "error") {
-    return <Typography color="error">Error: {error.message}</Typography>;
-  }
-
-  const handleClick = (image: Image) => {
-    openViewer({
-      galleryId,
-      initialImage: image,
-    });
-  };
-
   return (
     <>
-      <GalleryMap galleryId={galleryId} />
       <StyledGallery>
         {rows.map((row, rowIndex) => (
           <StyledRow key={rowIndex}>
@@ -150,7 +134,7 @@ export const ImageGallery = ({ galleryId }: { galleryId: number }) => {
                   imageSrc={image.mediumPath}
                   alt={image.name}
                   height={row.height}
-                  onDoubleClick={() => handleClick(image)}
+                  onDoubleClick={() => onImageClick(image)}
                 />
               </StyledImageWrapper>
             ))}

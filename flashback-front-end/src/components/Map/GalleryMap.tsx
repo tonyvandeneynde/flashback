@@ -1,10 +1,14 @@
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, styled } from "@mui/material";
 import { useMapData } from "../../services";
 import { ImageMap } from "../Site";
 
 interface GalleryMapProps {
   galleryId: number;
 }
+
+const StyledCircularProgress = styled(CircularProgress)`
+  margin: auto;
+`;
 
 export const GalleryMap = ({ galleryId }: GalleryMapProps) => {
   const { data, isLoading } = useMapData({
@@ -13,7 +17,7 @@ export const GalleryMap = ({ galleryId }: GalleryMapProps) => {
   });
 
   if (isLoading || !data) {
-    return <CircularProgress />;
+    return <StyledCircularProgress />;
   }
 
   return <ImageMap imagePositions={data || []} />;

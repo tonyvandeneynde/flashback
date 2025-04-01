@@ -3,7 +3,10 @@ import { API_PREFIX, IMAGES_BY_GALLERY } from "../apiConstants";
 import axios, { AxiosResponse } from "axios";
 import { Image } from "../apiConstants";
 
-type PartialAxiosResponse<T> = Omit<AxiosResponse<T>, "config" | "headers">;
+export type PartialAxiosResponse<T> = Omit<
+  AxiosResponse<T>,
+  "config" | "headers"
+>;
 
 const fetchImagesByGallery = async ({
   galleryId,
