@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CircularProgress, styled } from "@mui/material";
 import { Image } from "../../apiConstants";
 import { ImageTile } from "./ImageTile";
-import { PartialAxiosResponse } from "../../services";
+import { ImagesByGalleryResponse, PartialAxiosResponse } from "../../services";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 import { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 
@@ -38,7 +38,7 @@ interface Row {
 
 interface ImageGalleryProps {
   infiniteQueryData: UseInfiniteQueryResult<
-    InfiniteData<PartialAxiosResponse<Image[]>, unknown>,
+    InfiniteData<PartialAxiosResponse<ImagesByGalleryResponse>, unknown>,
     Error
   >;
   onImageClick: (image: Image) => void;
@@ -69,7 +69,7 @@ export const ImageGallery = ({
 
   const handleResize = () => {
     if (data) {
-      const allImages = data.pages.flatMap((page) => page.data);
+      const allImages = data.pages.flatMap((page) => page.data.images);
       const newRows: Row[] = [];
       let currentRow: Row = { images: [], height: maxRowHeight };
       let currentRowWidth = 0;

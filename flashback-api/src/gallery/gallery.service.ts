@@ -24,7 +24,12 @@ export class GalleryService {
     parent: Folder;
     account: Account;
   }): Promise<Gallery> {
-    const newGallery = this.galleryRepository.create({ name, parent, account });
+    const newGallery = this.galleryRepository.create({
+      name,
+      parent,
+      account,
+      showMapInGallery: true,
+    });
 
     return this.galleryRepository.save(newGallery);
   }
@@ -47,11 +52,17 @@ export class GalleryService {
     name,
     parentId,
     accountId,
+    coverImageId,
+    showMapInGallery,
+    showImagesOnParentFolderMaps,
   }: {
     id: number;
     name?: string;
     parentId?: number;
     accountId: number;
+    coverImageId?: number;
+    showMapInGallery?: boolean;
+    showImagesOnParentFolderMaps?: boolean;
   }) {
     const gallery = await this.getGalleryById({ id, accountId });
 
@@ -60,10 +71,25 @@ export class GalleryService {
     }
 
     if (parentId) {
-      const parent = await this.folderRepository.findOneOrFail({
+      const newParent = await this.folderRepository.findOneOrFail({
         where: { id: parentId, account: { id: accountId } },
       });
-      gallery.parent = parent;
+      gallery.parent = newParent;
+    }
+
+    if (coverImageId) {
+      const newCoverImage = await this.imageRepository.findOneOrFail({
+        where: { id: coverImageId, account: { id: accountId } },
+      });
+      gallery.coverImage = newCoverImage;
+    }
+
+    if (showMapInGallery !== undefined) {
+      gallery.showMapInGallery = showMapInGallery;
+    }
+
+    if (showImagesOnParentFolderMaps !== undefined) {
+      gallery.showImagesOnParentFolderMaps = showImagesOnParentFolderMaps;
     }
 
     return this.galleryRepository.save(gallery);

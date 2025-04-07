@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useFolders } from "../../services";
 import { useEffect, useState } from "react";
 import { Folder, Gallery, isFolder } from "../../apiConstants";
@@ -11,7 +11,7 @@ const Container = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px 0;
+  padding: 8px 0;
 `;
 
 const GridContainer = styled("div")`
@@ -58,20 +58,30 @@ export const SiteContainer = () => {
     <Container>
       <BreadcrumbBar path={path} onClick={handleNodeChanged} />
       {isFolder(currentNode) ? (
-        <GridContainer>
-          {[...currentNode.subfolders, ...currentNode.galleries].map(
-            (folder) => (
-              <NodeTile
-                key={folder.id}
-                node={folder}
-                onClick={() => handleNodeChanged(folder)}
-              />
-            )
-          )}
-        </GridContainer>
+        <>
+          {currentNode.galleries.length === 0 &&
+            currentNode.subfolders.length === 0 && (
+              <Typography textAlign={"center"}>
+                Add a folder or gallery in Organize
+              </Typography>
+            )}
+          <GridContainer>
+            {[...currentNode.subfolders, ...currentNode.galleries].map(
+              (folder) => (
+                <NodeTile
+                  key={folder.id}
+                  node={folder}
+                  onClick={() => handleNodeChanged(folder)}
+                />
+              )
+            )}
+          </GridContainer>
+        </>
       ) : (
         <>
-          <GalleryMap galleryId={currentNode.id} />
+          {currentNode.showMapInGallery && (
+            <GalleryMap galleryId={currentNode.id} />
+          )}
           <ImageGalleryContainer galleryId={currentNode.id} />
         </>
       )}

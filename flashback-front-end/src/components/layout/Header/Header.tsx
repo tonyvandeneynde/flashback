@@ -1,11 +1,14 @@
-import { AppBar, Toolbar, Typography, Button, useTheme } from "@mui/material";
+import { AppBar, Toolbar, Button, styled } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useProfile } from "../../../contexts/ProfileContext";
 import { ProfileMenu } from "./ProfileMenu";
+import Logo from "../../../assets/logo.svg?react";
+
+const StyledLogo = styled(Logo)`
+  margin: 16px auto 16px 0;
+`;
 
 export const Header = () => {
-  const theme = useTheme();
-
   const location = useLocation();
 
   const { isLoggedIn, image, logout } = useProfile();
@@ -17,15 +20,7 @@ export const Header = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography
-          color={theme.palette.primary.main}
-          variant="h6"
-          sx={{ flexGrow: 1 }}
-          fontWeight={700}
-          letterSpacing={2}
-        >
-          FLASHBACK
-        </Typography>
+        <StyledLogo />
         <Button
           component={Link}
           to="/organize"

@@ -12,47 +12,55 @@ import {
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
-import { useState } from "react";
-import { Folder, Gallery, isGallery } from "../../apiConstants";
+import { useState, useCallback } from "react";
+import { Folder } from "../../apiConstants";
+import { NodeType } from "../../services";
 
-export const CreateButton = ({
-  currentNode,
-  handleCreate,
-}: {
-  currentNode: Folder | Gallery | null;
-  handleCreate: (
-    dialogType: "Folder" | "Gallery" | null,
+type CreateButtonProps = {
+  currentFolder: Folder | null;
+  handleCreate?: (
+    typeToCreate: "folder" | "gallery",
     name: string,
     closeDialog: () => void
   ) => void;
-}) => {
+};
+
+export const CreateButton = ({
+  currentFolder,
+  handleCreate,
+}: CreateButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<"Folder" | "Gallery" | null>(
-    null
-  );
+  const [dialogType, setDialogType] = useState<NodeType>("folder");
   const [name, setName] = useState("");
   const open = Boolean(anchorEl);
 
-  const handleCreateClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handleCreateClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorEl(event.currentTarget);
+    },
+    []
+  );
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
-  };
+  }, []);
 
-  const handleMenuItemClick = (type: "Folder" | "Gallery") => {
-    if (currentNode === null) return;
-    setDialogType(type);
-    setDialogOpen(true);
-    handleClose();
-  };
+  const handleMenuItemClick = useCallback(
+    (type: NodeType) => {
+      if (currentFolder === null) return;
+      setDialogType(type);
+      setDialogOpen(true);
+      handleClose();
+    },
+    [currentFolder, handleClose]
+  );
 
-  const handleDialogClose = () => {
+  const handleDialogClose = useCallback(() => {
     setDialogOpen(false);
     setName("");
-  };
+  }, []);
+  console.log("currentFolder from createbutton:", currentFolder !== null);
 
   return (
     <>
@@ -60,49 +68,60 @@ export const CreateButton = ({
         variant="contained"
         color="primary"
         onClick={handleCreateClick}
-        disabled={currentNode !== null && isGallery(currentNode)}
+        disabled={currentFolder === null}
+        aria-haspopup="true"
+        aria-controls="create-menu"
       >
         + Create
       </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={() => handleMenuItemClick("Folder")}>
+      <Menu
+        id="create-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={() => handleMenuItemClick("folder")}>
           <ListItemIcon>
             <FolderIcon />
           </ListItemIcon>
           <ListItemText primary="Folder" />
         </MenuItem>
-        <MenuItem onClick={() => handleMenuItemClick("Gallery")}>
+        <MenuItem onClick={() => handleMenuItemClick("gallery")}>
           <ListItemIcon>
             <PhotoLibraryIcon />
           </ListItemIcon>
           <ListItemText primary="Gallery" />
         </MenuItem>
       </Menu>
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Create {dialogType}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={`${dialogType} Name`}
-            type="text"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => handleCreate(dialogType, name, handleDialogClose)}
-            color="primary"
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {dialogType && (
+        <Dialog open={dialogOpen} onClose={handleDialogClose}>
+          <DialogTitle>Create {dialogType}</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label={`${dialogType} Name`}
+              type="text"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={() =>
+                handleCreate?.(dialogType, name, handleDialogClose)
+              }
+              color="primary"
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   );
 };

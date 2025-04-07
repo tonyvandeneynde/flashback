@@ -26,7 +26,7 @@ export class FoldersController {
   @Get()
   async getAllFolders(): Promise<Folder[]> {
     // @Request() req: { user: { accountId: number; email: string } },
-    return this.folderService.getAllFolders();
+    return this.folderService.getAllFolders(3);
   }
 
   @Post('create')
@@ -94,7 +94,7 @@ export class FoldersController {
       },
     },
   })
-  async moveFolder(
+  async updateFolder(
     @Body() updateFolderDto: { id: number; parentId?: number; name?: string },
     // @Request() req: { user: { accountId: number; email: string } },
   ) {
@@ -103,27 +103,6 @@ export class FoldersController {
       name: updateFolderDto.name,
       parentId: updateFolderDto.parentId,
       accountId: 3,
-    });
-  }
-
-  @Put('update-gallery')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number' },
-        name: { type: 'string' },
-        parentId: { type: 'number' },
-      },
-    },
-  })
-  async updateGallery(
-    @Body() updateGalleryDto: { id: number; name?: string; parentId?: number },
-    // @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.galleryService.updateGallery({
-      accountId: 3,
-      ...updateGalleryDto,
     });
   }
 

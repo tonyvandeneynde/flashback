@@ -1,9 +1,12 @@
 import { styled, Typography } from "@mui/material";
-import { Folder, Gallery, isFolder } from "../../apiConstants";
+import { Folder, Gallery, isFolder, isGallery } from "../../apiConstants";
 import FolderIcon from "@mui/icons-material/Folder";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
-const StyledCard = styled("div")<{ isSelected: boolean }>`
+const StyledCard = styled("div")<{
+  isSelected: boolean;
+  backgroundImage: string | false | undefined;
+}>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -16,6 +19,16 @@ const StyledCard = styled("div")<{ isSelected: boolean }>`
   background-color: ${({ theme }) => theme.palette.background.paper};
   border: ${({ isSelected, theme }) =>
     isSelected ? `2px solid ${theme.palette.primary.main}` : "none"};
+  ${(props) =>
+    props.backgroundImage
+      ? `
+      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+        url(${props.backgroundImage});
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    `
+      : ""}
 `;
 
 export const NodeTile = ({
@@ -29,8 +42,11 @@ export const NodeTile = ({
   onClick: () => void;
   onDoubleClick: () => void;
 }) => {
+  const backgroundImage = isGallery(node) && node.coverImage?.thumbnailPath;
+
   return (
     <StyledCard
+      backgroundImage={backgroundImage}
       isSelected={isSelected}
       onClick={onClick}
       onDoubleClick={onDoubleClick}

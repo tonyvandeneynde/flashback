@@ -7,6 +7,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   DeleteDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { Folder } from './folder';
 import { Image } from './image';
@@ -19,6 +20,16 @@ export class Gallery {
 
   @Column()
   name: string;
+
+  @Column({ default: false })
+  showMapInGallery: boolean;
+
+  @Column({ default: false })
+  showImagesOnParentFolderMaps: boolean;
+
+  @OneToOne(() => Image, { nullable: true })
+  @JoinColumn({ name: 'coverImageId', referencedColumnName: 'id' })
+  coverImage: Image | null;
 
   @ManyToOne(() => Account, (account) => account.folders)
   @JoinColumn({ name: 'accountId', referencedColumnName: 'id' })

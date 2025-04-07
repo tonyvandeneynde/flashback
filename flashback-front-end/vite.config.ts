@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [svgr(), react()],
   server: {
     proxy: {
       // Target is your backend API
@@ -11,10 +12,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
 
-        configure: (proxy, options) => {
-          proxy.on("error", (err, _req, _res) => {});
-          proxy.on("proxyReq", (proxyReq, req, _res) => {});
-          proxy.on("proxyRes", (proxyRes, req, _res) => {});
+        configure: (proxy, _) => {
+          proxy.on("error", (_, _req, _res) => {});
+          proxy.on("proxyReq", (_, __, _res) => {});
+          proxy.on("proxyRes", (_, __, _res) => {});
         },
       },
       "/socket.io": {

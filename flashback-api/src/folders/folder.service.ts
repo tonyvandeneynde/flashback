@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Account, Folder, Gallery } from 'src/database/entities';
 import { Repository, TreeRepository, UpdateResult } from 'typeorm';
 import { GalleryService } from '../gallery/gallery.service';
+import { ImageService } from 'src/images/image.service';
 
 @Injectable()
 export class FolderService {
@@ -11,6 +12,7 @@ export class FolderService {
     @InjectRepository(Folder)
     private folderTreeRepository: TreeRepository<Folder>,
     private readonly GalleryService: GalleryService,
+    private readonly ImageService: ImageService,
   ) {}
 
   async createFolder({
@@ -43,8 +45,19 @@ export class FolderService {
     return this.folderTreeRepository.save(folder);
   }
 
-  async getAllFolders(): Promise<Folder[]> {
-    return this.folderTreeRepository.findTrees({ relations: ['galleries'] });
+  async getAllFolders(accountId: number): Promise<Folder[]> {
+    const folderTree = await this.folderTreeRepository.findTrees({
+      relations: ['galleries', 'galleries.coverImage', 'account'],
+    });
+
+    if (folderTree[0].account.id !== accountId) {
+      throw new NotFoundException(`Account with id ${accountId} not found`);
+    }
+
+    // Resolve cover image names into presigned URLs recursively
+    await this.resolveCoverImages(folderTree, accountId);
+
+    return folderTree;
   }
 
   async getFolderPath(id: number): Promise<Folder> {
@@ -146,5 +159,34 @@ export class FolderService {
     });
 
     return newGallery;
+  }
+
+  private async resolveCoverImages(
+    folders: Folder[],
+    accountId: number,
+  ): Promise<void> {
+    for (const folder of folders) {
+      for (const gallery of folder.galleries) {
+        if (gallery.coverImage) {
+          const resolvedImages = await this.ImageService.getImagesByIds(
+            [gallery.coverImage.id],
+            accountId,
+          );
+
+          const resolvedCoverImage = resolvedImages[0];
+
+          gallery.coverImage.originalPath =
+            resolvedCoverImage.originalPath || '';
+          gallery.coverImage.mediumPath = resolvedCoverImage.mediumPath || '';
+          gallery.coverImage.thumbnailPath =
+            resolvedCoverImage.thumbnailPath || '';
+        }
+      }
+
+      // Recursively resolve cover images for subfolders
+      if (folder.subfolders && folder.subfolders.length > 0) {
+        await this.resolveCoverImages(folder.subfolders, accountId);
+      }
+    }
   }
 }

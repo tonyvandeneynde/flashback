@@ -105,7 +105,7 @@ const ImageViewer = () => {
     if (galleryId === null || !currentImage) return;
 
     if (status === "success" && !isFetchingNextPage) {
-      const newImages = data.pages.flatMap((page) => page.data);
+      const newImages = data.pages.flatMap((page) => page.data.images);
 
       setImages(newImages);
 
@@ -197,7 +197,7 @@ const ImageViewer = () => {
         <ImageWrapper>
           <StyledImage
             src={currentImage?.originalPath}
-            alt={`Image ${currentImage?.filename}`}
+            alt={`Image ${currentImage?.name}`}
           />
         </ImageWrapper>
       </ViewerWrapper>

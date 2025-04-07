@@ -1,4 +1,5 @@
 import { Folder, Gallery, isFolder, isGallery } from "../apiConstants";
+import { NodeType } from "../services";
 
 export const getFolderTreeItemId = (folder: Folder | Gallery | null) => {
   if (!folder) return "";
@@ -17,15 +18,15 @@ export const getFolderTreeItemId = (folder: Folder | Gallery | null) => {
 export const getTreeNodeById = (
   nodes: (Folder | Gallery)[],
   id: number,
-  type: "Folder" | "Gallery"
+  type: NodeType
 ): Folder | Gallery | null => {
   for (const node of nodes) {
     if (node.id === id) {
-      if (type === "Folder" && isFolder(node)) return node;
-      if (type === "Gallery" && isGallery(node)) return node;
+      if (type === "folder" && isFolder(node)) return node;
+      if (type === "gallery" && isGallery(node)) return node;
     }
 
-    if (type === "Gallery" && isFolder(node)) {
+    if (type === "gallery" && isFolder(node)) {
       const found = getTreeNodeById(node.galleries, id, type);
       if (found) return found;
     }
@@ -37,4 +38,16 @@ export const getTreeNodeById = (
   }
 
   return null;
+};
+
+export const getTreeNodeType = (
+  node: Folder | Gallery | null
+): NodeType | null => {
+  if (!node) return null;
+
+  if (isFolder(node)) {
+    return "folder";
+  } else {
+    return "gallery";
+  }
 };

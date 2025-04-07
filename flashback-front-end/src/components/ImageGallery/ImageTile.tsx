@@ -9,12 +9,14 @@ export const ImageTile = ({
   imageSrc,
   height,
   alt,
+  onClick,
   onDoubleClick,
 }: {
   imageSrc: string;
   height: number;
   alt: string;
-  onDoubleClick: () => void;
+  onClick?: () => void;
+  onDoubleClick?: () => void;
 }) => {
   return (
     <StyledImage
@@ -23,6 +25,7 @@ export const ImageTile = ({
       src={imageSrc}
       alt={alt}
       onDoubleClick={onDoubleClick}
+      onClick={onClick}
     />
   );
 };

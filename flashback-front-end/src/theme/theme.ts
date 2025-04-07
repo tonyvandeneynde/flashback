@@ -4,19 +4,19 @@ const theme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#bb86fc",
+      main: "#DBC078",
     },
     secondary: {
-      main: "#03dac6",
+      main: "#e6d3a0",
     },
-    divider: "#333",
+    divider: "#3a3a3a", // A more subtle dark grey color for the divider
     background: {
-      default: "#121212",
-      paper: "#1d1d1d",
+      default: "#070708",
+      paper: "#1f1f23",
     },
     text: {
       primary: "#ffffff",
-      secondary: "#b0bec5",
+      secondary: "#000000",
     },
   },
   typography: {

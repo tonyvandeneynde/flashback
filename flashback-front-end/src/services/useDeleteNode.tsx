@@ -13,10 +13,10 @@ const deleteFolder = async ({
   type,
 }: {
   id: number;
-  type: "Folder" | "Gallery";
+  type: "folder" | "gallery";
 }): Promise<Folder> => {
   let url = `${API_PREFIX}/`;
-  if (type === "Folder") {
+  if (type === "folder") {
     url += FOLDERS_DELETE;
   } else {
     url += FOLDERS_DELETE_GALLERY;

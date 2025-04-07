@@ -19,6 +19,12 @@ const StyledAvatarImage = styled("img")`
   border-radius: 50%;
 `;
 
+const StyledBox = styled(Box)`
+  display: flex;
+  align-items: center;
+  text-align: center;
+`;
+
 export const ProfileMenu = ({
   image,
   logout,
@@ -26,7 +32,6 @@ export const ProfileMenu = ({
   image: string;
   logout: () => void;
 }) => {
-  console.log("image:", image);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -43,12 +48,12 @@ export const ProfileMenu = ({
 
   return (
     <Fragment>
-      <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
+      <StyledBox>
         <Tooltip title="Account settings">
           <IconButton
             onClick={handleClick}
             size="small"
-            sx={{ ml: 2 }}
+            sx={{ ml: 10 }}
             aria-controls={open ? "account-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
@@ -61,7 +66,7 @@ export const ProfileMenu = ({
             </Avatar>
           </IconButton>
         </Tooltip>
-      </Box>
+      </StyledBox>
       <Menu
         anchorEl={anchorEl}
         id="account-menu"

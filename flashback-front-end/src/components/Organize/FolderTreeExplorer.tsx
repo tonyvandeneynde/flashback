@@ -4,15 +4,28 @@ import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import { getFolderTreeItemId } from "../../utils";
 import FolderTree from "./FolderTree";
 
+type FolderTreeExplorerProps =
+  | {
+      disableGalleries: true;
+      disableFolders?: false;
+      onCurrentNodeChanged: (node: Folder | null) => void;
+    }
+  | {
+      disableGalleries?: false;
+      disableFolders: true;
+      onCurrentNodeChanged: (node: Gallery | null) => void;
+    }
+  | {
+      disableGalleries?: false;
+      disableFolders?: false;
+      onCurrentNodeChanged: (node: Folder | Gallery | null) => void;
+    };
+
 export const FolderTreeExplorer = ({
   disableGalleries,
   disableFolders,
   onCurrentNodeChanged,
-}: {
-  disableGalleries?: boolean;
-  disableFolders?: boolean;
-  onCurrentNodeChanged: (node: Folder | Gallery | null) => void;
-}) => {
+}: FolderTreeExplorerProps) => {
   const { folders } = useOrganizeContext();
   const [selectedNode, setSelectedNode] = useState<Folder | Gallery | null>(
     null
@@ -23,7 +36,7 @@ export const FolderTreeExplorer = ({
   };
 
   useEffect(() => {
-    onCurrentNodeChanged(selectedNode);
+    onCurrentNodeChanged(selectedNode as any);
   }, [selectedNode]);
 
   const selectedTreeItemId = getFolderTreeItemId(selectedNode);

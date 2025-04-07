@@ -1,31 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  API_PREFIX,
-  Folder,
-  FOLDERS,
-  FOLDERS_UPDATE,
-  FOLDERS_UPDATE_GALLERY,
-  Gallery,
-} from "../apiConstants";
+import { API_PREFIX, Folder, FOLDERS, FOLDERS_UPDATE } from "../apiConstants";
 import axios from "axios";
 
-const updateNode = async ({
+const updateFolder = async ({
   id,
   name,
   parentId,
-  type,
 }: {
   id: number;
   parentId?: number;
   name?: string;
-  type: "Folder" | "Gallery";
-}): Promise<Folder | Gallery> => {
-  let url = `${API_PREFIX}/`;
-  if (type === "Folder") {
-    url += FOLDERS_UPDATE;
-  } else {
-    url += FOLDERS_UPDATE_GALLERY;
-  }
+}): Promise<Folder> => {
+  let url = `${API_PREFIX}/${FOLDERS_UPDATE}`;
 
   const response = await axios.put(url, {
     id,
@@ -35,11 +21,11 @@ const updateNode = async ({
   return response.data;
 };
 
-export const useUpdateNode = () => {
+export const useUpdateFolder = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: updateNode,
+    mutationFn: updateFolder,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
     },

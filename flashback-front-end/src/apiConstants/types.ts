@@ -18,6 +18,9 @@ export interface Gallery {
   id: number;
   name: string;
   parentId: number;
+  coverImage: Image | null;
+  showMapInGallery: boolean;
+  showImagesOnParentFolderMaps: boolean;
 }
 
 export interface MapData {

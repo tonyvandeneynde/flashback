@@ -21,7 +21,7 @@ export const useAllImagesByGallery = (galleryId: number) => {
       if (hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
-      setImages(data.pages.flatMap((page) => page.data));
+      setImages(data.pages.flatMap((page) => page.data.images));
     }
   }, [data, fetchNextPage]);
 

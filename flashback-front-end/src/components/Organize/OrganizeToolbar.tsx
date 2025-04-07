@@ -1,186 +1,29 @@
-import { Button, styled, Toolbar } from "@mui/material";
+import { styled, Toolbar } from "@mui/material";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
-import {
-  API_PREFIX,
-  Folder,
-  Gallery,
-  IMAGES_BY_GALLERY,
-  isFolder,
-  isGallery,
-} from "../../apiConstants";
-import { useCreateFolder } from "../../services/useCreateFolder";
-import { useCreateGallery } from "../../services/useCreateNewGallery";
-import { CreateButton } from "./CreateButton";
-import { DeleteButton } from "./DeleteButton";
-import { useDeleteNode, useUpdateImages } from "../../services";
-import { useDeleteImages } from "../../services/useDeleteImages";
-import { useQueryClient } from "@tanstack/react-query";
-import { MoveButton } from "./MoveButton";
-import { useUpdateNode } from "../../services/useMoveNode";
+import { isFolder, isGallery } from "../../apiConstants";
+import { FolderToolbar } from "./FolderToolbar";
+import { GalleryToolbar } from "./GalleryToolbar";
 
 const StyledToolbar = styled(Toolbar)`
   display: flex;
   gap: 64px;
 `;
 
-const StyledButtons = styled("div")`
+export const StyledButtons = styled("div")`
   display: flex;
   gap: 8px;
 `;
 
 export const OrganizeToolbar = () => {
-  const queryClient = useQueryClient();
-  const {
-    currentNode,
-    selectedNode,
-    selectedImageIds,
-    imageIds,
-    multiSelectImages,
-    resetSelections,
-  } = useOrganizeContext();
-  const { mutate } = useCreateFolder();
-  const { mutate: mutateCreateGallery } = useCreateGallery();
-  const { mutate: mutateDeleteFolder } = useDeleteNode();
-  const { mutate: mutateDeleteImages } = useDeleteImages();
-  const { mutate: mutateMoveNode } = useUpdateNode();
-  const { mutate: mutateUpdateImages } = useUpdateImages();
-
-  const numberOfImages = imageIds.length;
-
-  const handleCreate = (
-    dialogType: "Folder" | "Gallery" | null,
-    name: string,
-    closeDialog: () => void
-  ) => {
-    if (currentNode === null) return;
-
-    if (dialogType === "Folder") {
-      mutate({ name, parentId: currentNode?.id });
-    }
-
-    if (dialogType === "Gallery") {
-      mutateCreateGallery({ name, parentId: currentNode?.id });
-    }
-    closeDialog();
-  };
-
-  const handleDeleteNodes = (closeDialog: () => void) => {
-    if (!selectedNode) return;
-
-    mutateDeleteFolder(
-      {
-        id: selectedNode.id,
-        type: isFolder(selectedNode) ? "Folder" : "Gallery",
-      },
-      {
-        onSuccess: resetSelections,
-      }
-    );
-    closeDialog();
-  };
-
-  const handleDeleteImages = (closeDialog: () => void) => {
-    mutateDeleteImages(
-      { ids: [...selectedImageIds] },
-      {
-        onSuccess: () => handleDeleteImagesSuccess(),
-      }
-    );
-    closeDialog();
-  };
-
-  const handleDeleteImagesSuccess = () => {
-    queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentNode?.id}`],
-    });
-    resetSelections();
-  };
-
-  const handleMoveNode = ({
-    closeDialog,
-    selectedNode,
-    newNodeParent,
-  }: {
-    closeDialog: () => void;
-    selectedNode: Folder | Gallery;
-    newNodeParent: Folder;
-  }) => {
-    if (!selectedNode || !newNodeParent) return;
-    mutateMoveNode(
-      {
-        id: selectedNode.id,
-        parentId: newNodeParent.id,
-        type: isFolder(selectedNode) ? "Folder" : "Gallery",
-      },
-      {
-        onSuccess: resetSelections,
-      }
-    );
-    closeDialog();
-  };
-
-  const handleMoveImages = ({
-    closeDialog,
-    selectedImageIds,
-    newImagesParent,
-  }: {
-    closeDialog: () => void;
-    selectedImageIds: number[];
-    newImagesParent: Gallery;
-  }) => {
-    if (selectedImageIds.length === 0 || !newImagesParent) return;
-    mutateUpdateImages(
-      {
-        ids: selectedImageIds,
-        parentId: newImagesParent.id,
-      },
-      {
-        onSuccess: () => handleMoveImagesSuccess(newImagesParent),
-      }
-    );
-    closeDialog();
-  };
-
-  const handleMoveImagesSuccess = (newImagesParent: Gallery) => {
-    queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentNode?.id}`],
-    });
-    queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${newImagesParent.id}`],
-    });
-    resetSelections();
-  };
+  const { currentNode } = useOrganizeContext();
 
   return (
     <StyledToolbar>
-      <StyledButtons>
-        <CreateButton currentNode={currentNode} handleCreate={handleCreate} />
-        <DeleteButton
-          selectedNode={selectedNode}
-          selectedImageIds={[...selectedImageIds]}
-          handleDeleteNodes={handleDeleteNodes}
-          handleDeleteImages={handleDeleteImages}
-        />
-        <MoveButton
-          selectedNode={selectedNode}
-          handleMoveNode={handleMoveNode}
-          selectedImageIds={[...selectedImageIds]}
-          handleMoveImages={handleMoveImages}
-        />
-        {currentNode && isGallery(currentNode) && (
-          <>
-            <Button onClick={() => multiSelectImages(imageIds)}>
-              Select All
-            </Button>
-
-            <Button onClick={resetSelections}>Deselect All</Button>
-          </>
-        )}
-      </StyledButtons>
+      {currentNode && isFolder(currentNode) && (
+        <FolderToolbar currentFolder={currentNode} />
+      )}
       {currentNode && isGallery(currentNode) && (
-        <div>
-          {selectedImageIds.size} of {numberOfImages} selected
-        </div>
+        <GalleryToolbar currentGallery={currentNode} />
       )}
     </StyledToolbar>
   );

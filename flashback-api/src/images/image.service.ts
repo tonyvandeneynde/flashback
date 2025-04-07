@@ -34,60 +34,7 @@ export class ImageService {
     private readonly rabbitMQService: RabbitMQService,
   ) {}
 
-  async save(
-    fileDetails: Image,
-    accountId: number,
-    email: string,
-    galleryId: number,
-  ) {
-    const account = await this.accountRepository.findOneOrFail({
-      where: { id: accountId },
-    });
-    const user = await this.userRepository.findOneOrFail({ where: { email } });
-
-    const gallery = await this.galleryRepository.findOneOrFail({
-      where: { id: galleryId, account: { id: accountId } },
-    });
-
-    fileDetails.addedByUser = user;
-    fileDetails.account = account;
-    fileDetails.gallery = gallery;
-    return this.imageRepository.save(fileDetails);
-  }
-
-  async getAllImages(accountId: number, page: number, limit: number) {
-    const [images, total] = await this.imageRepository.findAndCount({
-      where: { deletedAt: IsNull(), account: { id: accountId } },
-      relations: ['tags'],
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    return {
-      data: images,
-      total,
-      page,
-      limit,
-    };
-  }
-
-  async getImagesByGalleryId(
-    accountId: number,
-    galleryId: number,
-    page: number,
-    limit: number,
-  ) {
-    const [images, total] = await this.imageRepository.findAndCount({
-      where: {
-        deletedAt: IsNull(),
-        gallery: { id: galleryId },
-        account: { id: accountId },
-      },
-      relations: ['tags'],
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
+  async resolveImageUrls(images: Image[]) {
     const imagesWithUrls = await Promise.all(
       images.map(async (image) => {
         const filenames = [
@@ -119,6 +66,67 @@ export class ImageService {
       }),
     );
 
+    return imagesWithUrls;
+  }
+
+  async save(
+    fileDetails: Image,
+    accountId: number,
+    email: string,
+    galleryId: number,
+  ) {
+    const account = await this.accountRepository.findOneOrFail({
+      where: { id: accountId },
+    });
+    const user = await this.userRepository.findOneOrFail({ where: { email } });
+
+    const gallery = await this.galleryRepository.findOneOrFail({
+      where: { id: galleryId, account: { id: accountId } },
+    });
+
+    fileDetails.addedByUser = user;
+    fileDetails.account = account;
+    fileDetails.gallery = gallery;
+    return this.imageRepository.save(fileDetails);
+  }
+
+  async getAllImages(accountId: number, page: number, limit: number) {
+    const [images, total] = await this.imageRepository.findAndCount({
+      where: { deletedAt: IsNull(), account: { id: accountId } },
+      relations: ['tags'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const resolvedImages = this.resolveImageUrls(images);
+
+    return {
+      data: resolvedImages,
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async getImagesByGalleryId(
+    accountId: number,
+    galleryId: number,
+    page: number,
+    limit: number,
+  ) {
+    const [images, total] = await this.imageRepository.findAndCount({
+      where: {
+        deletedAt: IsNull(),
+        gallery: { id: galleryId },
+        account: { id: accountId },
+      },
+      relations: ['tags'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const imagesWithUrls = await this.resolveImageUrls(images);
+
     return {
       data: imagesWithUrls,
       total,
@@ -128,10 +136,14 @@ export class ImageService {
   }
 
   async getImagesByIds(ids: number[], accountId: number) {
-    return this.imageRepository.find({
+    const images = await this.imageRepository.find({
       where: { id: In(ids), deletedAt: IsNull(), account: { id: accountId } },
       relations: ['tags'],
     });
+
+    const imagesWithUrls = await this.resolveImageUrls(images);
+
+    return imagesWithUrls;
   }
 
   async updateImages({

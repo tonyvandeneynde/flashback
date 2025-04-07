@@ -8,6 +8,7 @@ export * from "./useDeleteNode";
 export * from "./useFolders";
 export * from "./useImagesByGallery";
 export * from "./useMapData";
-export * from "./useMoveNode";
+export * from "./useUpdateFolder";
+export * from "./useUpdateGallery";
 export * from "./useUpdateImages";
 export * from "./useUploadImage";
