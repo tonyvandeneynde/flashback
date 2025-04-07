@@ -14,3 +14,4 @@ export const FOLDERS_ADD_NEW_GALLERY = "folders/add-new-gallery";
 export const FOLDERS_UPDATE = "folders/update";
 export const GALLERY = "gallery";
 export const GALLERY_MAP_DATA = "gallery/map-data";
+export const FOLDER_MAP_DATA = "folders/map-data";

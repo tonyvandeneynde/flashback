@@ -6,6 +6,7 @@ import { NodeTile } from "./NodeTile";
 import { BreadcrumbBar } from "../BreadcrumbBar/BreadcrumbBar";
 import { GalleryMap } from "../Map";
 import { ImageGalleryContainer } from "../ImageGallery/ImageGalleryContainer";
+import { FolderMap } from "../Map/FolderMap";
 
 const Container = styled("div")`
   display: flex;
@@ -59,6 +60,7 @@ export const SiteContainer = () => {
       <BreadcrumbBar path={path} onClick={handleNodeChanged} />
       {isFolder(currentNode) ? (
         <>
+          <FolderMap folderId={currentNode.id} />
           {currentNode.galleries.length === 0 &&
             currentNode.subfolders.length === 0 && (
               <Typography textAlign={"center"}>

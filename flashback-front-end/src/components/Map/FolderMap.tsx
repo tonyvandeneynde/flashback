@@ -2,18 +2,18 @@ import { CircularProgress, styled } from "@mui/material";
 import { useMapData } from "../../services";
 import { ImageMap } from "../Site";
 
-interface GalleryMapProps {
-  galleryId: number;
+interface FolderMapProps {
+  folderId: number;
 }
 
 const StyledCircularProgress = styled(CircularProgress)`
   margin: auto;
 `;
 
-export const GalleryMap = ({ galleryId }: GalleryMapProps) => {
+export const FolderMap = ({ folderId }: FolderMapProps) => {
   const { data, isLoading } = useMapData({
-    nodeId: galleryId,
-    type: "gallery",
+    nodeId: folderId,
+    type: "folder",
   });
 
   if (isLoading || !data) {

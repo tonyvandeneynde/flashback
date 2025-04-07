@@ -280,4 +280,40 @@ export class ImageService {
       );
     }
   }
+
+  async getMapData(accountId: number, galleriesIds: number[]) {
+    const images = await this.imageRepository.find({
+      where: {
+        deletedAt: IsNull(),
+        latitude: Not(IsNull()),
+        longitude: Not(IsNull()),
+        thumbnailPath: Not(IsNull()),
+        gallery: { id: In(galleriesIds) },
+        account: { id: accountId },
+      },
+      relations: ['gallery'],
+    });
+
+    const mapData = await Promise.all(
+      images.map(async (image) => {
+        const filenames = [image.mediumPath];
+
+        const presignedUrl = await axios.post<{
+          downloadUrls: { downloadUrl: string }[];
+        }>(`${process.env.STORAGE_SERVICE_URL}/download/link`, { filenames });
+
+        const downloadUrls = presignedUrl.data.downloadUrls;
+
+        return {
+          id: image.id,
+          latitude: image.latitude!,
+          longitude: image.longitude!,
+          imageUrl: downloadUrls[0].downloadUrl,
+          galleryId: image.gallery.id,
+        };
+      }),
+    );
+
+    return mapData;
+  }
 }

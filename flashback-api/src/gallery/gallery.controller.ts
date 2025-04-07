@@ -6,6 +6,7 @@ import {
   Request,
   Put,
   Body,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 import { MapDataDto } from '../dto';
@@ -54,7 +55,7 @@ export class GalleryController {
   @Get('map-data/:galleryId')
   @ApiOperation({ summary: 'Get map data for a gallery' })
   async getMapData(
-    @Param('galleryId') galleryId: number,
+    @Param('galleryId', ParseIntPipe) galleryId: number,
     @Request() req: { user: { accountId: number; email: string } },
   ): Promise<MapDataDto[]> {
     return this.galleryService.getMapDataByGalleryId(

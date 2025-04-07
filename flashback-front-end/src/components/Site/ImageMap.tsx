@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   GoogleMap,
   Marker,
@@ -19,7 +19,7 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOLGE_MAPS_API_KEY,
-    libraries: ["geometry", "drawing"],
+    libraries: [],
   });
 
   const options = {
@@ -44,6 +44,12 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
       map.fitBounds(bounds);
     }
   };
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    onLoad(mapRef.current);
+  }, [imagePositions]);
 
   const handleMarkerClick = (image: MapData) => {
     setSelectedImage(image);

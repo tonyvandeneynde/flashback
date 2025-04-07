@@ -1,5 +1,5 @@
 import { styled, Typography } from "@mui/material";
-import { Folder, Gallery, isFolder } from "../../apiConstants";
+import { Folder, Gallery, isFolder, isGallery } from "../../apiConstants";
 import FolderIcon from "@mui/icons-material/Folder";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
@@ -8,7 +8,9 @@ interface TileProps {
   onClick: () => void;
 }
 
-const StyledFolderTile = styled("div")`
+const StyledTile = styled("div")<{
+  backgroundImage: string | false | undefined;
+}>`
   position: relative;
   width: 100%;
   padding-bottom: 60%; /* Aspect ratio 4:3 (200x150) */
@@ -17,6 +19,18 @@ const StyledFolderTile = styled("div")`
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.2s;
+  background-color: ${({ theme }) => theme.palette.background.paper};
+
+  ${(props) =>
+    props.backgroundImage
+      ? `
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+      url(${props.backgroundImage});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  `
+      : ""}
 
   &:hover {
     transform: scale(1.05);
@@ -40,12 +54,14 @@ const StyledTitle = styled("div")`
 `;
 
 export const NodeTile = ({ node, onClick }: TileProps) => {
+  const backgroundImage = isGallery(node) && node.coverImage?.thumbnailPath;
+
   return (
-    <StyledFolderTile onClick={onClick}>
+    <StyledTile backgroundImage={backgroundImage} onClick={onClick}>
       <StyledTitle>
         {isFolder(node) ? <FolderIcon /> : <PhotoLibraryIcon />}
         <Typography variant="button">{node.name}</Typography>
       </StyledTitle>
-    </StyledFolderTile>
+    </StyledTile>
   );
 };

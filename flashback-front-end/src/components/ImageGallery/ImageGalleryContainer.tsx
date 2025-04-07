@@ -32,7 +32,7 @@ export const ImageGalleryContainer = ({ galleryId }: { galleryId: number }) => {
   return (
     <>
       {infiniteQueryData.data.pages[0].data.total === 0 && (
-        <Typography textAlign={"center"} variant="body2" color="textPrimary">
+        <Typography textAlign={"center"} variant="body1">
           No images found in this gallery. Add some in Organize.
         </Typography>
       )}

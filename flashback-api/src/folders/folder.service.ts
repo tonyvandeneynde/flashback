@@ -4,6 +4,7 @@ import { Account, Folder, Gallery } from 'src/database/entities';
 import { Repository, TreeRepository, UpdateResult } from 'typeorm';
 import { GalleryService } from '../gallery/gallery.service';
 import { ImageService } from 'src/images/image.service';
+import { MapDataDto } from 'src/dto';
 
 @Injectable()
 export class FolderService {
@@ -76,6 +77,19 @@ export class FolderService {
     return ancestorTree;
   }
 
+  async getFolderDescendants(id: number): Promise<Folder[]> {
+    const folder = await this.folderTreeRepository.findOneOrFail({
+      where: { id },
+    });
+
+    const descendants = await this.folderTreeRepository.findDescendants(
+      folder,
+      { relations: ['galleries'] },
+    );
+
+    return descendants;
+  }
+
   async getFolderById({
     id,
     accountId,
@@ -87,6 +101,32 @@ export class FolderService {
       relations: ['galleries'],
       where: { id, account: { id: accountId } },
     });
+  }
+
+  // Get all map data of images from descending galleries of the folder
+  async getMapData(accountId: number, folderId: number): Promise<MapDataDto[]> {
+    const descendantFolders = await this.getFolderDescendants(folderId);
+
+    const descendingGalleries = descendantFolders.reduce(
+      (acc: Gallery[], folder: Folder) => {
+        const galleriesToShowInFolderMap = folder.galleries.filter(
+          (gallery) => gallery.showImagesOnParentFolderMaps,
+        );
+        return [...acc, ...galleriesToShowInFolderMap];
+      },
+      [],
+    );
+
+    const descendingGalleriesIds = descendingGalleries.map(
+      (gallery) => gallery.id,
+    );
+
+    const mapData = await this.ImageService.getMapData(
+      accountId,
+      descendingGalleriesIds,
+    );
+
+    return mapData;
   }
 
   async updateFolder({
