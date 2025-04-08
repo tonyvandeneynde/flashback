@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   GoogleMap,
   Marker,
-  InfoWindow,
   useJsApiLoader,
+  MarkerClusterer,
+  InfoWindow,
 } from "@react-google-maps/api";
-import { MarkerClusterer } from "@react-google-maps/api";
 import { MapData } from "../../apiConstants";
 import { CircularProgress } from "@mui/material";
+import { ClusterCarousel } from "./ClusterCarousel";
 
 interface MapProps {
   imagePositions: MapData[];
@@ -16,18 +17,20 @@ interface MapProps {
 
 export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
   const [selectedImage, setSelectedImage] = useState<MapData | null>(null);
+  const [selectedCluster, setSelectedCluster] = useState<any | null>(null);
+  const [clusterImages, setClusterImages] = useState<MapData[]>([]);
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOLGE_MAPS_API_KEY,
     libraries: [],
   });
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   const options = {
+    zoomOnClick: false,
     imagePath:
       "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
   };
-
-  const mapRef = React.useRef<google.maps.Map | null>(null);
 
   const onLoad = (map: google.maps.Map) => {
     mapRef.current = map;
@@ -53,50 +56,91 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
 
   const handleMarkerClick = (image: MapData) => {
     setSelectedImage(image);
+    setSelectedCluster(null);
+  };
+
+  const handleClusterClick = (cluster: any) => {
+    const markers = cluster.getMarkers();
+    const images = markers
+      .reduce((acc: MapData[], marker: any) => {
+        const position = marker.getPosition();
+        const imagesOnPosition = imagePositions.filter(
+          (pos) =>
+            parseFloat(pos.latitude) === position.lat() &&
+            parseFloat(pos.longitude) === position.lng() &&
+            !acc.some((img) => img.id === pos.id)
+        );
+        return acc.concat(imagesOnPosition);
+      }, [])
+      .filter(
+        (image: MapData | undefined): image is MapData => image !== undefined
+      );
+
+    if (images.length > 0) {
+      setClusterImages(images);
+      setSelectedImage(images[0]);
+      setSelectedCluster(cluster);
+    }
   };
 
   if (!isLoaded) {
     return <CircularProgress />;
   }
 
-  return (
-    <GoogleMap mapContainerStyle={mapStyles} zoom={2} onLoad={onLoad}>
-      <MarkerClusterer options={options}>
-        {(clusterer) => (
-          <>
-            {imagePositions.map((pos) => (
-              <Marker
-                key={pos.id}
-                position={{
-                  lat: parseFloat(pos.latitude),
-                  lng: parseFloat(pos.longitude),
-                }}
-                clusterer={clusterer}
-                onClick={() => handleMarkerClick(pos)}
-                clickable={true}
-              />
-            ))}
-          </>
-        )}
-      </MarkerClusterer>
+  const handleClose = () => {
+    setSelectedImage(null);
+    setSelectedCluster(null);
+    setClusterImages([]);
+  };
 
-      {selectedImage && (
-        <InfoWindow
-          position={{
-            lat: parseFloat(selectedImage.latitude),
-            lng: parseFloat(selectedImage.longitude),
-          }}
-          onCloseClick={() => setSelectedImage(null)}
-        >
-          <div style={{ width: "200px", height: "200px", overflow: "hidden" }}>
-            <img
-              src={selectedImage.imageUrl}
-              alt="thumbnail"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          </div>
-        </InfoWindow>
-      )}
-    </GoogleMap>
+  return (
+    <>
+      <GoogleMap mapContainerStyle={mapStyles} zoom={2} onLoad={onLoad}>
+        <MarkerClusterer options={options} onClick={handleClusterClick}>
+          {(clusterer) => (
+            <>
+              {imagePositions.map((pos) => (
+                <Marker
+                  key={pos.id}
+                  position={{
+                    lat: parseFloat(pos.latitude),
+                    lng: parseFloat(pos.longitude),
+                  }}
+                  clusterer={clusterer}
+                  onClick={() => handleMarkerClick(pos)}
+                  clickable={true}
+                />
+              ))}
+            </>
+          )}
+        </MarkerClusterer>
+
+        {selectedImage && (
+          <InfoWindow
+            position={{
+              lat: parseFloat(selectedImage.latitude),
+              lng: parseFloat(selectedImage.longitude),
+            }}
+            onCloseClick={handleClose}
+          >
+            <div style={{ width: "300px" }}>
+              {selectedCluster ? (
+                <ClusterCarousel clusterImages={clusterImages} />
+              ) : (
+                <img
+                  src={selectedImage.imageUrl}
+                  alt="thumbnail"
+                  style={{
+                    width: "100%",
+                    height: "250px",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
+    </>
   );
 };
