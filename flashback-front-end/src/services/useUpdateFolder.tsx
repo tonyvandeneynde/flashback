@@ -6,10 +6,12 @@ const updateFolder = async ({
   id,
   name,
   parentId,
+  showMapInFolder,
 }: {
   id: number;
   parentId?: number;
   name?: string;
+  showMapInFolder?: boolean;
 }): Promise<Folder> => {
   let url = `${API_PREFIX}/${FOLDERS_UPDATE}`;
 
@@ -17,6 +19,7 @@ const updateFolder = async ({
     id,
     name,
     parentId,
+    showMapInFolder,
   });
   return response.data;
 };

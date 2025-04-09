@@ -21,6 +21,9 @@ export class Folder {
   @Column()
   name: string;
 
+  @Column({ default: false })
+  showMapInFolder: boolean;
+
   @ManyToOne(() => Account, (account) => account.folders)
   @JoinColumn({ name: 'accountId', referencedColumnName: 'id' })
   account: Account;

@@ -37,6 +37,7 @@ export interface Folder {
   parentId: number;
   subfolders: Folder[];
   galleries: Gallery[];
+  showMapInFolder: boolean;
 }
 
 export function isGallery(

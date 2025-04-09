@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Gallery } from "../../apiConstants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ImageTile } from "../ImageGallery/ImageTile";
 import { SelectGalleryCoverImageDialog } from "./SelectGalleryCoverImageDialog";
 import { Image } from "../../apiConstants";
@@ -60,6 +60,15 @@ export const GallerySettingsButton = ({
   );
 
   const theme = useTheme();
+
+  useEffect(() => {
+    setName(selectedGallery.name);
+    setShowImagesOnParentFolderMaps(
+      selectedGallery.showImagesOnParentFolderMaps
+    );
+    setShowMapInGallery(selectedGallery.showMapInGallery);
+    setCoverImage(selectedGallery.coverImage);
+  }, [selectedGallery]);
 
   const nameChanged = name !== selectedGallery.name;
   const coverImageChanged =

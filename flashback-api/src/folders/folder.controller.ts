@@ -101,17 +101,25 @@ export class FoldersController {
         id: { type: 'number' },
         name: { type: 'string' },
         parentId: { type: 'number' },
+        showMapInFolder: { type: 'boolean' },
       },
     },
   })
   async updateFolder(
-    @Body() updateFolderDto: { id: number; parentId?: number; name?: string },
+    @Body()
+    updateFolderDto: {
+      id: number;
+      parentId?: number;
+      name?: string;
+      showMapInFolder?: boolean;
+    },
     // @Request() req: { user: { accountId: number; email: string } },
   ) {
     return this.folderService.updateFolder({
       id: updateFolderDto.id,
       name: updateFolderDto.name,
       parentId: updateFolderDto.parentId,
+      showMapInFolder: updateFolderDto.showMapInFolder,
       accountId: 3,
     });
   }

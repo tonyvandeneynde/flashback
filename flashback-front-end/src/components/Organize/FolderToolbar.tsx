@@ -14,9 +14,9 @@ import {
 import { MoveNodeButton } from "./MoveNodeButton";
 import { GallerySettingsButton } from "./GallerySettingsButton";
 import { Image } from "../../apiConstants";
+import { FolderSettingsButton } from "./FolderSettingsButton";
 
 export const FolderToolbar = ({ currentFolder }: { currentFolder: Folder }) => {
-  console.log("currentFolder:", currentFolder);
   const { currentNode, selectedNode, resetSelections } = useOrganizeContext();
 
   const { mutate: mutateCreateFolder } = useCreateFolder();
@@ -118,6 +118,30 @@ export const FolderToolbar = ({ currentFolder }: { currentFolder: Folder }) => {
     );
   };
 
+  const handleFolderSettings = ({
+    name,
+    showMapInFolder,
+    closeDialog,
+  }: {
+    name: string | null;
+    showMapInFolder: boolean | null;
+    closeDialog: () => void;
+  }) => {
+    if (!selectedNode || !isFolder(selectedNode)) {
+      closeDialog();
+      return;
+    }
+
+    mutateUpdateFolder(
+      {
+        id: selectedNode.id,
+        name: name ?? selectedNode.name,
+        showMapInFolder: showMapInFolder ?? selectedNode.showMapInFolder,
+      },
+      { onSettled: closeDialog }
+    );
+  };
+
   return (
     <StyledButtons>
       <CreateButton
@@ -136,6 +160,12 @@ export const FolderToolbar = ({ currentFolder }: { currentFolder: Folder }) => {
         <GallerySettingsButton
           selectedGallery={selectedNode}
           onGallerySettingsChange={handleGallerySettings}
+        />
+      )}
+      {selectedNode && isFolder(selectedNode) && (
+        <FolderSettingsButton
+          selectedFolder={selectedNode}
+          onFolderSettingsChange={handleFolderSettings}
         />
       )}
     </StyledButtons>

@@ -20,6 +20,7 @@ import { Migrations1743425572313 } from './1743425572313-migrations';
 import { Migrations1743529549262 } from './1743529549262-migrations';
 import { Migrations1743530502867 } from './1743530502867-migrations';
 import { Migrations1744017138029 } from './1744017138029-migrations';
+import { Migrations1744201538712 } from './1744201538712-migrations';
 
 export const migrationFiles = [
   Migrations1741794767086,
@@ -44,4 +45,5 @@ export const migrationFiles = [
   Migrations1743529549262,
   Migrations1743530502867,
   Migrations1744017138029,
+  Migrations1744201538712,
 ];

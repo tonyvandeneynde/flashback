@@ -60,7 +60,9 @@ export const SiteContainer = () => {
       <BreadcrumbBar path={path} onClick={handleNodeChanged} />
       {isFolder(currentNode) ? (
         <>
-          <FolderMap folderId={currentNode.id} />
+          {currentNode.showMapInFolder && (
+            <FolderMap folderId={currentNode.id} />
+          )}
           {currentNode.galleries.length === 0 &&
             currentNode.subfolders.length === 0 && (
               <Typography textAlign={"center"}>
