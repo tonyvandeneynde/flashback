@@ -1,7 +1,9 @@
 import { styled } from "@mui/material";
-import { Folder, Gallery } from "../../apiConstants";
+import { Folder, Gallery, isFolder } from "../../apiConstants";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HomeIcon from "@mui/icons-material/Home";
+import FolderIcon from "@mui/icons-material/Folder";
+import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
 const StyledBreadcrumb = styled("span")`
   cursor: pointer;
@@ -25,6 +27,13 @@ const StyledHomeIcon = styled(HomeIcon)`
 `;
 
 const StyledBreadcrumbName = styled("span")`
+  margin-left: 8px;
+`;
+
+const StyledNodeContainer = styled("div")`
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
   :hover {
     text-decoration: underline;
     scale: 1.1;
@@ -47,7 +56,10 @@ export const BreadcrumbBar = ({
           ) : (
             <>
               <ChevronRightIcon />
-              <StyledBreadcrumbName>{node.name}</StyledBreadcrumbName>
+              <StyledNodeContainer>
+                {isFolder(node) ? <FolderIcon /> : <PhotoLibraryIcon />}
+                <StyledBreadcrumbName>{node.name}</StyledBreadcrumbName>
+              </StyledNodeContainer>
             </>
           )}
         </StyledBreadcrumb>
