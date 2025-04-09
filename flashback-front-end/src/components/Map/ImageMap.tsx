@@ -7,7 +7,7 @@ import {
   InfoWindow,
 } from "@react-google-maps/api";
 import { MapData } from "../../apiConstants";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, styled, useTheme } from "@mui/material";
 import { ClusterCarousel } from "./ClusterCarousel";
 
 interface MapProps {
@@ -15,10 +15,27 @@ interface MapProps {
   mapStyles?: React.CSSProperties;
 }
 
+const StyledGalleryLink = styled("a")`
+  text-decoration: none;
+  color: ${({ theme }) => theme.palette.primary.main};
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+  text-align: center;
+  &:hover {
+    text-decoration: underline;
+  }
+  font-weight: bold;
+`;
+
 export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
   const [selectedImage, setSelectedImage] = useState<MapData | null>(null);
   const [selectedCluster, setSelectedCluster] = useState<any | null>(null);
   const [clusterImages, setClusterImages] = useState<MapData[]>([]);
+  const theme = useTheme();
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: import.meta.env.VITE_GOOLGE_MAPS_API_KEY,
@@ -93,6 +110,16 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
     setClusterImages([]);
   };
 
+  const getGalleryLink = (image: MapData) => {
+    // TODO: Implement link when url parameters are implemented
+    const galleryLink = (
+      <StyledGalleryLink href={`/gallery/${image.id}`} target="_blank">
+        View Gallery
+      </StyledGalleryLink>
+    );
+    return galleryLink;
+  };
+
   return (
     <>
       <GoogleMap mapContainerStyle={mapStyles} zoom={2} onLoad={onLoad}>
@@ -123,7 +150,16 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
             }}
             onCloseClick={handleClose}
           >
-            <div style={{ width: "300px" }}>
+            <div
+              style={{
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                padding: "8px",
+                borderRadius: "8px",
+                maxWidth: "300px",
+              }}
+            >
+              {getGalleryLink(selectedImage)}
               {selectedCluster ? (
                 <ClusterCarousel clusterImages={clusterImages} />
               ) : (

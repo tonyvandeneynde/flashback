@@ -28,6 +28,7 @@ export interface MapData {
   latitude: string;
   longitude: string;
   imageUrl: string;
+  galleryName: string;
   galleryId: number;
 }
 

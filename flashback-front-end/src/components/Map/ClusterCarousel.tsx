@@ -9,28 +9,29 @@ import "swiper/css/navigation";
 import "swiper/css/thumbs";
 
 import { Swiper as SwiperType } from "swiper/types";
+import { styled } from "@mui/material";
 
 interface ClusterCarouselProps {
   clusterImages: MapData[];
 }
+
+const StyledSwiper = styled(Swiper)`
+  height: 250px;
+  background-color: ${({ theme }) => theme.palette.background.paper};
+  --swiper-navigation-color: ${({ theme }) => theme.palette.primary.main};
+  --swiper-pagination-color: ${({ theme }) => theme.palette.primary.main};
+`;
 
 export const ClusterCarousel = ({ clusterImages }: ClusterCarouselProps) => {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
   return (
     <>
-      <Swiper
+      <StyledSwiper
         key={"top-swiper"}
         keyboard={{
           enabled: true,
         }}
-        style={
-          {
-            height: "250px",
-            "--swiper-navigation-color": "#fff",
-            "--swiper-pagination-color": "#fff",
-          } as React.CSSProperties
-        }
         spaceBetween={10}
         navigation={true}
         thumbs={{ swiper: thumbsSwiper }}
@@ -52,7 +53,7 @@ export const ClusterCarousel = ({ clusterImages }: ClusterCarouselProps) => {
             />
           </SwiperSlide>
         ))}
-      </Swiper>
+      </StyledSwiper>
       <Swiper
         key={"bottom-swiper"}
         onSwiper={setThumbsSwiper}
