@@ -45,6 +45,7 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
 
   const options = {
     zoomOnClick: false,
+    gridSize: 60,
     imagePath:
       "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
   };

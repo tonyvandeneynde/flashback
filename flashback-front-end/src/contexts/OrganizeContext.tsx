@@ -124,7 +124,7 @@ export const OrganizeContextProvider = ({
   }, [currentNode]);
 
   useEffect(() => {
-    // Set the first (Home folder)  as the current node as the default after fetching folders
+    // Set the first (Home folder) as the current node as the default after fetching folders
     if (currentNode === null && folders.length > 0) {
       handleSetPath([folders[0]]);
     } else if (currentNode !== null) {
@@ -132,7 +132,7 @@ export const OrganizeContextProvider = ({
       const updatedNode = getTreeNodeById(
         folders,
         currentNode.id,
-        isFolder(currentNode) ? "Folder" : "Gallery"
+        isFolder(currentNode) ? "folder" : "gallery"
       );
       if (updatedNode) {
         setCurrentNode(updatedNode);
