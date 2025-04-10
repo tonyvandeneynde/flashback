@@ -9,7 +9,7 @@ const updateImages = async ({
   ids: number[];
   parentId: number;
 }): Promise<Folder | Gallery> => {
-  let url = `${API_PREFIX}/${IMAGES_UPDATE}`;
+  let url = `/${API_PREFIX}/${IMAGES_UPDATE}`;
 
   const response = await axios.put(url, {
     ids,

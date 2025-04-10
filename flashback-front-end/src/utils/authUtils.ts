@@ -29,7 +29,7 @@ export const refreshAccessToken = async (): Promise<string> => {
     throw new Error("No refresh token found");
   }
 
-  const response = await fetch(`${API_PREFIX}/${AUTH_REFRESH_TOKEN}`, {
+  const response = await fetch(`/${API_PREFIX}/${AUTH_REFRESH_TOKEN}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

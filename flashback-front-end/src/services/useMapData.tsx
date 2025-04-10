@@ -20,7 +20,7 @@ const fetchFolderMapData = async (url: string): Promise<MapData[]> => {
 
 export const useMapData = ({ type, nodeId }: MapDataProps) => {
   const mapDataType = type === "folder" ? FOLDER_MAP_DATA : GALLERY_MAP_DATA;
-  let url = `${API_PREFIX}/${mapDataType}/${nodeId}`;
+  let url = `/${API_PREFIX}/${mapDataType}/${nodeId}`;
 
   const queryResult = useQuery({
     queryKey: [url],

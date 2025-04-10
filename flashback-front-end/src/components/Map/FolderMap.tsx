@@ -1,5 +1,5 @@
 import { CircularProgress, styled } from "@mui/material";
-import { useMapData } from "../../services";
+import { useFolders, useMapData } from "../../services";
 import { ImageMap } from "../Site";
 
 interface FolderMapProps {
@@ -11,12 +11,13 @@ const StyledCircularProgress = styled(CircularProgress)`
 `;
 
 export const FolderMap = ({ folderId }: FolderMapProps) => {
+  const { data: folders, isLoading: isFoldersLoading } = useFolders();
   const { data, isLoading } = useMapData({
     nodeId: folderId,
     type: "folder",
   });
 
-  if (isLoading || !data) {
+  if (isLoading || !data || isFoldersLoading || !folders) {
     return <StyledCircularProgress />;
   }
 
@@ -24,6 +25,7 @@ export const FolderMap = ({ folderId }: FolderMapProps) => {
     <ImageMap
       imagePositions={data || []}
       mapStyles={{ width: "100%", height: "600px" }}
+      folders={folders}
     />
   );
 };

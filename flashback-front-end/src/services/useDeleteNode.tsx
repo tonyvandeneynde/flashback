@@ -15,7 +15,7 @@ const deleteFolder = async ({
   id: number;
   type: "folder" | "gallery";
 }): Promise<Folder> => {
-  let url = `${API_PREFIX}/`;
+  let url = `/${API_PREFIX}/`;
   if (type === "folder") {
     url += FOLDERS_DELETE;
   } else {
@@ -34,7 +34,9 @@ export const useDeleteNode = () => {
   const mutation = useMutation({
     mutationFn: deleteFolder,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${FOLDERS}`],
+      });
     },
   });
 

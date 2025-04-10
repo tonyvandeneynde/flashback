@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ImageViewerProvider } from "./contexts/ImageViewerContext";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import { Routes } from "./routes";
+import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   const queryClient = new QueryClient({
@@ -19,7 +20,9 @@ function App() {
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
           <ProfileProvider>
             <ImageViewerProvider>
-              <Routes />
+              <Router>
+                <Routes />
+              </Router>
             </ImageViewerProvider>
           </ProfileProvider>
         </GoogleOAuthProvider>

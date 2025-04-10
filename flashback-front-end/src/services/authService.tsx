@@ -10,7 +10,7 @@ interface User {
 export const loginWithGoogle = async (
   code: string
 ): Promise<{ bearerToken: string; refreshToken: string }> => {
-  const res = await fetch(`${API_PREFIX}/${AUTH_GOOGLE}`, {
+  const res = await fetch(`/${API_PREFIX}/${AUTH_GOOGLE}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -22,6 +22,6 @@ export const loginWithGoogle = async (
 };
 
 export const getMe = async (): Promise<User | null> => {
-  const res = await axios.get(`${API_PREFIX}/${AUTH_ME}`);
+  const res = await axios.get(`/${API_PREFIX}/${AUTH_ME}`);
   return res.data;
 };

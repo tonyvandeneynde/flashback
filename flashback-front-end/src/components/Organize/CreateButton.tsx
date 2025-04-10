@@ -60,7 +60,6 @@ export const CreateButton = ({
     setDialogOpen(false);
     setName("");
   }, []);
-  console.log("currentFolder from createbutton:", currentFolder !== null);
 
   return (
     <>

@@ -5,13 +5,13 @@ import axios from "axios";
 export type NodeType = "folder" | "gallery";
 
 const fetchFolders = async (): Promise<Folder[]> => {
-  const response = await axios.get(`${API_PREFIX}/${FOLDERS}`);
+  const response = await axios.get(`/${API_PREFIX}/${FOLDERS}`);
   return response.data;
 };
 
 export const useFolders = () => {
   const queryResult = useQuery({
-    queryKey: [`${API_PREFIX}/${FOLDERS}`],
+    queryKey: [`/${API_PREFIX}/${FOLDERS}`],
     queryFn: fetchFolders,
   });
 

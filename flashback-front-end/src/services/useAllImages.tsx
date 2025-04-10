@@ -8,7 +8,7 @@ const fetchImages = async ({
 }: {
   pageParam?: number;
 }): Promise<AxiosResponse<Image[]>> => {
-  const response = await axios.get(`${API_PREFIX}/${IMAGES}`, {
+  const response = await axios.get(`/${API_PREFIX}/${IMAGES}`, {
     params: { page: pageParam, limit: 40 },
   });
   return response.data;
@@ -16,7 +16,7 @@ const fetchImages = async ({
 
 export const useImages = () => {
   const queryResult = useInfiniteQuery({
-    queryKey: [`${API_PREFIX}/${IMAGES}`],
+    queryKey: [`/${API_PREFIX}/${IMAGES}`],
     queryFn: async ({ pageParam = 1 }) => fetchImages({ pageParam }),
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.data.length === 0) {

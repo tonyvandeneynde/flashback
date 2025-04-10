@@ -27,7 +27,7 @@ export const useUploadImage = () => {
       formData.append("uploadId", uploadId);
       formData.append("galleryId", galleryId.toString());
 
-      const response = await axios.post(`${API_PREFIX}/${IMAGES}`, formData, {
+      const response = await axios.post(`/${API_PREFIX}/${IMAGES}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -1,8 +1,8 @@
 import {
-  BrowserRouter as Router,
   Routes as RouterRoutes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { LoginPage, OrganizePage, SitePage, TimelinePage } from "../components";
 import { useProfile } from "../contexts/ProfileContext";
@@ -11,29 +11,38 @@ import { CircularProgress } from "@mui/material";
 export const Routes = () => {
   const { isLoggedIn, isLoading } = useProfile();
 
+  const location = useLocation();
+
+  const getFolderPath = () => {
+    const urlPathString = location.pathname.replace(
+      /^(\/site\/home\/?|\/site\/organize\/?)/,
+      ""
+    );
+    const urlPath = urlPathString.split("/").filter((item) => item !== "");
+    return urlPath;
+  };
+
   if (isLoading) {
     return <CircularProgress />;
   }
 
+  const folderPath = getFolderPath();
+
   return (
-    <Router>
-      <RouterRoutes>
-        {!isLoggedIn ? (
-          <>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="*" element={<Navigate to="/login" />} />
-          </>
-        ) : (
-          <>
-            <Route path="/login" element={<Navigate to="/timeline" />} />
-            <Route path="/" element={<Navigate to="/timeline" />} />
-            <Route path="/organize" element={<OrganizePage />} />
-            <Route path="/timeline" element={<TimelinePage />} />
-            <Route path="/site" element={<SitePage />} />
-            <Route path="*" element={<Navigate to="/timeline" />} />
-          </>
-        )}
-      </RouterRoutes>
-    </Router>
+    <RouterRoutes>
+      {!isLoggedIn ? (
+        <>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </>
+      ) : (
+        <>
+          <Route path="/timeline" element={<TimelinePage />} />
+          <Route path="/organize/*" element={<OrganizePage />} />
+          <Route path="/site/home/*" element={<SitePage path={folderPath} />} />
+          <Route path="*" element={<Navigate to="/site/home" />} />
+        </>
+      )}
+    </RouterRoutes>
   );
 };

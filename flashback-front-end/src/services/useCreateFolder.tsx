@@ -9,7 +9,7 @@ const createFolder = async ({
   name: string;
   parentId: number;
 }): Promise<Folder> => {
-  const response = await axios.post(`${API_PREFIX}/${FOLDERS_CREATE}`, {
+  const response = await axios.post(`/${API_PREFIX}/${FOLDERS_CREATE}`, {
     name,
     parentId,
   });
@@ -20,10 +20,12 @@ export const useCreateFolder = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationKey: [`${API_PREFIX}/${FOLDERS_CREATE}`],
+    mutationKey: [`/${API_PREFIX}/${FOLDERS_CREATE}`],
     mutationFn: createFolder,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${FOLDERS}`],
+      });
     },
   });
 

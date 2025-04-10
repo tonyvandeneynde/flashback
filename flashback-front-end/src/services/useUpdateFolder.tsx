@@ -13,7 +13,7 @@ const updateFolder = async ({
   name?: string;
   showMapInFolder?: boolean;
 }): Promise<Folder> => {
-  let url = `${API_PREFIX}/${FOLDERS_UPDATE}`;
+  let url = `/${API_PREFIX}/${FOLDERS_UPDATE}`;
 
   const response = await axios.put(url, {
     id,
@@ -30,7 +30,9 @@ export const useUpdateFolder = () => {
   const mutation = useMutation({
     mutationFn: updateFolder,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${FOLDERS}`],
+      });
     },
   });
 

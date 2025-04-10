@@ -34,7 +34,7 @@ export const GalleryToolbar = ({
 
   const handleDeleteImagesSuccess = () => {
     queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentGallery.id}`],
+      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentGallery.id}`],
     });
     resetSelections();
   };
@@ -67,10 +67,10 @@ export const GalleryToolbar = ({
 
   const handleMoveImagesSuccess = (newImagesParent: Gallery) => {
     queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentGallery.id}`],
+      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/${currentGallery.id}`],
     });
     queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${newImagesParent.id}`],
+      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/${newImagesParent.id}`],
     });
     resetSelections();
   };

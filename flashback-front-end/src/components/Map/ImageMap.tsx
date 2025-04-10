@@ -6,16 +6,19 @@ import {
   MarkerClusterer,
   InfoWindow,
 } from "@react-google-maps/api";
-import { MapData } from "../../apiConstants";
+import { Folder, MapData } from "../../apiConstants";
 import { CircularProgress, styled, useTheme } from "@mui/material";
 import { ClusterCarousel } from "./ClusterCarousel";
+import { Link } from "react-router-dom";
+import { getTreeNodeById, getUrlPathForNode } from "../../utils";
 
 interface MapProps {
   imagePositions: MapData[];
   mapStyles?: React.CSSProperties;
+  folders?: Folder[];
 }
 
-const StyledGalleryLink = styled("a")`
+const StyledGalleryLink = styled(Link)`
   text-decoration: none;
   color: ${({ theme }) => theme.palette.primary.main};
   border: none;
@@ -31,7 +34,7 @@ const StyledGalleryLink = styled("a")`
   font-weight: bold;
 `;
 
-export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
+export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
   const [selectedImage, setSelectedImage] = useState<MapData | null>(null);
   const [selectedCluster, setSelectedCluster] = useState<any | null>(null);
   const [clusterImages, setClusterImages] = useState<MapData[]>([]);
@@ -112,10 +115,16 @@ export const ImageMap = ({ imagePositions, mapStyles }: MapProps) => {
   };
 
   const getGalleryLink = (image: MapData) => {
-    // TODO: Implement link when url parameters are implemented
+    if (!folders) return null;
+
+    const gallery = getTreeNodeById(folders, image.galleryId, "gallery");
+    if (!gallery) return null;
+
+    const galleryUrlPath = getUrlPathForNode(folders, gallery);
+
     const galleryLink = (
-      <StyledGalleryLink href={`/gallery/${image.id}`} target="_blank">
-        View Gallery
+      <StyledGalleryLink to={`/site/home/${galleryUrlPath}`}>
+        Go To Gallery
       </StyledGalleryLink>
     );
     return galleryLink;

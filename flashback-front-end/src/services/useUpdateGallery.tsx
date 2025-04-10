@@ -17,7 +17,7 @@ const updateGallery = async ({
   showMapInGallery?: boolean;
   showImagesOnParentFolderMaps?: boolean;
 }): Promise<Gallery> => {
-  const url = `${API_PREFIX}/${GALLERY}`;
+  const url = `/${API_PREFIX}/${GALLERY}`;
 
   const response = await axios.put(url, {
     id,
@@ -36,7 +36,9 @@ export const useUpdateGallery = () => {
   const mutation = useMutation({
     mutationFn: updateGallery,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${FOLDERS}`],
+      });
     },
   });
 

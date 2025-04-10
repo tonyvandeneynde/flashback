@@ -61,7 +61,7 @@ export const ImageGalleryUploadWrapper = ({
 
   const handleDialogClose = () => {
     queryClient.invalidateQueries({
-      queryKey: [`${API_PREFIX}/${IMAGES_BY_GALLERY}/${gallery.id}`],
+      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/${gallery.id}`],
     });
     setIsUploadDialogOpen(false);
   };

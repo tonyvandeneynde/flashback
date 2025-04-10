@@ -15,7 +15,7 @@ const createGallery = async ({
   parentId: number;
 }): Promise<Folder> => {
   const response = await axios.post(
-    `${API_PREFIX}/${FOLDERS_ADD_NEW_GALLERY}`,
+    `/${API_PREFIX}/${FOLDERS_ADD_NEW_GALLERY}`,
     {
       name,
       parentId,
@@ -30,7 +30,9 @@ export const useCreateGallery = () => {
   const mutation = useMutation({
     mutationFn: createGallery,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${API_PREFIX}/${FOLDERS}`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${FOLDERS}`],
+      });
     },
   });
 

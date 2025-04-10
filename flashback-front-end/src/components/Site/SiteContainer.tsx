@@ -7,6 +7,8 @@ import { BreadcrumbBar } from "../BreadcrumbBar/BreadcrumbBar";
 import { GalleryMap } from "../Map";
 import { ImageGalleryContainer } from "../ImageGallery/ImageGalleryContainer";
 import { FolderMap } from "../Map/FolderMap";
+import { getTreeNodesFromUrlPath, getUrlPathForNode } from "../../utils";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled("div")`
   display: flex;
@@ -22,30 +24,33 @@ const GridContainer = styled("div")`
   padding: 16px;
 `;
 
-export const SiteContainer = () => {
-  const { data, isLoading } = useFolders();
-  const [path, setPath] = useState<(Folder | Gallery)[]>([]);
+export const SiteContainer = ({ path }: { path: string[] }) => {
+  const nav = useNavigate();
+  const { data: folders, isLoading } = useFolders();
+  const [folderPath, setFolderPath] = useState<(Folder | Gallery)[]>([]);
   const [currentNode, setCurrentNode] = useState<Folder | Gallery | undefined>(
     undefined
   );
 
-  const handleNodeChanged = (node: Folder | Gallery) => {
-    if (path.length === 0) {
-      setPath([...path, node]);
-    } else {
-      const nodeAdded = path.indexOf(node) === -1;
-      if (nodeAdded) {
-        setPath([...path, node]);
-      } else {
-        setPath([...path.slice(0, path.indexOf(node) + 1)]);
-      }
-    }
-    setCurrentNode(node);
-  };
-
   useEffect(() => {
-    if (!currentNode && data?.[0]) handleNodeChanged(data?.[0]);
-  }, [data]);
+    if (!folders) return;
+
+    const treeNodePath = getTreeNodesFromUrlPath(folders, path);
+    if (treeNodePath === null) {
+      nav("/site/home");
+    } else {
+      setFolderPath(treeNodePath);
+      setCurrentNode(treeNodePath[treeNodePath.length - 1]);
+    }
+  }, [folders, path]);
+
+  const handleNodeChanged = (node: Folder | Gallery) => {
+    if (!folders) return;
+
+    const urlPath = getUrlPathForNode(folders, node);
+
+    nav(`/site/home/${urlPath}`);
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -57,7 +62,7 @@ export const SiteContainer = () => {
 
   return (
     <Container>
-      <BreadcrumbBar path={path} onClick={handleNodeChanged} />
+      <BreadcrumbBar path={folderPath} onClick={handleNodeChanged} />
       {isFolder(currentNode) ? (
         <>
           {currentNode.showMapInFolder && (
