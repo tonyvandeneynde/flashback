@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [svgr(), react()],
   server: {
     proxy: {
-      // Target is your backend API
       "/api": {
         target: "http://localhost:3000",
         changeOrigin: true,
@@ -19,7 +18,7 @@ export default defineConfig({
         },
       },
       "/socket.io": {
-        target: "http://localhost:3000", // Adjust the target to your WebSocket server URL
+        target: "http://localhost:3000",
         ws: true,
       },
     },

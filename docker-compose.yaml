@@ -2,29 +2,58 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: flashbackdb
-    ports:
-      - "5435:5432"
+    env_file:
+      - ./storage-service/.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  image-server:
-    build: .
-    ports:
-      - "8081:80"
-    volumes:
-      - ./flashback-api/uploads:/usr/share/nginx/html/uploads
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+
+  storage-service:
+    build:
+      context: ./storage-service
+    container_name: storage-service
+    env_file:
+      - ./storage-service/.env
+    environment:
+      PORT: 3500
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      - rabbitmq
+
+  api:
+    build:
+      context: ./flashback-api
+    container_name: flashback-api
+    env_file:
+      - ./flashback-api/.env
+    environment:
+      #   NODE_ENV: development
+      DB_HOST: postgres
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      STORAGE_SERVICE_URL: http://storage-service:3500
+      FRONT_END_URL: http://front-end:80
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  front-end:
+    build:
+      context: ./flashback-front-end
+    container_name: front-end
+    ports:
+      - "5173:80" # Vite default port
+    env_file:
+      - ./flashback-front-end/.env
+    environment:
+      REACT_APP_API_URL: http://localhost:3000
+    depends_on:
+      - api
 
 volumes:
   postgres_data:

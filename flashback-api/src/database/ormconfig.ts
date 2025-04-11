@@ -19,10 +19,10 @@ const isProduction = environment === 'production';
 export const connectionOptions: DataSourceOptions = {
   type: 'postgres',
   host: host || '127.0.0.1',
-  port: parseInt(port || '0') || 5435,
-  username: username || 'postgres',
-  password: password || 'mypassord',
-  database: database || 'flashbackdb',
+  port: parseInt(port || '0') || 5432,
+  username: username,
+  password: password,
+  database: database,
   ssl: isSSLCertEnabled === 'true' ? true : false,
 
   // We are using migrations, synchronize should be set to false.
