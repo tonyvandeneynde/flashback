@@ -14,7 +14,7 @@ const Container = styled("div")`
 `;
 
 const Header = styled("div")`
-  padding: 16px;
+  padding: 4px 0 4px 32px;
   background-color: ${theme.palette.background.paper};
   border-bottom: 1px solid ${theme.palette.divider};
 `;

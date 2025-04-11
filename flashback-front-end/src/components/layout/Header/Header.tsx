@@ -28,13 +28,16 @@ export const Header = () => {
         >
           Organize
         </Button>
-        <Button
+        {
+          // TODO: Implement timeline
+        }
+        {/* <Button
           component={Link}
           to="/timeline"
           color={getButtonColor("/timeline")}
         >
           Timeline
-        </Button>
+        </Button> */}
         <Button component={Link} to="/site" color={getButtonColor("/site")}>
           Site
         </Button>
