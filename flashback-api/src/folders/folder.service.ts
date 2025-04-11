@@ -47,18 +47,29 @@ export class FolderService {
   }
 
   async getAllFolders(accountId: number): Promise<Folder[]> {
-    const folderTree = await this.folderTreeRepository.findTrees({
+    let root = await this.folderTreeRepository.findOne({
+      where: { account: { id: accountId }, parent: undefined },
       relations: ['galleries', 'galleries.coverImage', 'account'],
     });
 
-    if (folderTree[0].account.id !== accountId) {
-      throw new NotFoundException(`Account with id ${accountId} not found`);
+    if (!root) {
+      // Create the root folder if it doesn't exist
+      root = await this.createFolder({
+        accountId,
+        name: 'Site Homepage',
+        parentId: undefined,
+      });
     }
 
-    // Resolve cover image names into presigned URLs recursively
-    await this.resolveCoverImages(folderTree, accountId);
+    const folderTree = await this.folderTreeRepository.findDescendantsTree(
+      root,
+      { relations: ['galleries', 'galleries.coverImage', 'account'] },
+    );
 
-    return folderTree;
+    // Resolve cover image names into presigned URLs recursively
+    await this.resolveCoverImages([folderTree], accountId);
+
+    return [folderTree];
   }
 
   async getFolderPath(id: number): Promise<Folder> {

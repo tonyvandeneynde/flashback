@@ -9,6 +9,7 @@ import {
   Param,
   Request,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth';
@@ -18,25 +19,25 @@ import { CreateFolderDto } from './create-folder.dto';
 import { CreateGalleryDto } from '../gallery';
 import { MapDataDto } from 'src/dto';
 
-// TODO: Restrict access to folders based on account
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('folders')
 export class FoldersController {
   constructor(private readonly folderService: FolderService) {}
 
   @Get()
-  async getAllFolders(): Promise<Folder[]> {
-    // @Request() req: { user: { accountId: number; email: string } },
-    return this.folderService.getAllFolders(3);
+  async getAllFolders(
+    @Request() req: { user: { accountId: number; email: string } },
+  ): Promise<Folder[]> {
+    return this.folderService.getAllFolders(req.user.accountId);
   }
 
   @Get('map-data/:folderId')
   @ApiOperation({ summary: 'Get map data for a folder' })
   async getMapData(
     @Param('folderId', ParseIntPipe) folderId: number,
-    // @Request() req: { user: { accountId: number; email: string } },
+    @Request() req: { user: { accountId: number; email: string } },
   ): Promise<MapDataDto[]> {
-    return this.folderService.getMapData(3, folderId);
+    return this.folderService.getMapData(req.user.accountId, folderId);
   }
 
   @Post('create')
@@ -51,11 +52,11 @@ export class FoldersController {
   })
   async createFolder(
     @Body() createUserDto: CreateFolderDto,
-    // @Request() req: { user: { accountId: number; email: string } },
+    @Request() req: { user: { accountId: number; email: string } },
   ) {
     return this.folderService.createFolder({
       ...createUserDto,
-      accountId: 3,
+      accountId: req.user.accountId,
     });
   }
 
@@ -84,12 +85,12 @@ export class FoldersController {
   })
   async addNewGallery(
     @Body() createGalleryDto: CreateGalleryDto,
-    // @Request() req: { user: { accountId: number; email: string } },
+    @Request() req: { user: { accountId: number; email: string } },
   ) {
     return this.folderService.addNewGalleryToFolder({
       folderId: createGalleryDto.parentId,
       galleryName: createGalleryDto.name,
-      accountId: 3,
+      accountId: req.user.accountId,
     });
   }
 
@@ -113,14 +114,14 @@ export class FoldersController {
       name?: string;
       showMapInFolder?: boolean;
     },
-    // @Request() req: { user: { accountId: number; email: string } },
+    @Request() req: { user: { accountId: number; email: string } },
   ) {
     return this.folderService.updateFolder({
       id: updateFolderDto.id,
       name: updateFolderDto.name,
       parentId: updateFolderDto.parentId,
       showMapInFolder: updateFolderDto.showMapInFolder,
-      accountId: 3,
+      accountId: req.user.accountId,
     });
   }
 
@@ -130,10 +131,13 @@ export class FoldersController {
     type: 'number',
     required: true,
   })
-  async deleteFolder(@Query('id') id: number) {
+  async deleteFolder(
+    @Query('id') id: number,
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
     return this.folderService.deleteFolderWithSubFoldersAndGalleries({
       id,
-      accountId: 3,
+      accountId: req.user.accountId,
     });
   }
 
@@ -143,9 +147,12 @@ export class FoldersController {
     type: 'number',
     required: true,
   })
-  async deleteGallery(@Query('id') id: number) {
+  async deleteGallery(
+    @Query('id') id: number,
+    @Request() req: { user: { accountId: number; email: string } },
+  ) {
     return this.folderService.deleteGallery({
-      id,
+      id: req.user.accountId,
       accountId: 3,
     });
   }

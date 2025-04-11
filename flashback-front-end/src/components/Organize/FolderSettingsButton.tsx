@@ -92,7 +92,9 @@ export const FolderSettingsButton = ({
         </DialogTitle>
         <DialogContent>
           <SettingsItem>
-            <Typography variant="body1">Folder Name</Typography>
+            <Typography color="primary" variant="body1">
+              Folder Name
+            </Typography>
             {isEditing ? (
               <Input
                 type="text"

@@ -9,6 +9,7 @@ import {
   Menu,
   MenuItem,
   TextField,
+  useTheme,
 } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
@@ -29,6 +30,7 @@ export const CreateButton = ({
   currentFolder,
   handleCreate,
 }: CreateButtonProps) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<NodeType>("folder");
@@ -99,11 +101,16 @@ export const CreateButton = ({
             <TextField
               autoFocus
               margin="dense"
-              label={`${dialogType} Name`}
+              label={`${dialogType} name`}
               type="text"
               fullWidth
               value={name}
               onChange={(e) => setName(e.target.value)}
+              slotProps={{
+                inputLabel: {
+                  style: { color: theme.palette.primary.main },
+                },
+              }}
             />
           </DialogContent>
           <DialogActions>
