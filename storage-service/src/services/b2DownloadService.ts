@@ -1,6 +1,8 @@
 import fetch from "node-fetch";
 import b2AuthServiceInstance from "./b2AuthService";
 
+const DOWNLOAD_URL_VALID_DURATION_IN_SECONDS = 3600 * 2; // 2 hours
+
 interface DownloadAuthResponse {
   authorizationToken: string;
 }
@@ -20,12 +22,14 @@ class B2DownloadService {
     if (
       this.cachedDownloadAuthToken &&
       this.tokenExpiryTime &&
-      currentTime < this.tokenExpiryTime
+      currentTime < this.tokenExpiryTime - 40 * 60 * 1000 // 40 minutes
     ) {
       return Promise.resolve({
         downloadAuthToken: this.cachedDownloadAuthToken,
       });
     } else {
+      // If the token is expired or about to expire in 40 minutes, fetch a new one
+      // Front end will refresh the queries after 30 minutes
       if (this.downloadAuthPromise) {
         return this.downloadAuthPromise;
       }
@@ -47,7 +51,7 @@ class B2DownloadService {
             body: JSON.stringify({
               bucketId: process.env.B2_BUCKET_ID,
               fileNamePrefix: "",
-              validDurationInSeconds: 3600 * 2,
+              validDurationInSeconds: DOWNLOAD_URL_VALID_DURATION_IN_SECONDS,
             }),
           }
         );
@@ -55,7 +59,8 @@ class B2DownloadService {
         const downloadAuth = (await response.json()) as DownloadAuthResponse;
 
         this.cachedDownloadAuthToken = downloadAuth.authorizationToken;
-        this.tokenExpiryTime = currentTime + 3600 * 2000;
+        this.tokenExpiryTime =
+          currentTime + DOWNLOAD_URL_VALID_DURATION_IN_SECONDS * 1000;
 
         this.downloadAuthPromise = null;
 

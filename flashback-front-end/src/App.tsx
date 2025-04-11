@@ -10,7 +10,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 20 * 1000 } },
+    defaultOptions: { queries: { staleTime: 30 * 60 * 1000 } },
   });
 
   return (
