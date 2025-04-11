@@ -41,7 +41,7 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
   const theme = useTheme();
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOLGE_MAPS_API_KEY,
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries: [],
   });
   const mapRef = useRef<google.maps.Map | null>(null);
