@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OAuth2Client, UserRefreshClient } from 'google-auth-library';
+import { AccountService } from 'src/account/account.service';
 import { User } from 'src/database/entities';
 import { Repository } from 'typeorm';
 
@@ -11,6 +12,7 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
+    private readonly accountService: AccountService,
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {
     this.client = new OAuth2Client(
@@ -57,14 +59,25 @@ export class AuthService {
       name: payload.name,
       picture: payload.picture,
     };
+    console.log('googleUser:', googleUser);
 
-    const existingUser = await this.userRepository.findOne({
+    let existingUser = await this.userRepository.findOne({
       where: { email: googleUser.email },
       relations: ['account'],
     });
 
     if (!existingUser) {
-      throw new Error('Unauthorized');
+      if (!googleUser.email || !googleUser.name || !googleUser.picture) {
+        throw new Error('Unauthorized');
+      }
+
+      const newUser = await this.accountService.createNewUserAndAccount({
+        email: googleUser.email!,
+        name: googleUser.name!,
+        picture: googleUser.picture!,
+      });
+
+      existingUser = newUser;
     } else {
       existingUser.name = googleUser.name || '';
       existingUser.picture = googleUser.picture || '';
