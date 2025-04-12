@@ -89,13 +89,13 @@ const ImageViewer = () => {
     error,
   } = useImagesByGallery(galleryId);
 
-  useEffect(() => {
-    if (isFullscreen) {
-      dialogRef.current?.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-  }, [isFullscreen]);
+  // useEffect(() => {
+  //   if (isFullscreen) {
+  //     dialogRef.current?.requestFullscreen();
+  //   } else {
+  //     document.exitFullscreen();
+  //   }
+  // }, [isFullscreen]);
 
   useEffect(() => {
     setCurrentImage(initialImage);

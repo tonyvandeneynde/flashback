@@ -59,7 +59,6 @@ export class AuthService {
       name: payload.name,
       picture: payload.picture,
     };
-    console.log('googleUser:', googleUser);
 
     let existingUser = await this.userRepository.findOne({
       where: { email: googleUser.email },

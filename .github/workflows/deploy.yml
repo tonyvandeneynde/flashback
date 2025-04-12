@@ -1,4 +1,4 @@
-name: Deploy to DigitalOcean
+name: Deploy to DigitalOcean droplet with HTTPS
 
 on:
   push:
@@ -25,45 +25,44 @@ jobs:
       run: |
         ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
-    # Step 4: Ensure the target directory exists
+    # Step 5: Ensure the target directory exists
     - name: Create target directory
       run: |
         ssh root@${{ secrets.DROPLET_IP }} "mkdir -p /home/root/app"
 
-    # Step 5: Copy files to the Droplet
+    # Step 6.1: Copy files to the Droplet
     - name: Copy files to server
       run: |
         scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
 
-    # Step 5.1: Debug secrets safely
-    - name: Debug secrets
-      run: |
-        if [ -z "${{ secrets.FRONTEND_ENV }}" ]; then
-          echo "Error: FRONTEND_ENV is empty or not set!" && exit 1
-        else
-          echo "FRONTEND_ENV is set and has $(printf "%s" "${{ secrets.FRONTEND_ENV }}" | wc -c) characters."
-        fi
-
-        if [ -z "${{ secrets.API_ENV }}" ]; then
-          echo "Error: API_ENV is empty or not set!" && exit 1
-        else
-          echo "API_ENV is set and has $(printf "%s" "${{ secrets.API_ENV }}" | wc -c) characters."
-        fi
-
-        if [ -z "${{ secrets.STORAGE_ENV }}" ]; then
-          echo "Error: STORAGE_ENV is empty or not set!" && exit 1
-        else
-          echo "STORAGE_ENV is set and has $(printf "%s" "${{ secrets.STORAGE_ENV }}" | wc -c) characters."
-        fi
-
-    # Step 5.2: Create .env files on server
+    # Step 6.2: Create .env files on server
     - name: Create .env files on server
       run: |
         ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.FRONTEND_ENV }}\" > /home/root/app/flashback-front-end/.env"
         ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.API_ENV }}\" > /home/root/app/flashback-api/.env"
         ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.STORAGE_ENV }}\" > /home/root/app/storage-service/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.RABBITMQ_ENV }}\" > /home/root/app/rabbitmq-service/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.POSTGRES_ENV }}\" > /home/root/app/.env"
 
-    # Step 6: SSH into the Droplet and deploy
+    # Step 7: SSH into the Droplet and deploy
     - name: Deploy on server
       run: |
-        ssh root@${{ secrets.DROPLET_IP }} "cd /home/root/app && docker compose down && docker compose up -d --build"
+        ssh root@${{ secrets.DROPLET_IP }} "cd /home/root/app && export ENABLE_POSTGRES=0 && docker compose down && docker compose up -d --build"
+
+    # Step 8: Install Certbot and Obtain SSL Certificate
+    - name: Set up HTTPS with Certbot
+      run: |
+        ssh root@${{ secrets.DROPLET_IP }} "
+          sudo apt update &&
+          sudo apt install -y certbot &&
+          # Ensure the webroot directory exists
+          sudo mkdir -p /var/www/certbot &&
+          sudo chown -R www-data:www-data /var/www/certbot &&
+          # Use webroot plugin for Certbot
+          sudo certbot certonly --webroot -w /var/www/certbot -d flashback-cloud.be -d www.flashback-cloud.be --non-interactive --agree-tos -m tonyvandeneynde@gmail.com
+        "
+
+    # Step 9: Test HTTPS Renewal
+    - name: Test Certbot Auto-Renewal
+      run: |
+        ssh root@${{ secrets.DROPLET_IP }} "sudo certbot renew --dry-run"

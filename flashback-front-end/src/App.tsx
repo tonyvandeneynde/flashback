@@ -2,17 +2,14 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme/theme";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ImageViewerProvider } from "./contexts/ImageViewerContext";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import { Routes } from "./routes";
 import { BrowserRouter as Router } from "react-router-dom";
+import { queryClient } from "./services/reactQuerySetup";
 
 function App() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 30 * 60 * 1000 } },
-  });
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

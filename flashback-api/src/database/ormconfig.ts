@@ -11,10 +11,16 @@ const {
   DB_PASSWORD: password,
   DB_DATABASE: database,
   NODE_ENV: environment,
-  IS_SSL_CERT_ENABLED: isSSLCertEnabled,
+  DB_SSL: isSSLCertEnabled,
+  DB_CA_CERT: dbCaCert,
 } = process.env;
 
 const isProduction = environment === 'production';
+let caCert = undefined;
+
+if (dbCaCert && isSSLCertEnabled) {
+  caCert = dbCaCert.replace(/\\n/g, '\n');
+}
 
 export const connectionOptions: DataSourceOptions = {
   type: 'postgres',
@@ -23,8 +29,7 @@ export const connectionOptions: DataSourceOptions = {
   username: username,
   password: password,
   database: database,
-  ssl: isSSLCertEnabled === 'true' ? true : false,
-
+  ssl: isSSLCertEnabled ? { ca: caCert } : false,
   // We are using migrations, synchronize should be set to false.
   synchronize: false,
   dropSchema: false,
