@@ -41,28 +41,28 @@ jobs:
         if [ -z "${{ secrets.FRONTEND_ENV }}" ]; then
           echo "Error: FRONTEND_ENV is empty or not set!" && exit 1
         else
-          echo "FRONTEND_ENV is set and has $(echo -n "${{ secrets.FRONTEND_ENV }}" | wc -c) characters."
+          echo "FRONTEND_ENV is set and has $(printf "%s" "${{ secrets.FRONTEND_ENV }}" | wc -c) characters."
         fi
 
         if [ -z "${{ secrets.API_ENV }}" ]; then
           echo "Error: API_ENV is empty or not set!" && exit 1
         else
-          echo "API_ENV is set and has $(echo -n "${{ secrets.API_ENV }}" | wc -c) characters."
+          echo "API_ENV is set and has $(printf "%s" "${{ secrets.API_ENV }}" | wc -c) characters."
         fi
 
         if [ -z "${{ secrets.STORAGE_ENV }}" ]; then
           echo "Error: STORAGE_ENV is empty or not set!" && exit 1
         else
-          echo "STORAGE_ENV is set and has $(echo -n "${{ secrets.STORAGE_ENV }}" | wc -c) characters."
+          echo "STORAGE_ENV is set and has $(printf "%s" "${{ secrets.STORAGE_ENV }}" | wc -c) characters."
         fi
 
     # Step 5.2: Create .env files on server
     - name: Create .env files on server
       run: |
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' '${{ secrets.FRONTEND_ENV }}' > /home/root/app/flashback-front-end/.env"
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' '${{ secrets.API_ENV }}' > /home/root/app/flashback-api/.env"
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' '${{ secrets.STORAGE_ENV }}' > /home/root/app/storage-service/.env"
-        
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.FRONTEND_ENV }}\" > /home/root/app/flashback-front-end/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.API_ENV }}\" > /home/root/app/flashback-api/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.STORAGE_ENV }}\" > /home/root/app/storage-service/.env"
+
     # Step 6: SSH into the Droplet and deploy
     - name: Deploy on server
       run: |
