@@ -47,7 +47,7 @@ services:
       context: ./flashback-front-end
     container_name: front-end
     ports:
-      - "80:80" # Vite default port
+      - "8080:80" # Vite default port
     env_file:
       - ./flashback-front-end/.env
     environment:
