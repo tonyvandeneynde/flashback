@@ -20,12 +20,17 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    # Step 3: Copy files to the Droplet
+    # Step 3: Add Droplet to known_hosts
+    - name: Add Droplet to known_hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+
+    # Step 4: Copy files to the Droplet
     - name: Copy files to server
       run: |
         scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
 
-    # Step 4: SSH into the Droplet and deploy
+    # Step 5: SSH into the Droplet and deploy
     - name: Deploy on server
       run: |
         ssh root@${{ secrets.DROPLET_IP }} << 'EOF'
