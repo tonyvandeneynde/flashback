@@ -35,21 +35,19 @@ jobs:
       run: |
         scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
 
+    # Step 5.1: Debug secrets safely
     - name: Debug secrets
       run: |
-        echo "${{ secrets.FRONTEND_ENV }}" | sed 's/./*/g'
-        echo "${{ secrets.API_ENV }}" | sed 's/./*/g'
-        echo "${{ secrets.STORAGE_ENV }}" | sed 's/./*/g'
+        echo "${{ secrets.FRONTEND_ENV }}" | tr -d '\n' | sed 's/./*/g'
+        echo "${{ secrets.API_ENV }}" | tr -d '\n' | sed 's/./*/g'
+        echo "${{ secrets.STORAGE_ENV }}" | tr -d '\n' | sed 's/./*/g'
 
-    # Step 5.1: Create .env files on server
+    # Step 5.2: Create .env files on server
     - name: Create .env files on server
       run: |
-        ssh root@${{ secrets.DROPLET_IP }} "cat > /home/root/app/flashback-front-end/.env <<EOF
-        ${{ secrets.FRONTEND_ENV }} EOF"
-        ssh root@${{ secrets.DROPLET_IP }} "cat > /home/root/app/flashback-api/.env <<EOF
-        ${{ secrets.API_ENV }} EOF"
-        ssh root@${{ secrets.DROPLET_IP }} "cat > /home/root/app/storage-service/.env <<EOF
-        ${{ secrets.STORAGE_ENV }} EOF"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' '${{ secrets.FRONTEND_ENV }}' > /home/root/app/flashback-front-end/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' '${{ secrets.API_ENV }}' > /home/root/app/flashback-api/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' '${{ secrets.STORAGE_ENV }}' > /home/root/app/storage-service/.env"
 
     # Step 6: SSH into the Droplet and deploy
     - name: Deploy on server
