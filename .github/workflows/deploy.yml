@@ -38,4 +38,4 @@ jobs:
     # Step 6: SSH into the Droplet and deploy
     - name: Deploy on server
       run: |
-        ssh root@${{ secrets.DROPLET_IP }} "cd /home/root/app && docker-compose down && docker-compose up -d --build"
+        ssh root@${{ secrets.DROPLET_IP }} "cd /home/root/app && docker compose down && docker compose up -d --build"
