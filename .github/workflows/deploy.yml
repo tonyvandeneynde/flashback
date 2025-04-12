@@ -35,6 +35,13 @@ jobs:
       run: |
         scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
 
+    # Step 5.1: Copy docker-compose files
+    - name: Create .env files on server
+      run: |
+        ssh root@${{ secrets.DROPLET_IP }} "echo '${{ secrets.FRONTEND_ENV }}' > /home/root/app/flashback-front-end/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "echo '${{ secrets.API_ENV }}' > /home/root/app/flashback-api/.env"
+        ssh root@${{ secrets.DROPLET_IP }} "echo '${{ secrets.STORAGE_ENV }}' > /home/root/app/storage-service/.env"
+
     # Step 6: SSH into the Droplet and deploy
     - name: Deploy on server
       run: |
