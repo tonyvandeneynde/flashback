@@ -25,10 +25,12 @@ jobs:
       run: |
         ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
-    # Step 4: Ensure the target directory exists
+    # Step 3.1: Ensure the target directory exists
     - name: Create target directory
       run: |
         ssh root@${{ secrets.DROPLET_IP }} "mkdir -p /home/root/app"
+
+        I still get an error in the debug secrets step: 0s Run echo "*** echo "*** " | tr -d '\n' | sed 's/.//g' echo "*" | tr -d '\n' | sed 's/.//g' echo "****" | tr -d '\n' | sed 's/./*/g' shell: /usr/bin/bash -e {0} env: SSH_AUTH_SOCK: /tmp/ssh-hBTNJHb96KsY/agent.1782 SSH_AGENT_PID: 1783 /home/runner/work/_temp/cbd738b4-4381-4a58-bfc0-5430c64fe1d2.sh: line 24: unexpected EOF while looking for matching ``'
 
     # Step 5: Copy files to the Droplet
     - name: Copy files to server
@@ -36,11 +38,11 @@ jobs:
         scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
 
     # Step 5.1: Debug secrets safely
-    - name: Debug secrets
-      run: |
-        echo "${{ secrets.FRONTEND_ENV }}" | tr -d '\n' | sed 's/./*/g'
-        echo "${{ secrets.API_ENV }}" | tr -d '\n' | sed 's/./*/g'
-        echo "${{ secrets.STORAGE_ENV }}" | tr -d '\n' | sed 's/./*/g'
+    # - name: Debug secrets
+    #   run: |
+    #     echo "${{ secrets.FRONTEND_ENV }}" | tr -d '\n' | sed 's/./*/g'
+    #     echo "${{ secrets.API_ENV }}" | tr -d '\n' | sed 's/./*/g'
+    #     echo "${{ secrets.STORAGE_ENV }}" | tr -d '\n' | sed 's/./*/g'
 
     # Step 5.2: Create .env files on server
     - name: Create .env files on server
