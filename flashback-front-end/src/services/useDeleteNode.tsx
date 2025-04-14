@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   API_PREFIX,
   Folder,
+  FOLDER_MAP_DATA,
   FOLDERS,
   FOLDERS_DELETE,
   FOLDERS_DELETE_GALLERY,
+  GALLERY_MAP_DATA,
 } from "../apiConstants";
 import axios from "axios";
 
@@ -36,6 +38,14 @@ export const useDeleteNode = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [`/${API_PREFIX}/${FOLDERS}`],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${GALLERY_MAP_DATA}/`],
+        exact: false,
+      });
+      queryClient.invalidateQueries({
+        queryKey: [`/${API_PREFIX}/${FOLDER_MAP_DATA}/`],
+        exact: false,
       });
     },
   });

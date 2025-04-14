@@ -23,7 +23,7 @@ export const useMapData = ({ type, nodeId }: MapDataProps) => {
   let url = `/${API_PREFIX}/${mapDataType}/${nodeId}`;
 
   const queryResult = useQuery({
-    queryKey: [url],
+    queryKey: [`/${API_PREFIX}/${mapDataType}/`, nodeId],
     queryFn: () => fetchFolderMapData(url),
   });
 

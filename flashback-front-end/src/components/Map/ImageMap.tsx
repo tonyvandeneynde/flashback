@@ -102,6 +102,7 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
     if (images.length > 0) {
       setClusterImages(images);
       setSelectedImage(images[0]);
+      setImageShownInCarousel(images[0]);
       setSelectedCluster(cluster);
     }
   };
