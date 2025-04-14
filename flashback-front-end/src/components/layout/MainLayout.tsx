@@ -1,7 +1,7 @@
 import { Box, styled } from "@mui/material";
 import { ReactNode } from "react";
-import { Header } from "./Header";
 import ImageViewer from "../ImageViewer/ImageViewer";
+import { HeaderContainer } from "./Header/HeaderContainer";
 
 const StyledBox = styled(Box)`
   display: flex;
@@ -25,7 +25,7 @@ export const MainLayout = ({
 }) => {
   return (
     <StyledBox>
-      <Header />
+      <HeaderContainer />
       <StyledChildren containPage={containPage}>{children}</StyledChildren>
       <ImageViewer />
     </StyledBox>

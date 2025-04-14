@@ -6,10 +6,13 @@ import {
 } from "react-router-dom";
 import { LoginPage, OrganizePage, SitePage, TimelinePage } from "../components";
 import { useProfile } from "../contexts/ProfileContext";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, useMediaQuery, useTheme } from "@mui/material";
+import { MobileNotSupportedPage } from "../components/Pages/MobileNotSupportedPage";
 
 export const Routes = () => {
   const { isLoggedIn, isLoading } = useProfile();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const location = useLocation();
 
@@ -24,6 +27,10 @@ export const Routes = () => {
 
   if (isLoading) {
     return <CircularProgress />;
+  }
+
+  if (isMobile) {
+    return <MobileNotSupportedPage />;
   }
 
   const folderPath = getFolderPath();
