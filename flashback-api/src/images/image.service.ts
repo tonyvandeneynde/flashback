@@ -93,6 +93,7 @@ export class ImageService {
   async getAllImages(accountId: number, page: number, limit: number) {
     const [images, total] = await this.imageRepository.findAndCount({
       where: { deletedAt: IsNull(), account: { id: accountId } },
+      order: { date: 'ASC' },
       relations: ['tags'],
       skip: (page - 1) * limit,
       take: limit,
@@ -120,6 +121,7 @@ export class ImageService {
         gallery: { id: galleryId },
         account: { id: accountId },
       },
+      order: { date: 'ASC' },
       relations: ['tags'],
       skip: (page - 1) * limit,
       take: limit,
@@ -138,6 +140,7 @@ export class ImageService {
   async getImagesByIds(ids: number[], accountId: number) {
     const images = await this.imageRepository.find({
       where: { id: In(ids), deletedAt: IsNull(), account: { id: accountId } },
+      order: { date: 'ASC' },
       relations: ['tags'],
     });
 
@@ -292,6 +295,7 @@ export class ImageService {
         account: { id: accountId },
       },
       relations: ['gallery'],
+      order: { date: 'ASC' },
     });
 
     const mapData = await Promise.all(

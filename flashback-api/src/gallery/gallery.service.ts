@@ -8,7 +8,6 @@ import { ImageService } from 'src/images/image.service';
 @Injectable()
 export class GalleryService {
   constructor(
-    @InjectRepository(Account) private accountRepository: Repository<Account>,
     @InjectRepository(Gallery) private galleryRepository: Repository<Gallery>,
     @InjectRepository(Folder) private folderRepository: Repository<Folder>,
     @InjectRepository(Image)
