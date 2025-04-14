@@ -102,7 +102,6 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
     if (images.length > 0) {
       setClusterImages(images);
       setSelectedImage(images[0]);
-      setImageShownInCarousel(images[0]);
       setSelectedCluster(cluster);
     }
   };
@@ -172,7 +171,7 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
                 maxWidth: "300px",
               }}
             >
-              {getGalleryLink(imageShownInCarousel)}
+              {getGalleryLink(imageShownInCarousel || selectedImage)}
               {selectedCluster ? (
                 <ClusterCarousel
                   clusterImages={clusterImages}
