@@ -31,11 +31,11 @@ const processMessage = async (msg: amqp.Message, ch: amqp.ConfirmChannel) => {
   try {
     const originalBuffer = Buffer.from(file.buffer.data, "base64");
     const mediumBuffer = await sharp(originalBuffer)
-      .resize(800)
+      .resize({ fit: "outside", width: 500, height: 500 })
       .keepExif()
       .toBuffer();
     const thumbnailBuffer = await sharp(originalBuffer)
-      .resize(200)
+      .resize({ fit: "cover", width: 150, height: 150 })
       .keepExif()
       .toBuffer();
 

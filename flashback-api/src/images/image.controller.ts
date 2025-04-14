@@ -12,21 +12,13 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { Image } from 'src/database/entities/image';
-import { StorageService } from 'src/storage/storage.service';
 import { ImageService } from './image.service';
 import { JwtAuthGuard } from 'src/auth';
-import { Channel, Connection } from 'amqplib';
-import { getExifData } from 'src/utils';
-const amqp = require('amqplib/callback_api');
 
 @UseGuards(JwtAuthGuard)
 @Controller('images')
 export class ImagesController {
-  constructor(
-    private readonly imageService: ImageService,
-    private readonly storageService: StorageService,
-  ) {}
+  constructor(private readonly imageService: ImageService) {}
 
   @Get()
   async getAllImages(
