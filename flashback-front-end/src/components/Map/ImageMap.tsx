@@ -38,6 +38,8 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
   const [selectedImage, setSelectedImage] = useState<MapData | null>(null);
   const [selectedCluster, setSelectedCluster] = useState<any | null>(null);
   const [clusterImages, setClusterImages] = useState<MapData[]>([]);
+  const [imageShownInCarousel, setImageShownInCarousel] =
+    useState<MapData | null>(null);
   const theme = useTheme();
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -114,8 +116,8 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
     setClusterImages([]);
   };
 
-  const getGalleryLink = (image: MapData) => {
-    if (!folders) return null;
+  const getGalleryLink = (image: MapData | null) => {
+    if (!folders || !image) return null;
 
     const gallery = getTreeNodeById(folders, image.galleryId, "gallery");
     if (!gallery) return null;
@@ -169,9 +171,12 @@ export const ImageMap = ({ imagePositions, mapStyles, folders }: MapProps) => {
                 maxWidth: "300px",
               }}
             >
-              {getGalleryLink(selectedImage)}
+              {getGalleryLink(imageShownInCarousel)}
               {selectedCluster ? (
-                <ClusterCarousel clusterImages={clusterImages} />
+                <ClusterCarousel
+                  clusterImages={clusterImages}
+                  onImageChanged={(mapData) => setImageShownInCarousel(mapData)}
+                />
               ) : (
                 <img
                   src={selectedImage.imageUrl}

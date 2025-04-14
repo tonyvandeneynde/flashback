@@ -13,6 +13,7 @@ import { styled } from "@mui/material";
 
 interface ClusterCarouselProps {
   clusterImages: MapData[];
+  onImageChanged: (newImage: MapData) => void;
 }
 
 const StyledSwiper = styled(Swiper)`
@@ -22,12 +23,22 @@ const StyledSwiper = styled(Swiper)`
   --swiper-pagination-color: ${({ theme }) => theme.palette.primary.main};
 `;
 
-export const ClusterCarousel = ({ clusterImages }: ClusterCarouselProps) => {
+export const ClusterCarousel = ({
+  clusterImages,
+  onImageChanged,
+}: ClusterCarouselProps) => {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+
+  const handleSlideChange = (swiper: SwiperType) => {
+    const activeIndex = swiper.activeIndex;
+    const activeImage = clusterImages[activeIndex];
+    onImageChanged(activeImage);
+  };
 
   return (
     <>
       <StyledSwiper
+        onSlideChange={handleSlideChange}
         key={"top-swiper"}
         keyboard={{
           enabled: true,
