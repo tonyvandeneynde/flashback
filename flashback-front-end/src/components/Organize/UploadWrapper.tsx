@@ -74,6 +74,11 @@ export const ImageGalleryUploadWrapper = ({
     setIsUploadDialogOpen(true);
   };
 
+  const handleCancel = () => {
+    cancelUploads();
+    handleDialogClose();
+  };
+
   return (
     <>
       <UploadProgressDialog
@@ -81,7 +86,7 @@ export const ImageGalleryUploadWrapper = ({
         fileStates={fileStates}
         onClose={handleDialogClose}
         onRetry={handleRetry}
-        onCancel={cancelUploads}
+        onCancel={handleCancel}
       />
       <StyledUploadButtonContainer>
         <Button onClick={open}>Browse files</Button>

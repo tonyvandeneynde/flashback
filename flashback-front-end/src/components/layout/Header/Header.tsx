@@ -14,7 +14,7 @@ export const Header = () => {
   const { isLoggedIn, image, logout } = useProfile();
 
   const getButtonColor = (path: string) => {
-    return location.pathname === path ? "primary" : "inherit";
+    return location.pathname.startsWith(path) ? "primary" : "inherit";
   };
 
   return (

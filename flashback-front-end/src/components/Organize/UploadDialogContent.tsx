@@ -77,7 +77,7 @@ export const UploadDialogContent = ({
               <DialogContentText
                 color={
                   fileState.state === "queued"
-                    ? "textSecondary"
+                    ? "textDisabled"
                     : isFailedState(fileState)
                     ? "error"
                     : "textPrimary"
@@ -100,7 +100,7 @@ export const UploadDialogContent = ({
                   {fileState.state === "uploaded" && <>Uploaded</>}
                   {fileState.state === "cancelled" && <>Cancelled</>}
                   {fileState.state === "queued" && (
-                    <Typography color="textSecondary">Queued</Typography>
+                    <Typography color="textDisabled">Queued</Typography>
                   )}
                 </StyledStatus>
               )}
