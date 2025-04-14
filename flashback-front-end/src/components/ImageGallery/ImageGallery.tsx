@@ -134,7 +134,7 @@ export const ImageGallery = ({
                   imageSrc={image.mediumPath}
                   alt={image.name}
                   height={row.height}
-                  onDoubleClick={() => onImageClick(image)}
+                  onClick={() => onImageClick(image)}
                 />
               </StyledImageWrapper>
             ))}

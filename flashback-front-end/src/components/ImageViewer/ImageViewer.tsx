@@ -8,6 +8,7 @@ import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import CloseIcon from "@mui/icons-material/Close";
+import { isMobileOrTablet } from "../../utils/isSmartPhoneOrTablet";
 
 const ViewerWrapper = styled("div")`
   position: fixed;
@@ -89,14 +90,6 @@ const ImageViewer = () => {
     error,
   } = useImagesByGallery(galleryId);
 
-  // useEffect(() => {
-  //   if (isFullscreen) {
-  //     dialogRef.current?.requestFullscreen();
-  //   } else {
-  //     document.exitFullscreen();
-  //   }
-  // }, [isFullscreen]);
-
   useEffect(() => {
     setCurrentImage(initialImage);
   }, [initialImage]);
@@ -170,6 +163,15 @@ const ImageViewer = () => {
     }
   };
 
+  const toggleFullscreen = () => {
+    if (isFullscreen) {
+      document.exitFullscreen();
+    } else {
+      dialogRef.current?.requestFullscreen();
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
     <Dialog
       onKeyDown={handleKeyDown}
@@ -191,9 +193,11 @@ const ImageViewer = () => {
             <ChevronRightIcon />
           </NextButton>
         )}
-        <ToggleScreenButton onClick={() => setIsFullscreen(!isFullscreen)}>
-          {isFullscreen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
-        </ToggleScreenButton>
+        {!isMobileOrTablet() && (
+          <ToggleScreenButton onClick={toggleFullscreen}>
+            {isFullscreen ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
+          </ToggleScreenButton>
+        )}
         <ImageWrapper>
           <StyledImage
             src={currentImage?.originalPath}
