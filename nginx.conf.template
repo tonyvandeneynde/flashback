@@ -14,7 +14,7 @@ http {
 
     server {
         listen 80;
-        server_name flashback-cloud.be www.flashback-cloud.be;
+        server_name ${DOMAIN} www.${DOMAIN};
 
         # Allow Certbot challenge files over HTTP
         location /.well-known/acme-challenge/ {
@@ -30,10 +30,11 @@ http {
 
     server {
         listen 443 ssl;
+        server_name ${DOMAIN} www.${DOMAIN};
 
         # SSL certificate paths
-        ssl_certificate /etc/letsencrypt/live/flashback-cloud.be/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/flashback-cloud.be/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 
         # SSL settings
         ssl_protocols TLSv1.2 TLSv1.3;
