@@ -36,9 +36,7 @@ class B2DownloadService {
 
       this.downloadAuthPromise = (async () => {
         const auth = await b2AuthServiceInstance.authorizeAccount();
-        console.log(
-          "$$$$$$$$$$$$$$ fetch b2_get_download_authorization token:"
-        );
+        console.log("$$ fetch b2_get_download_authorization token:");
 
         const response = await fetch(
           `${auth.apiInfo.storageApi.apiUrl}/b2api/v3/b2_get_download_authorization`,
