@@ -78,8 +78,8 @@ export class AuthService {
 
       existingUser = newUser;
     } else {
-      existingUser.name = googleUser.name || '';
-      existingUser.picture = googleUser.picture || '';
+      existingUser.name = googleUser.name || existingUser?.name || '';
+      existingUser.picture = googleUser.picture || existingUser?.picture || '';
       await this.userRepository.save(existingUser);
     }
 
@@ -113,6 +113,7 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { email: email },
     });
+    console.log('user:', user);
     return user;
   }
 }
