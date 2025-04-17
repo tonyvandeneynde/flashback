@@ -7,6 +7,7 @@ Flashback is a cloud-based image gallery application designed to handle image up
 ## Live Demo
 You can access the live demo of Flashback here: [https://flashback-cloud.be](https://flashback-cloud.be)
 > **Note:** Please have a Google account ready, as the app uses Google Sign-In for authentication.
+  <img width="427" alt="Screenshot 2025-04-17 at 19 42 55" src="https://github.com/user-attachments/assets/3b7dad31-d1f4-4f71-ae13-25e8068c5d05" />
 
 ---
 
@@ -30,13 +31,22 @@ Flashback is composed of the following services:
 
 - **Secure Authentication with Google Sign-In**: Uses OAuth 2.0 with Bearer tokens and Refresh tokens to manage user sessions securely.
 - **Organizer for Folders and Galleries**: Create and manage folders and galleries to organize your images.
+  <img width="1200" alt="Screenshot 2025-04-17 at 20 10 28" src="https://github.com/user-attachments/assets/200b42a7-6ab9-4f95-935e-68ba1b4452b4" />
+  
 - **Customizable Settings**: Configure settings for each folder and gallery, such as enabling maps for galleries.
 - **Real-time Upload Status**: Track the progress of your uploads in real-time.
+  <img width="1200" alt="Screenshot 2025-04-17 at 20 14 58" src="https://github.com/user-attachments/assets/82459216-7d26-4f08-895f-d52bfd867a99" />
+  
 - **Image Processing**: Automatically generates three sizes for each uploaded image.
 - **Cloud Storage Integration**: Securely stores images in a cloud storage service.
-- **Presigned Download Links**: Provides time-limited links for secure image downloads.
+- **Presigned Image Links**: Provides time-limited links for secure image access.
 - **Interactive Site Section**: View your organized folders and galleries in a visually appealing interface.
+  <img width="1200" alt="Screenshot 2025-04-17 at 20 12 30" src="https://github.com/user-attachments/assets/6d253db7-c041-4b48-9f82-e62469171e4f" />
+
+- **Paginated Image Fetching**: Images in the gallery are fetched in a paginated way to improve performance and reduce load times, especially for large galleries.
 - **Map Integration**: If enabled and GPS data is present, view your images on an interactive map.
+  <img width="1200" alt="Screenshot 2025-04-17 at 20 11 11" src="https://github.com/user-attachments/assets/ada9e808-efc7-44a3-afe4-048ad462520b" />
+  
 - **Scalable Architecture**: Built with microservices to handle high loads and ensure reliability.
 
 ---
@@ -53,6 +63,7 @@ Flashback is composed of the following services:
 - **Site Section**:
   - Displays the organized folders and galleries in a visually appealing format.
   - Includes interactive image galleries for browsing images.
+  - Fetches images in a paginated way to ensure fast loading and efficient performance for large datasets.
   - Displays images on a map if GPS data is available and the map feature is enabled.
 - Communicates with the API for image uploads, folder & gallery management and status updates.
 - Establishes a `socket.io` connection for real-time updates.
