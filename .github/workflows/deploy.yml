@@ -144,4 +144,4 @@ jobs:
     # Step 9: Test HTTPS Renewal
     - name: Test Certbot Auto-Renewal
       run: |
-        ssh root@${{ secrets.DROPLET_IP }} "sudo certbot renew --non-interactive --quiet --dry-run"
+        ssh root@${{ secrets.DROPLET_IP }} "sudo certbot renew --non-interactive --quiet --no-random-sleep-on-renew --dry-run"
