@@ -5,14 +5,9 @@ import { StyledButtons } from "./OrganizeToolbar";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import { useDeleteImages, useUpdateImages } from "../../services";
 import { Button } from "@mui/material";
-import {
-  API_PREFIX,
-  FOLDER_MAP_DATA,
-  Gallery,
-  GALLERY_MAP_DATA,
-  IMAGES_BY_GALLERY,
-} from "../../apiConstants";
+import { API_PREFIX, Gallery, IMAGES_BY_GALLERY } from "../../apiConstants";
 import { MoveImagesButton } from "./MoveImagesButton";
+import { invalidateMapData } from "../../utils/invalidateMapData";
 
 export const GalleryToolbar = ({
   currentGallery,
@@ -42,14 +37,7 @@ export const GalleryToolbar = ({
     queryClient.invalidateQueries({
       queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, currentGallery.id],
     });
-    queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${GALLERY_MAP_DATA}/`],
-      exact: false,
-    });
-    queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${FOLDER_MAP_DATA}/`],
-      exact: false,
-    });
+    invalidateMapData();
     resetSelections();
   };
 
@@ -86,14 +74,7 @@ export const GalleryToolbar = ({
     queryClient.invalidateQueries({
       queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, newImagesParent.id],
     });
-    queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${GALLERY_MAP_DATA}/`],
-      exact: false,
-    });
-    queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${FOLDER_MAP_DATA}/`],
-      exact: false,
-    });
+    invalidateMapData();
     resetSelections();
   };
 

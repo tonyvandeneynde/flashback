@@ -2,13 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   API_PREFIX,
   Folder,
-  FOLDER_MAP_DATA,
   FOLDERS,
-  FOLDERS_DELETE,
-  FOLDERS_DELETE_GALLERY,
-  GALLERY_MAP_DATA,
+  FOLDERS_GALLERIES,
 } from "../apiConstants";
 import axios from "axios";
+import { invalidateMapData } from "../utils/invalidateMapData";
 
 const deleteFolder = async ({
   id,
@@ -17,16 +15,10 @@ const deleteFolder = async ({
   id: number;
   type: "folder" | "gallery";
 }): Promise<Folder> => {
-  let url = `/${API_PREFIX}/`;
-  if (type === "folder") {
-    url += FOLDERS_DELETE;
-  } else {
-    url += FOLDERS_DELETE_GALLERY;
-  }
+  const deletePath = type === "folder" ? FOLDERS : FOLDERS_GALLERIES;
+  const url = `/${API_PREFIX}/${deletePath}/${id}`;
 
-  const response = await axios.delete(url, {
-    params: { id },
-  });
+  const response = await axios.delete(url);
   return response.data;
 };
 
@@ -39,14 +31,7 @@ export const useDeleteNode = () => {
       queryClient.invalidateQueries({
         queryKey: [`/${API_PREFIX}/${FOLDERS}`],
       });
-      queryClient.invalidateQueries({
-        queryKey: [`/${API_PREFIX}/${GALLERY_MAP_DATA}/`],
-        exact: false,
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`/${API_PREFIX}/${FOLDER_MAP_DATA}/`],
-        exact: false,
-      });
+      invalidateMapData();
     },
   });
 

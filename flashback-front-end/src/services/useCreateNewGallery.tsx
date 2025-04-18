@@ -3,7 +3,7 @@ import {
   API_PREFIX,
   Folder,
   FOLDERS,
-  FOLDERS_ADD_NEW_GALLERY,
+  FOLDERS_GALLERIES,
 } from "../apiConstants";
 import axios from "axios";
 
@@ -14,13 +14,10 @@ const createGallery = async ({
   name: string;
   parentId: number;
 }): Promise<Folder> => {
-  const response = await axios.post(
-    `/${API_PREFIX}/${FOLDERS_ADD_NEW_GALLERY}`,
-    {
-      name,
-      parentId,
-    }
-  );
+  const response = await axios.post(`/${API_PREFIX}/${FOLDERS_GALLERIES}`, {
+    name,
+    parentId,
+  });
   return response.data;
 };
 
