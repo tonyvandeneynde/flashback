@@ -32,8 +32,8 @@ export const initializeRabbitMQ = async (retries = 0): Promise<void> => {
 
       ch.assertQueue("image_uploads", { durable: true });
 
-      // Limit the number of unacknowledged messages to 3
-      ch.prefetch(3);
+      // Limit the number of unacknowledged messages to 2
+      ch.prefetch(2);
 
       ch.consume("image_uploads", async (msg) => {
         if (!msg) return;

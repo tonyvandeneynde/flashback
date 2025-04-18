@@ -1,5 +1,5 @@
-import { MainLayout } from "../../layout";
-import { OrganizeContainer } from "../../Organize/OrganizeContainer";
+import { MainLayout } from "../layout";
+import { OrganizeContainer } from "../Organize/OrganizeContainer";
 
 export const OrganizePage = () => {
   return (

@@ -1,4 +1,5 @@
 export * from "./LoginPage";
-export * from "./OrganizePage.tsx";
+export * from "./MobileNotSupportedPage";
+export * from "./OrganizePage";
 export * from "./SitePage";
-export * from "./TimelinePage";
+export * from "./TimeLinePage";
