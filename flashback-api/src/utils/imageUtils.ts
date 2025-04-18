@@ -21,7 +21,7 @@ export const getExifData = ({
   const result = parser.parse();
 
   const exifData = {
-    date: new Date(result.tags.CreateDate * 1000),
+    date: new Date(result.tags.DateTimeOriginal * 1000),
     latitude: result.tags.GPSLatitude,
     longitude: result.tags.GPSLongitude,
     latitudeRef: result.tags.GPSLatitudeRef,
@@ -61,7 +61,6 @@ export const createImageFromImageFile = (imageFile: Express.Multer.File) => {
 
   // Extract EXIF metadata
   const exifData = getExifData({ fileBuffer: imageFile.buffer });
-  console.log('exifData:', exifData);
 
   image.date = exifData.date;
   image.latitude = exifData.latitude?.toString();
