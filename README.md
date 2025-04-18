@@ -35,18 +35,19 @@ Flashback is composed of the following services:
   
 - **Customizable Settings**: Configure settings for each folder and gallery, such as enabling maps for galleries.
 - **Real-time Upload Status**: Track the progress of your uploads in real-time.
-  <img width="1200" alt="Screenshot 2025-04-17 at 20 14 58" src="https://github.com/user-attachments/assets/82459216-7d26-4f08-895f-d52bfd867a99" />
+  <img width="1200" alt="Screenshot 2025-04-18 at 15 09 20" src="https://github.com/user-attachments/assets/e7956208-6f62-4f1e-9c87-3929cd0fa0f5" />
   
 - **Image Processing**: Automatically generates three sizes for each uploaded image.
 - **Cloud Storage Integration**: Securely stores images in a cloud storage service.
 - **Presigned Image Links**: Provides time-limited links for secure image access.
 - **Interactive Site Section**: View your organized folders and galleries in a visually appealing interface.
-  <img width="1200" alt="Screenshot 2025-04-17 at 20 12 30" src="https://github.com/user-attachments/assets/6d253db7-c041-4b48-9f82-e62469171e4f" />
+  <img width="1200" alt="Screenshot 2025-04-18 at 15 23 49" src="https://github.com/user-attachments/assets/efc94723-6174-4224-b089-3ffa27271b08" />
 
 - **Full-Screen Image Carousel**: View images in full-screen mode for an immersive experience.
 - **Paginated Image Fetching**: Images in the gallery are fetched in a paginated way to improve performance and reduce load times, especially for large galleries.
 - **Map Integration**: If enabled and GPS data is present, view your images on an interactive map.
-  <img width="1200" alt="Screenshot 2025-04-17 at 20 11 11" src="https://github.com/user-attachments/assets/ada9e808-efc7-44a3-afe4-048ad462520b" />
+  <img width="1728" alt="Screenshot 2025-04-18 at 15 38 25" src="https://github.com/user-attachments/assets/975c9e78-d27f-46d5-839f-0d6c64d93683" />
+
   
 - **Scalable Architecture**: Built with microservices to handle high loads and ensure reliability.
 
