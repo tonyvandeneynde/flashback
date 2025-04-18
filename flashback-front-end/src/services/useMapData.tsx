@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   API_PREFIX,
-  FOLDER_MAP_DATA,
+  FOLDERS_MAP_DATA,
   GALLERY_MAP_DATA,
   MapData,
 } from "../apiConstants";
@@ -19,7 +19,7 @@ const fetchFolderMapData = async (url: string): Promise<MapData[]> => {
 };
 
 export const useMapData = ({ type, nodeId }: MapDataProps) => {
-  const mapDataType = type === "folder" ? FOLDER_MAP_DATA : GALLERY_MAP_DATA;
+  const mapDataType = type === "folder" ? FOLDERS_MAP_DATA : GALLERY_MAP_DATA;
   let url = `/${API_PREFIX}/${mapDataType}/${nodeId}`;
 
   const queryResult = useQuery({

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { API_PREFIX, Folder, FOLDERS, FOLDERS_CREATE } from "../apiConstants";
+import { API_PREFIX, Folder, FOLDERS } from "../apiConstants";
 import axios from "axios";
 
 const createFolder = async ({
@@ -9,7 +9,7 @@ const createFolder = async ({
   name: string;
   parentId: number;
 }): Promise<Folder> => {
-  const response = await axios.post(`/${API_PREFIX}/${FOLDERS_CREATE}`, {
+  const response = await axios.post(`/${API_PREFIX}/${FOLDERS}`, {
     name,
     parentId,
   });
@@ -20,7 +20,7 @@ export const useCreateFolder = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationKey: [`/${API_PREFIX}/${FOLDERS_CREATE}`],
+    mutationKey: [`/${API_PREFIX}/${FOLDERS}`],
     mutationFn: createFolder,
     onSuccess: () => {
       queryClient.invalidateQueries({

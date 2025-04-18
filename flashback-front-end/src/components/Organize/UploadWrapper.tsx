@@ -1,16 +1,11 @@
-import {
-  API_PREFIX,
-  FOLDER_MAP_DATA,
-  Gallery,
-  GALLERY_MAP_DATA,
-  IMAGES_BY_GALLERY,
-} from "../../apiConstants";
+import { API_PREFIX, Gallery, IMAGES_BY_GALLERY } from "../../apiConstants";
 import { useDropzone, FileError as DropzoneFileError } from "react-dropzone";
 import { ReactNode, useState } from "react";
 import { Button, styled } from "@mui/material";
 import { useUploadImages } from "../../hooks/useUploadImages";
 import { UploadProgressDialog } from "./UploadProgressDialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { invalidateMapData } from "../../utils/invalidateMapData";
 
 const StyledUploadButtonContainer = styled("div")`
   margin-bottom: 8px;
@@ -69,15 +64,7 @@ export const ImageGalleryUploadWrapper = ({
     queryClient.invalidateQueries({
       queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, gallery.id],
     });
-    queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${GALLERY_MAP_DATA}/`],
-      exact: false,
-    });
-    queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${FOLDER_MAP_DATA}/`],
-      exact: false,
-    });
-
+    invalidateMapData();
     setIsUploadDialogOpen(false);
   };
 

@@ -1,13 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  API_PREFIX,
-  FOLDER_MAP_DATA,
-  FOLDERS,
-  GALLERY,
-  Gallery,
-  GALLERY_MAP_DATA,
-} from "../apiConstants";
+import { API_PREFIX, FOLDERS, GALLERY, Gallery } from "../apiConstants";
 import axios from "axios";
+import { invalidateMapData } from "../utils/invalidateMapData";
 
 const updateGallery = async ({
   id,
@@ -46,14 +40,7 @@ export const useUpdateGallery = () => {
       queryClient.invalidateQueries({
         queryKey: [`/${API_PREFIX}/${FOLDERS}`],
       });
-      queryClient.invalidateQueries({
-        queryKey: [`/${API_PREFIX}/${GALLERY_MAP_DATA}/`],
-        exact: false,
-      });
-      queryClient.invalidateQueries({
-        queryKey: [`/${API_PREFIX}/${FOLDER_MAP_DATA}/`],
-        exact: false,
-      });
+      invalidateMapData();
     },
   });
 
