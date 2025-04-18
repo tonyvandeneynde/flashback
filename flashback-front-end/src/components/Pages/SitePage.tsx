@@ -1,5 +1,5 @@
-import { MainLayout } from "../../layout";
-import { SiteContainer } from "../../Site/SiteContainer";
+import { MainLayout } from "../layout";
+import { SiteContainer } from "../Site/SiteContainer";
 
 export const SitePage = ({ path }: { path: string[] }) => {
   return (
