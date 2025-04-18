@@ -18,10 +18,9 @@ const updateGallery = async ({
   showMapInGallery?: boolean;
   showImagesOnParentFolderMaps?: boolean;
 }): Promise<Gallery> => {
-  const url = `/${API_PREFIX}/${GALLERY}`;
+  const url = `/${API_PREFIX}/${GALLERY}/${id}`;
 
   const response = await axios.put(url, {
-    id,
     name,
     parentId,
     coverImageId,

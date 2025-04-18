@@ -18,26 +18,36 @@ import { ApiBody, ApiOperation } from '@nestjs/swagger';
 export class GalleryController {
   constructor(private readonly galleryService: GalleryService) {}
 
-  @Put()
+  @Put(':id')
   @ApiOperation({ summary: 'Update a gallery' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        id: { type: 'number' },
         name: { type: 'string', nullable: true },
         parentId: { type: 'number', nullable: true },
         coverImageId: { type: 'number', nullable: true },
         showMapInGallery: { type: 'boolean', nullable: true },
         showImagesOnParentFolderMaps: { type: 'boolean', nullable: true },
       },
-      required: ['id'],
+    },
+    examples: {
+      'Update Gallery': {
+        summary: 'Update a gallery',
+        value: {
+          name: 'Updated Gallery Name',
+          parentId: 1,
+          coverImageId: 2,
+          showMapInGallery: true,
+          showImagesOnParentFolderMaps: false,
+        },
+      },
     },
   })
   async updateGallery(
+    @Param('id', ParseIntPipe) id: number,
     @Body()
     updateGalleryDto: {
-      id: number;
       name?: string;
       parentId?: number;
       coverImageId?: number;
@@ -48,6 +58,7 @@ export class GalleryController {
   ) {
     return this.galleryService.updateGallery({
       accountId: req.user.accountId,
+      id,
       ...updateGalleryDto,
     });
   }
