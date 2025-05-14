@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { API_PREFIX, Folder, Gallery, IMAGES_UPDATE } from "../apiConstants";
+import { API_PREFIX, Folder, Gallery, IMAGES } from "../apiConstants";
 import axios from "axios";
 
 const updateImages = async ({
@@ -9,7 +9,7 @@ const updateImages = async ({
   ids: number[];
   parentId: number;
 }): Promise<Folder | Gallery> => {
-  let url = `/${API_PREFIX}/${IMAGES_UPDATE}`;
+  let url = `/${API_PREFIX}/${IMAGES}`;
 
   const response = await axios.put(url, {
     ids,
