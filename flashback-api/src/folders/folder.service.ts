@@ -4,7 +4,7 @@ import { Account, Folder, Gallery } from 'src/database/entities';
 import { Repository, TreeRepository, UpdateResult } from 'typeorm';
 import { GalleryService } from '../gallery/gallery.service';
 import { ImageService } from 'src/images/image.service';
-import { MapDataDto } from 'src/dto';
+import { MapDataResponseDto } from 'src/mapData';
 
 @Injectable()
 export class FolderService {
@@ -115,7 +115,10 @@ export class FolderService {
   }
 
   // Get all map data of images from descending galleries of the folder
-  async getMapData(accountId: number, folderId: number): Promise<MapDataDto[]> {
+  async getMapData(
+    accountId: number,
+    folderId: number,
+  ): Promise<MapDataResponseDto[]> {
     const descendantFolders = await this.getFolderDescendants(folderId);
 
     const descendingGalleries = descendantFolders.reduce(

@@ -6,17 +6,18 @@ import {
   Delete,
   Put,
   Param,
-  Request,
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth';
 import { FolderService } from './folder.service';
 import { Folder } from 'src/database/entities';
 import { CreateFolderDto } from './create-folder.dto';
 import { CreateGalleryDto } from '../gallery';
-import { MapDataDto } from 'src/dto';
+import { MapDataResponseDto } from 'src/mapData';
+import { UpdateFolderDto } from './update-folder.dto';
+import { AccountId } from 'src/auth/decorators/accountId.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('folders')
@@ -24,20 +25,18 @@ export class FoldersController {
   constructor(private readonly folderService: FolderService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all images' })
-  async getAllFolders(
-    @Request() req: { user: { accountId: number; email: string } },
-  ): Promise<Folder[]> {
-    return this.folderService.getAllFolders(req.user.accountId);
+  @ApiOperation({ summary: 'Get all folders' })
+  async getAllFolders(@AccountId() accountId: number): Promise<Folder[]> {
+    return this.folderService.getAllFolders(accountId);
   }
 
   @Get('map-data/:id')
   @ApiOperation({ summary: 'Get map data for a folder' })
   async getMapData(
     @Param('id', ParseIntPipe) id: number,
-    @Request() req: { user: { accountId: number; email: string } },
-  ): Promise<MapDataDto[]> {
-    return this.folderService.getMapData(req.user.accountId, id);
+    @AccountId() accountId: number,
+  ): Promise<MapDataResponseDto[]> {
+    return this.folderService.getMapData(accountId, id);
   }
 
   @Get(':id/path')
@@ -48,30 +47,13 @@ export class FoldersController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new folder' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        parentId: { type: 'number' },
-      },
-    },
-    examples: {
-      'Create Folder': {
-        value: {
-          name: 'New Folder',
-          parentId: 1,
-        },
-      },
-    },
-  })
   async createFolder(
-    @Body() createUserDto: CreateFolderDto,
-    @Request() req: { user: { accountId: number; email: string } },
+    @Body() createFolderDto: CreateFolderDto,
+    @AccountId() accountId: number,
   ) {
     return this.folderService.createFolder({
-      ...createUserDto,
-      accountId: req.user.accountId,
+      ...createFolderDto,
+      accountId,
     });
   }
 
@@ -80,31 +62,14 @@ export class FoldersController {
     summary:
       'Create a new gallery and associate it with a folder using parentId',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        parentId: { type: 'number' },
-      },
-    },
-    examples: {
-      'Create Gallery': {
-        value: {
-          name: 'New Gallery',
-          parentId: 1,
-        },
-      },
-    },
-  })
   async addNewGallery(
     @Body() createGalleryDto: CreateGalleryDto,
-    @Request() req: { user: { accountId: number; email: string } },
+    @AccountId() accountId: number,
   ) {
     return this.folderService.addNewGalleryToFolder({
       folderId: createGalleryDto.parentId,
       galleryName: createGalleryDto.name,
-      accountId: req.user.accountId,
+      accountId,
     });
   }
 
@@ -113,41 +78,18 @@ export class FoldersController {
     summary:
       'Update a folder by modifying its name, parentId, or showMapInFolder flag',
   })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        parentId: { type: 'number' },
-        showMapInFolder: { type: 'boolean' },
-      },
-    },
-    examples: {
-      'Update Folder': {
-        value: {
-          name: 'Updated Folder',
-          parentId: 1,
-          showMapInFolder: true,
-        },
-      },
-    },
-  })
   async updateFolder(
     @Param('id', ParseIntPipe) id: number,
     @Body()
-    updateFolderDto: {
-      parentId?: number;
-      name?: string;
-      showMapInFolder?: boolean;
-    },
-    @Request() req: { user: { accountId: number; email: string } },
+    updateFolderDto: UpdateFolderDto,
+    @AccountId() accountId: number,
   ) {
     return this.folderService.updateFolder({
       id,
       name: updateFolderDto.name,
       parentId: updateFolderDto.parentId,
       showMapInFolder: updateFolderDto.showMapInFolder,
-      accountId: req.user.accountId,
+      accountId,
     });
   }
 
@@ -158,11 +100,11 @@ export class FoldersController {
   })
   async deleteFolder(
     @Param('id', ParseIntPipe) id: number,
-    @Request() req: { user: { accountId: number; email: string } },
+    @AccountId() accountId: number,
   ) {
     return this.folderService.deleteFolderWithSubFoldersAndGalleries({
       id,
-      accountId: req.user.accountId,
+      accountId,
     });
   }
 
@@ -170,11 +112,11 @@ export class FoldersController {
   @ApiOperation({ summary: 'Delete a gallery and remove it from a folder' })
   async deleteGallery(
     @Param('id', ParseIntPipe) id: number,
-    @Request() req: { user: { accountId: number; email: string } },
+    @AccountId() accountId: number,
   ) {
     return this.folderService.deleteGallery({
       id: id,
-      accountId: req.user.accountId,
+      accountId,
     });
   }
 }

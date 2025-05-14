@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Account, Folder, Gallery, Image } from 'src/database/entities';
 import { Repository } from 'typeorm';
-import { MapDataDto } from '../dto';
+import { MapDataResponseDto } from '../mapData';
 import { ImageService } from 'src/images/image.service';
 
 @Injectable()
@@ -98,7 +98,7 @@ export class GalleryService {
   async getMapDataByGalleryId(
     accountId: number,
     galleryId: number,
-  ): Promise<MapDataDto[]> {
+  ): Promise<MapDataResponseDto[]> {
     const mapData = this.ImageService.getMapData(accountId, [galleryId]);
     return mapData;
   }

@@ -9,12 +9,14 @@ import {
 import { AuthService } from './auth.service';
 import { User } from 'src/database/entities';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Get('me')
+  @ApiOperation({ summary: 'Get user information' })
   @UseGuards(JwtAuthGuard)
   async getAllFolders(
     @Request() req: { user: { email: string } },
@@ -29,12 +31,14 @@ export class AuthController {
   }
 
   @Post('google')
+  @ApiOperation({ summary: 'Sign in with Google' })
   async googleAuth(@Body('code') code: string) {
     const result = await this.authService.signInWithGoogle(code);
     return result;
   }
 
   @Post('refresh-token')
+  @ApiOperation({ summary: 'Refresh access token' })
   async refreshToken(@Body('refreshToken') refreshToken: string) {
     const result = await this.authService.refreshToken(refreshToken);
     return result;

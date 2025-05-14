@@ -1,12 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { API_PREFIX, IMAGES, IMAGES_DELETE } from "../apiConstants";
+import { API_PREFIX, IMAGES } from "../apiConstants";
 import axios from "axios";
 import { invalidateMapData } from "../utils/invalidateMapData";
 
 const deleteImages = async ({ ids }: { ids: number[] }): Promise<any> => {
-  const response = await axios.post(`/${API_PREFIX}/${IMAGES_DELETE}`, {
-    ids,
+  const queryParams = new URLSearchParams();
+  ids.forEach((id) => queryParams.append("ids", id.toString()));
+
+  const response = await axios.delete(`/${API_PREFIX}/${IMAGES}`, {
+    params: queryParams,
   });
+
   return response.data;
 };
 

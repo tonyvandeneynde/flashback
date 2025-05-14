@@ -5,7 +5,7 @@ import { StyledButtons } from "./OrganizeToolbar";
 import { useOrganizeContext } from "../../contexts/OrganizeContext";
 import { useDeleteImages, useUpdateImages } from "../../services";
 import { Button } from "@mui/material";
-import { API_PREFIX, Gallery, IMAGES_BY_GALLERY } from "../../apiConstants";
+import { API_PREFIX, Gallery, IMAGES } from "../../apiConstants";
 import { MoveImagesButton } from "./MoveImagesButton";
 import { invalidateMapData } from "../../utils/invalidateMapData";
 
@@ -35,7 +35,7 @@ export const GalleryToolbar = ({
 
   const handleDeleteImagesSuccess = () => {
     queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, currentGallery.id],
+      queryKey: [`/${API_PREFIX}/${IMAGES}/`, currentGallery.id],
     });
     invalidateMapData();
     resetSelections();
@@ -69,10 +69,10 @@ export const GalleryToolbar = ({
 
   const handleMoveImagesSuccess = (newImagesParent: Gallery) => {
     queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, currentGallery.id],
+      queryKey: [`/${API_PREFIX}/${IMAGES}/`, currentGallery.id],
     });
     queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, newImagesParent.id],
+      queryKey: [`/${API_PREFIX}/${IMAGES}/`, newImagesParent.id],
     });
     invalidateMapData();
     resetSelections();

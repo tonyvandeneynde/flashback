@@ -1,4 +1,4 @@
-import { API_PREFIX, Gallery, IMAGES_BY_GALLERY } from "../../apiConstants";
+import { API_PREFIX, Gallery, IMAGES } from "../../apiConstants";
 import { useDropzone, FileError as DropzoneFileError } from "react-dropzone";
 import { ReactNode, useState } from "react";
 import { Button, styled } from "@mui/material";
@@ -62,7 +62,7 @@ export const ImageGalleryUploadWrapper = ({
 
   const handleDialogClose = () => {
     queryClient.invalidateQueries({
-      queryKey: [`/${API_PREFIX}/${IMAGES_BY_GALLERY}/`, gallery.id],
+      queryKey: [`/${API_PREFIX}/${IMAGES}/`, gallery.id],
     });
     invalidateMapData();
     setIsUploadDialogOpen(false);

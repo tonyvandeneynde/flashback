@@ -156,7 +156,7 @@ export class ImageService {
     accountId,
   }: {
     ids: number[];
-    name: string;
+    name?: string;
     parentId: number;
     accountId: number;
   }) {

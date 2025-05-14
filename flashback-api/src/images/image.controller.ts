@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  ParseArrayPipe,
   Post,
   Put,
   Query,
@@ -11,159 +13,54 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { ImageService } from './image.service';
 import { JwtAuthGuard } from 'src/auth';
+import { AccountId } from 'src/auth/decorators/accountId.decorator';
+import { UpdateImagesDto } from './update-images.dto';
+import { UploadImagesDto } from './upload-images.dto';
+import { PaginationDto } from './pagination.dto';
+import { GetImagesDto } from './get-images.dto';
+import { IMAGE_ROUTES } from './image.routes';
 
 @UseGuards(JwtAuthGuard)
-@Controller('images')
+@Controller(IMAGE_ROUTES.BASE)
 export class ImagesController {
   constructor(private readonly imageService: ImageService) {}
 
   @Get()
-  async getAllImages(
-    @Request() req: { user: { accountId: number; email: string } },
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+  @ApiOperation({ summary: 'Get images' })
+  async getImages(
+    @Query() queryDto: GetImagesDto,
+    @Query() paginationDto: PaginationDto,
+    @AccountId() accountId: number,
   ) {
-    return this.imageService.getAllImages(req.user.accountId, page, limit);
-  }
+    const { galleryId, status } = queryDto;
+    const { page, limit } = paginationDto;
 
-  @Get('by-gallery')
-  async getImagesByGalleryId(
-    @Query('galleryId') galleryId: number,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
+    if (!galleryId) {
+      return this.imageService.getAllImages(accountId, page, limit);
+    }
+    if (status === 'deleted') {
+      return this.imageService.getDeletedImages(accountId);
+    }
+
     return this.imageService.getImagesByGalleryId(
-      req.user.accountId,
+      accountId,
       galleryId,
       page,
       limit,
     );
   }
 
-  @Post('get-by-ids')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        ids: {
-          type: 'array',
-          items: { type: 'number' },
-        },
-      },
-    },
-  })
-  async getImagesByIds(
-    @Body('ids') ids: number[],
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.imageService.getImagesByIds(ids, req.user.accountId);
-  }
-
-  @Put('update')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        id: { type: 'number' },
-        parentId: { type: 'number' },
-        name: { type: 'string' },
-      },
-    },
-  })
-  async updateImages(
-    @Body('ids') ids: number[],
-    @Body('parentId') parentId: number,
-    @Body('name') name: string,
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.imageService.updateImages({
-      ids,
-      parentId,
-      name,
-      accountId: req.user.accountId,
-    });
-  }
-
-  @Post('delete')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        ids: {
-          type: 'array',
-          items: { type: 'number' },
-        },
-      },
-    },
-  })
-  async deleteImages(
-    @Body('ids') ids: number[],
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.imageService.deleteImages(ids, req.user.accountId);
-  }
-
-  @Get('deleted')
-  async getDeletedImages(
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.imageService.getDeletedImages(req.user.accountId);
-  }
-
-  @Post('add-tag')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        imageId: { type: 'number' },
-        tagName: { type: 'string' },
-      },
-    },
-  })
-  async addTagToImage(
-    @Body('imageId') imageId: number,
-    @Body('tagName') tagName: string,
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.imageService.addTagToImage(
-      imageId,
-      tagName,
-      req.user.accountId,
-    );
-  }
-
-  @Post('remove-tag')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        imageId: { type: 'number' },
-        tagName: { type: 'string' },
-      },
-    },
-  })
-  async removeTagFromImage(
-    @Body('imageId') imageId: number,
-    @Body('tagName') tagName: string,
-    @Request() req: { user: { accountId: number; email: string } },
-  ) {
-    return this.imageService.removeTagFromImage(
-      imageId,
-      tagName,
-      req.user.accountId,
-    );
-  }
-
-  @Get('tags')
+  @Get(IMAGE_ROUTES.TAGS)
+  @ApiOperation({ summary: 'Get all tags' })
   async getAllTags() {
     return this.imageService.getAllTags();
   }
 
   @Post()
+  @ApiOperation({ summary: 'Upload images' })
   @UseInterceptors(FilesInterceptor('files'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -171,6 +68,7 @@ export class ImagesController {
       type: 'object',
       properties: {
         galleryId: { type: 'number' },
+        uploadId: { type: 'string' },
         files: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
@@ -180,18 +78,45 @@ export class ImagesController {
   })
   async uploadImages(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body('galleryId') galleryId: number,
-    @Body('uploadId') uploadId: string,
-    @Request() req: { user: { accountId: number; email: string } },
+    @Body() uploadImagesDto: UploadImagesDto,
+    @Request() req: { user: { email: string } },
+    @AccountId() accountId: number,
   ) {
-    const { accountId, email } = req.user;
+    const { galleryId, uploadId } = uploadImagesDto;
+    const { email } = req.user;
 
-    this.imageService.uploadImages(
+    await this.imageService.uploadImages(
       files,
       accountId,
       email,
       galleryId,
       uploadId,
     );
+  }
+
+  @Put()
+  @ApiOperation({ summary: 'Update images' })
+  async updateImages(
+    @Body() updateImagesDto: UpdateImagesDto,
+    @AccountId() accountId: number,
+  ) {
+    const { ids, parentId, name } = updateImagesDto;
+
+    return this.imageService.updateImages({
+      ids,
+      parentId,
+      name,
+      accountId: accountId,
+    });
+  }
+
+  @Delete()
+  @ApiOperation({ summary: 'Delete images by IDs' })
+  async deleteImages(
+    @Query('ids', new ParseArrayPipe({ items: Number, separator: ',' }))
+    ids: number[],
+    @AccountId() accountId: number,
+  ) {
+    return this.imageService.deleteImages(ids, accountId);
   }
 }
