@@ -76,11 +76,13 @@ export const SiteContainer = ({ path }: { path: string[] }) => {
             )}
           <GridContainer>
             {[...currentNode.subfolders, ...currentNode.galleries].map(
-              (folder) => (
+              (node) => (
                 <NodeTile
-                  key={folder.id}
-                  node={folder}
-                  onClick={() => handleNodeChanged(folder)}
+                  key={
+                    isFolder(node) ? `folder-${node.id}` : `gallery-${node.id}`
+                  }
+                  node={node}
+                  onClick={() => handleNodeChanged(node)}
                 />
               )
             )}
