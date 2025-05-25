@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import imageRoutes from "./routes/imageRoutes";
-import { initializeRabbitMQ } from "./services/rabbitMQService";
+import { RabbitMQService } from "./services/rabbitMQService";
 
 dotenv.config();
 
@@ -15,7 +15,8 @@ app.use("/download", imageRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-  initializeRabbitMQ(); // Initialize RabbitMQ service and listen for messages to upload images
+  const rabbitMQService = new RabbitMQService();
+  rabbitMQService.initialize(); // Initialize RabbitMQ service and listen for messages to upload images
 });
 
 export default app;
