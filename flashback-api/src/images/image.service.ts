@@ -246,9 +246,6 @@ export class ImageService {
   ) {
     try {
       const channel = await this.rabbitMQService.getChannel();
-      const queue = 'image_uploads';
-
-      await channel.assertQueue(queue, { durable: true });
 
       images.forEach(async (imageFile) => {
         const image = createImageFromImageFile(imageFile);
@@ -270,7 +267,12 @@ export class ImageService {
         };
 
         // Send message to RabbitMQ to be uploaded to storage
-        channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+        channel.publish(
+          'image_upload_exchange',
+          'upload',
+          Buffer.from(JSON.stringify(message)),
+        );
+
         console.log(`Image ${image.name} upload message sent to queue`);
       });
 
