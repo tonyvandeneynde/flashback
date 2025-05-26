@@ -7,9 +7,14 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User } from 'src/database/entities';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  GetMeResponseDto,
+  GoogleAuthRequestDto,
+  RefreshTokenRequestDto,
+  TokenResponseDto,
+} from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,10 +22,19 @@ export class AuthController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get user information' })
+  @ApiResponse({
+    status: 200,
+    description: 'User information retrieved successfully',
+    type: GetMeResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Account not found',
+  })
   @UseGuards(JwtAuthGuard)
   async getAllFolders(
     @Request() req: { user: { email: string } },
-  ): Promise<User | null> {
+  ): Promise<GetMeResponseDto | null> {
     const email = req.user.email;
 
     if (!email) {
@@ -32,15 +46,37 @@ export class AuthController {
 
   @Post('google')
   @ApiOperation({ summary: 'Sign in with Google' })
-  async googleAuth(@Body('code') code: string) {
-    const result = await this.authService.signInWithGoogle(code);
+  @ApiResponse({
+    status: 201,
+    description: 'User signed in successfully',
+    type: TokenResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid Google authorization code',
+  })
+  async googleAuth(
+    @Body() body: GoogleAuthRequestDto,
+  ): Promise<TokenResponseDto> {
+    const result = await this.authService.signInWithGoogle(body.code);
     return result;
   }
 
   @Post('refresh-token')
   @ApiOperation({ summary: 'Refresh access token' })
-  async refreshToken(@Body('refreshToken') refreshToken: string) {
-    const result = await this.authService.refreshToken(refreshToken);
+  @ApiResponse({
+    status: 201,
+    description: 'Access token refreshed successfully',
+    type: TokenResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid refresh token',
+  })
+  async refreshToken(
+    @Body() body: RefreshTokenRequestDto,
+  ): Promise<TokenResponseDto> {
+    const result = await this.authService.refreshToken(body.refreshToken);
     return result;
   }
 }
