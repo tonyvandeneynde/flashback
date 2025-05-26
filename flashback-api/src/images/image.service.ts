@@ -45,7 +45,7 @@ export class ImageService {
 
         const presignedUrl = await axios.post<{
           downloadUrls: { downloadUrl: string }[];
-        }>(`${process.env.STORAGE_SERVICE_URL}/download/link`, { filenames });
+        }>(`${process.env.STORAGE_SERVICE_URL}/link`, { filenames });
 
         const downloadUrls = presignedUrl.data.downloadUrls;
 
@@ -306,7 +306,7 @@ export class ImageService {
 
         const presignedUrl = await axios.post<{
           downloadUrls: { downloadUrl: string }[];
-        }>(`${process.env.STORAGE_SERVICE_URL}/download/link`, { filenames });
+        }>(`${process.env.STORAGE_SERVICE_URL}/link`, { filenames });
 
         const downloadUrls = presignedUrl.data.downloadUrls;
 
