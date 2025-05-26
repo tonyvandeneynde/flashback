@@ -1,17 +1,22 @@
-import amqp, { Connection, ConfirmChannel } from "amqplib/callback_api";
-import { processUploadMessage } from "./uploadService";
+import amqp, { Connection, Channel } from "amqplib/callback_api";
+import ImageProcessingService from "./imageProcessingService";
 
 const MAX_RETRIES = 5; // Maximum number of retries
 const RETRY_DELAY = 5000; // Delay between retries in milliseconds
 
-export class RabbitMQService {
+export class UploadQueueService {
+  private uploadService: ImageProcessingService;
   private connection: Connection | null = null;
-  private channel: ConfirmChannel | null = null;
+  private channel: Channel | null = null;
   private retries = 0;
 
   private readonly exchangeName = "image_upload_exchange";
   private readonly queueName = "image_uploads";
   private readonly routingKey = "upload";
+
+  constructor(uploadService: ImageProcessingService) {
+    this.uploadService = uploadService;
+  }
 
   public async initialize(): Promise<void> {
     this.connect();
@@ -72,10 +77,11 @@ export class RabbitMQService {
 
       channel.prefetch(2); // Limit the number of unacknowledged messages to 2
 
+      // Consume messages from the upload queue and sends them for processing
       channel.consume(this.queueName, async (msg) => {
         if (!msg) return;
         try {
-          await processUploadMessage(msg, channel);
+          await this.uploadService.processUploadMessage(msg, channel);
         } catch (error: any) {
           console.error(`Error processing message: ${error.message}`);
         }
