@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import amqp from 'amqplib';
-import * as sharp from 'sharp';
-import { B2Service } from 'src/b2/b2.service';
-import { RabbitMQService } from 'src/rabbitMQ/rabbitMQ.service';
+const sharp = require('sharp');
+import { B2Service } from '../b2/b2.service';
+import { RabbitMQService } from '../rabbitMQ/rabbitMQ.service';
 
 interface File {
   filename: string;
