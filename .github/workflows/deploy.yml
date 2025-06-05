@@ -19,129 +19,137 @@ jobs:
     environment: ${{ github.ref_name == 'dev' && 'DEV' || 'PROD' }}
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Step 2: Set up SSH to connect to the Droplet
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # Step 2: Set up SSH to connect to the Droplet
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    # Step 3: Add Droplet to known_hosts
-    - name: Add Droplet to known_hosts
-      run: |
-        ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+      # Step 3: Add Droplet to known_hosts
+      - name: Add Droplet to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
-    # Step 4: Ensure Docker and Docker Compose are installed
-    - name: Install Docker and Docker Compose
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          # Install Docker if not installed
-          if ! command -v docker &> /dev/null; then
+      # Step 4: Ensure Docker and Docker Compose are installed
+      - name: Install Docker and Docker Compose
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            # Install Docker if not installed
+            if ! command -v docker &> /dev/null; then
+              sudo apt update &&
+              sudo apt install -y apt-transport-https ca-certificates curl software-properties-common &&
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg &&
+              echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable' | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
+              sudo apt update &&
+              sudo apt install -y docker-ce docker-ce-cli containerd.io &&
+              sudo usermod -aG docker $USER
+            fi
+
+            # Install Docker Compose if not installed
+            if ! command -v docker-compose &> /dev/null; then
+              sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '\"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+          "
+
+      # Step 5: Ensure the target directory exists
+      - name: Create target directory
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "mkdir -p /home/root/app"
+
+      # Step 6.1: Copy files to the Droplet
+      - name: Copy files to server
+        run: |
+          scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
+
+      # Step 6.2: Create .env files on server
+      - name: Create .env files on server
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.FRONTEND_ENV }}\" > /home/root/app/flashback-front-end/.env"
+          ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.API_ENV }}\" > /home/root/app/flashback-api/.env"
+          ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.STORAGE_ENV }}\" > /home/root/app/storage-service/.env"
+          ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.RABBITMQ_ENV }}\" > /home/root/app/rabbitmq-service/.env"
+          ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.POSTGRES_ENV }}\" > /home/root/app/.env"
+
+      # 6.3: Stop docker compose if running
+      - name: Stop docker compose if running
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "cd /home/root/app && docker compose down"
+
+      # 6.4: Remove all Docker containers and images
+      - name: Remove all Docker containers and images
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            docker container prune -f &&
+            docker image prune -a -f
+          "
+
+      # Step 7.0: Install Nginx
+      - name: Install Nginx
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            # Update package list and install Nginx if not already installed
+            if ! command -v nginx &> /dev/null; then
+              sudo apt update &&
+              sudo apt install -y nginx &&
+              sudo systemctl enable nginx
+            fi
+          "
+
+      # Step 7.1: Create a temporary Nginx configuration for Certbot
+      - name: Create temporary Nginx configuration for Certbot
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            echo 'server {
+                listen 80;
+                server_name $env_domain www.$env_domain;
+
+                location /.well-known/acme-challenge/ {
+                    root /var/www/certbot;
+                }
+            }' | sudo tee /etc/nginx/conf.d/certbot.conf > /dev/null
+          "
+
+      # Step 7.2: Start temporary Nginx server
+      - name: Start temporary Nginx server
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            sudo systemctl restart nginx
+          "
+
+      # Step 7.3: Obtain SSL certificates with Certbot
+      - name: Obtain SSL certificates with Certbot
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
             sudo apt update &&
-            sudo apt install -y apt-transport-https ca-certificates curl software-properties-common &&
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg &&
-            echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable' | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
-            sudo apt update &&
-            sudo apt install -y docker-ce docker-ce-cli containerd.io &&
-            sudo usermod -aG docker $USER
-          fi
+            sudo apt install -y certbot &&
+            sudo certbot certonly --webroot -w /var/www/certbot -d $env_domain -d www.$env_domain --non-interactive --agree-tos -m tonyvandeneynde@gmail.com
+          "
 
-          # Install Docker Compose if not installed
-          if ! command -v docker-compose &> /dev/null; then
-            sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '\"' -f 4)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose &&
-            sudo chmod +x /usr/local/bin/docker-compose
-          fi
-        "
+      # Step 7.4: Remove temporary Nginx configuration
+      - name: Remove temporary Nginx configuration
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            sudo rm /etc/nginx/conf.d/certbot.conf &&
+            sudo systemctl stop nginx
+          "
 
-    # Step 5: Ensure the target directory exists
-    - name: Create target directory
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "mkdir -p /home/root/app"
+      # Step 8: SSH into the Droplet and deploy
+      - name: Deploy on server
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "
+            cd /home/root/app &&
+            export ENABLE_POSTGRES=$([[ '${{ github.ref_name }}' == 'dev' ]] && echo 1 || echo 0) &&
+            export DOMAIN=$env_domain &&
+            docker compose down &&
+            docker compose up -d --build
+          "
 
-    # Step 6.1: Copy files to the Droplet
-    - name: Copy files to server
-      run: |
-        scp -r ./* root@${{ secrets.DROPLET_IP }}:/home/root/app
-
-    # Step 6.2: Create .env files on server
-    - name: Create .env files on server
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.FRONTEND_ENV }}\" > /home/root/app/flashback-front-end/.env"
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.API_ENV }}\" > /home/root/app/flashback-api/.env"
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.STORAGE_ENV }}\" > /home/root/app/storage-service/.env"
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.RABBITMQ_ENV }}\" > /home/root/app/rabbitmq-service/.env"
-        ssh root@${{ secrets.DROPLET_IP }} "printf '%s\n' \"${{ secrets.POSTGRES_ENV }}\" > /home/root/app/.env"
-
-    # 6.3: Stop docker compose if running
-    - name: Stop docker compose if running
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "cd /home/root/app && docker compose down"
-
-    # Step 7.0: Install Nginx
-    - name: Install Nginx
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          # Update package list and install Nginx if not already installed
-          if ! command -v nginx &> /dev/null; then
-            sudo apt update &&
-            sudo apt install -y nginx &&
-            sudo systemctl enable nginx
-          fi
-        "
-
-    # Step 7.1: Create a temporary Nginx configuration for Certbot
-    - name: Create temporary Nginx configuration for Certbot
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          echo 'server {
-              listen 80;
-              server_name $env_domain www.$env_domain;
-
-              location /.well-known/acme-challenge/ {
-                  root /var/www/certbot;
-              }
-          }' | sudo tee /etc/nginx/conf.d/certbot.conf > /dev/null
-        "
-
-    # Step 7.2: Start temporary Nginx server
-    - name: Start temporary Nginx server
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          sudo systemctl restart nginx
-        "
-
-    # Step 7.3: Obtain SSL certificates with Certbot
-    - name: Obtain SSL certificates with Certbot
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          sudo apt update &&
-          sudo apt install -y certbot &&
-          sudo certbot certonly --webroot -w /var/www/certbot -d $env_domain -d www.$env_domain --non-interactive --agree-tos -m tonyvandeneynde@gmail.com
-        "
-
-    # Step 7.4: Remove temporary Nginx configuration
-    - name: Remove temporary Nginx configuration
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          sudo rm /etc/nginx/conf.d/certbot.conf &&
-          sudo systemctl stop nginx
-        "
-
-    # Step 8: SSH into the Droplet and deploy
-    - name: Deploy on server
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "
-          cd /home/root/app &&
-          export ENABLE_POSTGRES=$([[ '${{ github.ref_name }}' == 'dev' ]] && echo 1 || echo 0) &&
-          export DOMAIN=$env_domain &&
-          docker compose down &&
-          docker compose up -d --build
-        "
-
-    # Step 9: Test HTTPS Renewal
-    - name: Test Certbot Auto-Renewal
-      run: |
-        ssh root@${{ secrets.DROPLET_IP }} "sudo certbot renew --non-interactive --quiet --no-random-sleep-on-renew --dry-run"
+      # Step 9: Test HTTPS Renewal
+      - name: Test Certbot Auto-Renewal
+        run: |
+          ssh root@${{ secrets.DROPLET_IP }} "sudo certbot renew --non-interactive --quiet --no-random-sleep-on-renew --dry-run"
