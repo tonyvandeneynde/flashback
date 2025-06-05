@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import amqp from 'amqplib';
-const sharp = require('sharp');
+import sharp from 'sharp';
 import { B2Service } from '../b2/b2.service';
 import { RabbitMQService } from '../rabbitMQ/rabbitMQ.service';
 
@@ -58,8 +58,7 @@ export class ImageProcessingService {
     buffer: Buffer,
     options: { width: number; height: number; fit: 'cover' | 'outside' },
   ): Promise<Buffer> {
-    return sharp(buffer).resize(options).toBuffer();
-    // return buffer;
+    return sharp(buffer).resize(options).keepExif().toBuffer();
   }
 
   // Prepare upload tasks. Create original, medium, and thumbnail versions of the image.
